@@ -1,12 +1,11 @@
-import express from "express";
-export const router = express.Router();
+import express, { Request, Response } from "express";
+const router = express.Router();
 
-// const authRouter = require("./auth/auth.routes");
-// const userRouter = require("./user/user.routes");
-// const bookRouter = require("./book/book.routes");
+import { cccRouter } from "./centralCoordinatingCenters/ccc.router";
 
-// router.use("/users", userRouter);
-// router.use("/auth", authRouter);
-// router.use("/books", bookRouter);
+router.get("/", (req: Request, res: Response) => {
+  res.send("Hello, World!");
+});
+router.use("/ccc", cccRouter);
 
-// module.exports = router;
+export { router as router };
