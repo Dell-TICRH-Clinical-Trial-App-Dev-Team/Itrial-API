@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import {
   TrialProtocol,
   TrialProtocolSchema,
@@ -10,17 +10,17 @@ interface ITrial {
   protocols: [TrialProtocol];
   permissions: [string];
   blinded: boolean;
-  sites: [mongoose.Schema.Types.ObjectId];
-  teamMembers: [mongoose.Schema.Types.ObjectId];
-  groups: [mongoose.Schema.Types.ObjectId];
-  patients: [mongoose.Schema.Types.ObjectId];
+  sites: [Schema.Types.ObjectId];
+  teamMembers: [Schema.Types.ObjectId];
+  groups: [Schema.Types.ObjectId];
+  patients: [Schema.Types.ObjectId];
 }
 
 interface trialModelInterface extends mongoose.Model<any> {
   build(attr: ITrial): any;
 }
 
-const trialSchema = new mongoose.Schema({
+const trialSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -42,20 +42,25 @@ const trialSchema = new mongoose.Schema({
     required: false,
   },
   sites: {
-    type: [mongoose.Schema.Types.ObjectId],
-    required: false,
+    type: [Schema.Types.ObjectId],
+    ref: "Site",
+    // required: true,
   },
   teamMembers: {
-    type: [mongoose.Schema.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: false,
+    ref: "TeamMember",
+    // required: true,
   },
   groups: {
-    type: [mongoose.Schema.Types.ObjectId],
-    required: false,
+    type: [Schema.Types.ObjectId],
+    ref: "Group",
+    // required: true,
   },
   patients: {
-    type: [mongoose.Schema.Types.ObjectId],
-    required: false,
+    type: [Schema.Types.ObjectId],
+    ref: "Patient",
+    // required: true,
   },
 });
 
