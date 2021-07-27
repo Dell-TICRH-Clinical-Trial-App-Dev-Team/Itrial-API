@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 const router = express.Router();
 
 import { getTrialById, createTrial } from "./trials.controller";
