@@ -50,4 +50,4 @@ const CentralCoordinatingCenter = mongoose.model<any, cccModelInterface>(
   centralCoordinatingCenterSchema
 );
 
-export { CentralCoordinatingCenter };
+export { CentralCoordinatingCenter, ICentralCoordinatingCenter };
