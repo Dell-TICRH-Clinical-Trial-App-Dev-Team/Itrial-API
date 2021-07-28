@@ -1,32 +1,20 @@
 import { Request, Response } from "express";
-import { CentralCoordinatingCenter } from "./ccc.model";
+import { getCCCById, createCCC, updateCCC } from "./ccc.service";
 
-export async function getCCCById(req: Request, res: Response) {
-  CentralCoordinatingCenter.findById(req.params.cccid).exec((err, ccc) => {
-    res.status(200).json(ccc);
+export async function get(req: Request, res: Response) {
+  getCCCById(req.params.cccid).then(ccc => {
+    return res.status(200).json(ccc);
   });
 }
 
-export async function createCCC(req: Request, res: Response) {
-  const { name, sites, trials, teamMembers } = req.body;
-
-  const ccc = CentralCoordinatingCenter.build({
-    name,
-    sites,
-    trials,
-    teamMembers,
+export async function create(req: Request, res: Response) {
+  createCCC(req.body).then(ccc => {
+    return res.status(201).json(ccc);
   });
-
-  await ccc.save();
-  return res.status(201).json(ccc);
 }
 
-export async function updateCCC(req: Request, res: Response) {
-  CentralCoordinatingCenter.findByIdAndUpdate(
-    req.params.cccid,
-    req.body,
-    (err, result) => {
-      res.status(204).json(result);
-    }
-  );
+export async function update(req: Request, res: Response) {
+  updateCCC(req.params.cccid, req.body).then(ccc => {
+    res.status(204).json(ccc);
+  });
 }

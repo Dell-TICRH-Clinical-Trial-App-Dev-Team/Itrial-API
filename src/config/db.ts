@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import config from "./config";
 
 function connect() {
-  const dbURI = process.env.MONGODB_URI || "mongodb://localhost:27017/itrial";
+  const dbURI = config.mongoUrl;
 
   mongoose.set("useCreateIndex", true);
   mongoose.connect(dbURI, {

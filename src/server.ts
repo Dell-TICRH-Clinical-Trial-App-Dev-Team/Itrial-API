@@ -1,6 +1,4 @@
-import * as dotenv from "dotenv";
-dotenv.config({ path: __dirname + "/.env" });
-
+import config from "./config/config";
 import express, { Request, Response } from "express";
 import { json } from "body-parser";
 import morgan from "morgan";
@@ -18,7 +16,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api", router);
 
-const port = process.env.PORT || 3000;
+const port = config.port;
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);
 

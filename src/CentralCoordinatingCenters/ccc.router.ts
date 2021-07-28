@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
 
-import { getCCCById, createCCC, updateCCC } from "./ccc.controller";
+import { get, create, update } from "./ccc.controller";
 
-router.get("/:cccid", getCCCById);
-router.put("/:cccid", updateCCC);
-router.post("/", createCCC);
+router.get("/:cccid", get);
+router.put("/:cccid", update);
+router.post("/", create);
 
 export { router as cccRouter };
