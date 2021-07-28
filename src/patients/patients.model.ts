@@ -8,18 +8,18 @@ interface IPatient {
   phoneNumber: number;
   consentForm: string; // will eventually be a file
   screenFail: boolean;
-  documents: [String]; // will eventually be an array of files
-  endpoints: [Schema.Types.ObjectId];
-  group: [Schema.Types.ObjectId];
-  site: [Schema.Types.ObjectId];
-  trial: [Schema.Types.ObjectId];
+  documents?: [String]; // will eventually be an array of files
+  endpoints?: [Schema.Types.ObjectId];
+  group?: Schema.Types.ObjectId;
+  site?: Schema.Types.ObjectId;
+  trial?: Schema.Types.ObjectId;
 }
 
-interface patientModelInterface extends mongoose.Model<any> {
+interface PatientModel extends mongoose.Model<IPatient> {
   build(attr: IPatient): any;
 }
 
-const patientSchema = new Schema({
+const patientSchema = new Schema<IPatient, PatientModel>({
   dccid: {
     type: String,
     required: true,
@@ -52,26 +52,26 @@ const patientSchema = new Schema({
     type: [String],
     required: false,
   },
-  endpoints: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    ref: "Endpoint",
-    // required: true,
-  },
+  endpoints: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Endpoint",
+    },
+  ],
   site: {
     type: Schema.Types.ObjectId,
-    ref: "TeamMember",
-    // required: true,
+    ref: "Site",
+    required: false,
   },
   group: {
     type: Schema.Types.ObjectId,
     ref: "Group",
-    // required: true,
+    required: false,
   },
   trial: {
     type: Schema.Types.ObjectId,
-    ref: "Patient",
-    // required: true,
+    ref: "Trial",
+    required: false,
   },
 });
 
@@ -79,9 +79,9 @@ patientSchema.statics.build = (attr: IPatient) => {
   return new Patient(attr);
 };
 
-const Patient = mongoose.model<any, patientModelInterface>(
+const Patient = mongoose.model<IPatient, PatientModel>(
   "Patient",
   patientSchema
 );
 
-export { Patient };
+export { Patient, IPatient };

@@ -6,16 +6,16 @@ interface ITeamMember {
   email: string;
   phone: number;
   permissions: [string];
-  trials: [Schema.Types.ObjectId];
-  sites: [Schema.Types.ObjectId];
-  cccs: [Schema.Types.ObjectId];
+  trials?: [Schema.Types.ObjectId];
+  sites?: [Schema.Types.ObjectId];
+  cccs?: [Schema.Types.ObjectId];
 }
 
-interface teamMemberModelInterface extends mongoose.Model<any> {
+interface TeamMemberModel extends mongoose.Model<any> {
   build(attr: ITeamMember): any;
 }
 
-const teamMemberSchema = new Schema({
+const teamMemberSchema = new Schema<ITeamMember, TeamMemberModel>({
   name: {
     type: String,
     required: true,
@@ -34,27 +34,23 @@ const teamMemberSchema = new Schema({
   },
   permissions: {
     type: [String],
-    // required: true
   },
   trials: [
     {
       type: Schema.Types.ObjectId,
       ref: "Trial",
-      // required: true,
     },
   ],
   sites: [
     {
       type: Schema.Types.ObjectId,
       ref: "Site",
-      // required: true,
     },
   ],
   cccs: [
     {
       type: Schema.Types.ObjectId,
       ref: "CentralCoordinatingCenter",
-      // required: true,
     },
   ],
 });
@@ -63,9 +59,9 @@ teamMemberSchema.statics.build = (attr: ITeamMember) => {
   return new TeamMember(attr);
 };
 
-const TeamMember = mongoose.model<any, teamMemberModelInterface>(
+const TeamMember = mongoose.model<ITeamMember, TeamMemberModel>(
   "TeamMember",
   teamMemberSchema
 );
 
-export { TeamMember };
+export { TeamMember, ITeamMember };

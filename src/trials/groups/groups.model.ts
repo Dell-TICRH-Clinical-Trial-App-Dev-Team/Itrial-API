@@ -2,46 +2,46 @@ import mongoose, { Schema } from "mongoose";
 
 interface IGroup {
   name: string;
-  endpointResults: string;
-  patients: [Schema.Types.ObjectId];
-  sites: [Schema.Types.ObjectId];
-  trials: [Schema.Types.ObjectId];
+  endpointResults?: string;
+  patients?: [Schema.Types.ObjectId];
+  sites?: [Schema.Types.ObjectId];
+  trial?: Schema.Types.ObjectId;
 }
 
-interface groupModelInterface extends mongoose.Model<any> {
+interface GroupModel extends mongoose.Model<IGroup> {
   build(attr: IGroup): any;
 }
 
-const groupSchema = new Schema({
+const groupSchema = new Schema<IGroup, GroupModel>({
   name: {
     type: String,
     required: true,
   },
   endpointResults: {
     type: String,
-    required: false,
   },
-  sites: {
-    type: [Schema.Types.ObjectId],
-    ref: "Site",
-    // required: true,
-  },
-  trials: {
-    type: [Schema.Types.ObjectId],
+  sites: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Site",
+    },
+  ],
+  trial: {
+    type: Schema.Types.ObjectId,
     ref: "Trial",
-    // required: true,
   },
-  patients: {
-    type: [Schema.Types.ObjectId],
-    ref: "Patient",
-    // required: true,
-  },
+  patients: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Patient",
+    },
+  ],
 });
 
 groupSchema.statics.build = (attr: IGroup) => {
   return new Group(attr);
 };
 
-const Group = mongoose.model<any, groupModelInterface>("Group", groupSchema);
+const Group = mongoose.model<IGroup, GroupModel>("Group", groupSchema);
 
-export { Group };
+export { Group, IGroup };

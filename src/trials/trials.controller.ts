@@ -1,43 +1,20 @@
 import { Request, Response } from "express";
-import { Trial } from "./trials.model";
+import { createTrial, updateTrial, getTrialById } from "./trials.service";
 
-export async function getTrialById(req: Request, res: Response) {
-  Trial.findById(req.params.trialid).exec((err, ccc) => {
-    res.status(200).json(ccc);
+export async function get(req: Request, res: Response) {
+  getTrialById(req.params.trialid).then(trial => {
+    return res.status(200).json(trial);
   });
 }
 
-export async function createTrial(req: Request, res: Response) {
-  const {
-    name,
-    endpointResults,
-    protocols,
-    permissions,
-    blinded,
-    sites,
-    teamMembers,
-    groups,
-    patients,
-  } = req.body;
-
-  const trial = Trial.build({
-    name,
-    endpointResults,
-    protocols,
-    permissions,
-    blinded,
-    sites,
-    teamMembers,
-    groups,
-    patients,
+export async function create(req: Request, res: Response) {
+  createTrial(req.body).then(trial => {
+    return res.status(201).json(trial);
   });
-
-  await trial.save();
-  return res.status(201).json(trial);
 }
 
-export async function updateTrial(req: Request, res: Response) {
-  Trial.findByIdAndUpdate(req.params.trialid, req.body, (err, result) => {
-    res.status(204).json(result);
+export async function update(req: Request, res: Response) {
+  updateTrial(req.params.trialid, req.body).then(trial => {
+    res.status(204).json(trial);
   });
 }

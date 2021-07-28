@@ -1,49 +1,24 @@
 import { Request, Response } from "express";
-import { Patient } from "./patients.model";
+import {
+  getPatientById,
+  createPatient,
+  updatePatient,
+} from "./patients.service";
 
-export async function getPatientById(req: Request, res: Response) {
-  Patient.findById(req.params.patientid).exec((err, ccc) => {
-    res.status(200).json(ccc);
+export async function get(req: Request, res: Response) {
+  getPatientById(req.params.patientid).then(patient => {
+    return res.status(200).json(patient);
   });
 }
 
-export async function createPatient(req: Request, res: Response) {
-  const {
-    dccid,
-    name,
-    address,
-    email,
-    phoneNumber,
-    consentForm,
-    screenFail,
-    documents,
-    endpoints,
-    group,
-    site,
-    trial,
-  } = req.body;
-
-  const patient = Patient.build({
-    dccid,
-    name,
-    address,
-    email,
-    phoneNumber,
-    consentForm,
-    screenFail,
-    documents,
-    endpoints,
-    group,
-    site,
-    trial,
+export async function create(req: Request, res: Response) {
+  createPatient(req.body).then(patient => {
+    return res.status(201).json(patient);
   });
-
-  await patient.save();
-  return res.status(201).json(patient);
 }
 
-export async function updatePatient(req: Request, res: Response) {
-  Patient.findByIdAndUpdate(req.params.patientid, req.body, (err, result) => {
-    res.status(204).json(result);
+export async function update(req: Request, res: Response) {
+  updatePatient(req.params.patientid, req.body).then(patient => {
+    res.status(204).json(patient);
   });
 }

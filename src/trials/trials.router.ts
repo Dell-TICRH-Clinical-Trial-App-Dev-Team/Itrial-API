@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
 
-import { getTrialById, createTrial, updateTrial } from "./trials.controller";
+import { get, create, update } from "./trials.controller";
 
-router.get("/:trialid", getTrialById);
-router.put("/:trialid", updateTrial);
-router.post("/", createTrial);
+router.get("/:trialid", get);
+router.put("/:trialid", update);
+router.post("/", create);
 
 export { router as trialRouter };

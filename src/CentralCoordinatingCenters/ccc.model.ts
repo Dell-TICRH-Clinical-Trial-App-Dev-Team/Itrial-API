@@ -2,16 +2,20 @@ import mongoose, { Schema } from "mongoose";
 
 interface ICentralCoordinatingCenter {
   name: string;
-  sites: [Schema.Types.ObjectId];
-  trials: [Schema.Types.ObjectId];
-  teamMembers: [Schema.Types.ObjectId];
+  sites?: [Schema.Types.ObjectId];
+  trials?: [Schema.Types.ObjectId];
+  teamMembers?: [Schema.Types.ObjectId];
 }
 
-interface cccModelInterface extends mongoose.Model<any> {
-  build(attr: ICentralCoordinatingCenter): any;
+interface CentralCoordinatingCenterModel
+  extends mongoose.Model<ICentralCoordinatingCenter> {
+  build(ccc: ICentralCoordinatingCenter): any;
 }
 
-const centralCoordinatingCenterSchema = new Schema({
+const centralCoordinatingCenterSchema = new Schema<
+  ICentralCoordinatingCenter,
+  CentralCoordinatingCenterModel
+>({
   name: {
     type: String,
     required: true,
@@ -20,34 +24,31 @@ const centralCoordinatingCenterSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "Site",
-      // required: true,
     },
   ],
   trials: [
     {
       type: Schema.Types.ObjectId,
       ref: "Trial",
-      // required: true,
     },
   ],
   teamMembers: [
     {
       type: Schema.Types.ObjectId,
       ref: "TeamMember",
-      // required: true,
     },
   ],
 });
 
 centralCoordinatingCenterSchema.statics.build = (
-  attr: ICentralCoordinatingCenter
+  ccc: ICentralCoordinatingCenter
 ) => {
-  return new CentralCoordinatingCenter(attr);
+  return new CentralCoordinatingCenter(ccc);
 };
 
-const CentralCoordinatingCenter = mongoose.model<any, cccModelInterface>(
-  "CentralCoordinatingCenter",
-  centralCoordinatingCenterSchema
-);
+const CentralCoordinatingCenter = mongoose.model<
+  ICentralCoordinatingCenter,
+  CentralCoordinatingCenterModel
+>("CentralCoordinatingCenter", centralCoordinatingCenterSchema);
 
 export { CentralCoordinatingCenter, ICentralCoordinatingCenter };

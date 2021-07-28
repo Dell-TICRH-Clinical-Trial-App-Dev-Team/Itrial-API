@@ -3,16 +3,16 @@ import mongoose, { Schema } from "mongoose";
 interface ISite {
   name: string;
   address: string;
-  trials: [Schema.Types.ObjectId];
-  teamMembers: [Schema.Types.ObjectId];
-  cccs: [Schema.Types.ObjectId];
+  trials?: [Schema.Types.ObjectId];
+  teamMembers?: [Schema.Types.ObjectId];
+  cccs?: [Schema.Types.ObjectId];
 }
 
-interface siteModelInterface extends mongoose.Model<any> {
+interface SiteModel extends mongoose.Model<ISite> {
   build(attr: ISite): any;
 }
 
-const siteSchema = new Schema({
+const siteSchema = new Schema<ISite, SiteModel>({
   name: {
     type: String,
     required: true,
@@ -25,21 +25,18 @@ const siteSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "Trial",
-      // required: true,
     },
   ],
   teamMembers: [
     {
       type: Schema.Types.ObjectId,
       ref: "TeamMember",
-      // required: true,
     },
   ],
   cccs: [
     {
       type: Schema.Types.ObjectId,
       ref: "CentralCoordinatingCenter",
-      // required: true,
     },
   ],
 });
@@ -48,6 +45,6 @@ siteSchema.statics.build = (attr: ISite) => {
   return new Site(attr);
 };
 
-const Site = mongoose.model<any, siteModelInterface>("Site", siteSchema);
+const Site = mongoose.model<ISite, SiteModel>("Site", siteSchema);
 
-export { Site };
+export { Site, ISite };

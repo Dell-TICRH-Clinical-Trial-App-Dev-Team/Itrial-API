@@ -1,29 +1,20 @@
 import { Request, Response } from "express";
-import { Site } from "./sites.model";
+import { getSiteById, createSite, updateSite } from "./sites.service";
 
-export async function getSiteById(req: Request, res: Response) {
-  Site.findById(req.params.siteid).exec((err, site) => {
-    res.status(200).json(site);
+export async function get(req: Request, res: Response) {
+  getSiteById(req.params.siteid).then(site => {
+    return res.status(200).json(site);
   });
 }
 
-export async function createSite(req: Request, res: Response) {
-  const { name, address, trials, teamMembers, cccs } = req.body;
-
-  const site = Site.build({
-    name,
-    address,
-    trials,
-    teamMembers,
-    cccs,
+export async function create(req: Request, res: Response) {
+  createSite(req.body).then(site => {
+    return res.status(201).json(site);
   });
-
-  await site.save();
-  return res.status(201).json(site);
 }
 
-export async function updateSite(req: Request, res: Response) {
-  Site.findByIdAndUpdate(req.params.siteid, req.body, (err, result) => {
-    res.status(204).json(result);
+export async function update(req: Request, res: Response) {
+  updateSite(req.params.siteid, req.body).then(site => {
+    res.status(204).json(site);
   });
 }

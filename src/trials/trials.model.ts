@@ -6,68 +6,67 @@ import {
 
 interface ITrial {
   name: string;
-  endpointResults: string;
-  protocols: [TrialProtocol];
-  permissions: [string];
-  blinded: boolean;
-  sites: [Schema.Types.ObjectId];
-  teamMembers: [Schema.Types.ObjectId];
-  groups: [Schema.Types.ObjectId];
-  patients: [Schema.Types.ObjectId];
+  endpointResults?: string;
+  protocols?: [TrialProtocol];
+  permissions?: [string];
+  blinded?: boolean;
+  sites?: [Schema.Types.ObjectId];
+  teamMembers?: [Schema.Types.ObjectId];
+  groups?: [Schema.Types.ObjectId];
+  patients?: [Schema.Types.ObjectId];
 }
 
-interface trialModelInterface extends mongoose.Model<any> {
+interface TrialModel extends mongoose.Model<ITrial> {
   build(attr: ITrial): any;
 }
 
-const trialSchema = new Schema({
+const trialSchema = new Schema<ITrial, TrialModel>({
   name: {
     type: String,
     required: true,
   },
   endpointResults: {
     type: String,
-    required: false,
   },
   protocols: {
     type: [TrialProtocolSchema],
-    required: true,
   },
   permissions: {
     type: [String],
-    required: true,
   },
   blinded: {
     type: Boolean,
-    required: false,
   },
-  sites: {
-    type: [Schema.Types.ObjectId],
-    ref: "Site",
-    // required: true,
-  },
-  teamMembers: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    ref: "TeamMember",
-    // required: true,
-  },
-  groups: {
-    type: [Schema.Types.ObjectId],
-    ref: "Group",
-    // required: true,
-  },
-  patients: {
-    type: [Schema.Types.ObjectId],
-    ref: "Patient",
-    // required: true,
-  },
+  sites: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Site",
+    },
+  ],
+  teamMembers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "TeamMember",
+    },
+  ],
+  groups: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Group",
+    },
+  ],
+  patients: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Patient",
+    },
+  ],
 });
 
 trialSchema.statics.build = (attr: ITrial) => {
   return new Trial(attr);
 };
 
-const Trial = mongoose.model<any, trialModelInterface>("Trial", trialSchema);
+const Trial = mongoose.model<ITrial, TrialModel>("Trial", trialSchema);
 
-export { Trial };
+export { Trial, ITrial };

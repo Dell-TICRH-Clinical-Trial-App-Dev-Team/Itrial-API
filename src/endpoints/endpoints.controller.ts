@@ -1,41 +1,24 @@
 import { Request, Response } from "express";
-import { Endpoint } from "./endpoints.model";
+import {
+  getEndpointById,
+  createEndpoint,
+  updateEndpoint,
+} from "./endpoints.service";
 
-export async function getEndpointById(req: Request, res: Response) {
-  Endpoint.findById(req.params.endpointid).exec((err, ccc) => {
-    res.status(200).json(ccc);
+export async function get(req: Request, res: Response) {
+  getEndpointById(req.params.endpointid).then(endpoint => {
+    return res.status(200).json(endpoint);
   });
 }
 
-export async function createEndpoint(req: Request, res: Response) {
-  const {
-    name,
-    date,
-    description,
-    score,
-    documents,
-    teamMembers,
-    groups,
-    patients,
-  } = req.body;
-
-  const endpoint = Endpoint.build({
-    name,
-    date,
-    description,
-    score,
-    documents,
-    teamMembers,
-    groups,
-    patients,
+export async function create(req: Request, res: Response) {
+  createEndpoint(req.body).then(endpoint => {
+    return res.status(201).json(endpoint);
   });
-
-  await endpoint.save();
-  return res.status(201).json(endpoint);
 }
 
-export async function updateEndpoint(req: Request, res: Response) {
-  Endpoint.findByIdAndUpdate(req.params.endpointid, req.body, (err, result) => {
-    res.status(204).json(result);
+export async function update(req: Request, res: Response) {
+  updateEndpoint(req.params.endpointid, req.body).then(endpoint => {
+    return res.status(204).json(endpoint);
   });
 }

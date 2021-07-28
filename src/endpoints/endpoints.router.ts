@@ -1,14 +1,10 @@
-import express, { Request, Response } from "express";
+import express from "express";
 const router = express.Router();
 
-import {
-  getEndpointById,
-  createEndpoint,
-  updateEndpoint,
-} from "./endpoints.controller";
+import { get, create, update } from "./endpoints.controller";
 
-router.get("/:endpointid", getEndpointById);
-router.put("/:endpointid", updateEndpoint);
-router.post("/", createEndpoint);
+router.get("/:endpointid", get);
+router.put("/:endpointid", update);
+router.post("/", create);
 
 export { router as endpointRouter };

@@ -1,37 +1,24 @@
 import { Request, Response } from "express";
-import { TeamMember } from "./teamMembers.model";
+import {
+  getTeamMemberById,
+  createTeamMember,
+  updateTeamMember,
+} from "./teamMembers.service";
 
-export async function getTeamMemberById(req: Request, res: Response) {
-  TeamMember.findById(req.params.teammemberid).exec((err, teamMember) => {
-    res.status(200).json(teamMember);
+export async function get(req: Request, res: Response) {
+  getTeamMemberById(req.params.teammemberid).then(teamMember => {
+    return res.status(200).json(teamMember);
   });
 }
 
-export async function createTeamMember(req: Request, res: Response) {
-  const { name, address, email, phone, permissions, trials, sites, cccs } =
-    req.body;
-
-  const teamMember = TeamMember.build({
-    name,
-    address,
-    email,
-    phone,
-    permissions,
-    trials,
-    sites,
-    cccs,
+export async function create(req: Request, res: Response) {
+  createTeamMember(req.body).then(teamMember => {
+    return res.status(201).json(teamMember);
   });
-
-  await teamMember.save();
-  return res.status(201).json(teamMember);
 }
 
-export async function updateTeamMember(req: Request, res: Response) {
-  TeamMember.findByIdAndUpdate(
-    req.params.teammemberid,
-    req.body,
-    (err, result) => {
-      res.status(204).json(result);
-    }
-  );
+export async function update(req: Request, res: Response) {
+  updateTeamMember(req.params.teammemberid, req.body).then(teamMember => {
+    return res.status(204).json(teamMember);
+  });
 }

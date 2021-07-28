@@ -1,14 +1,10 @@
 import express from "express";
 const router = express.Router();
 
-import {
-  getTeamMemberById,
-  createTeamMember,
-  updateTeamMember,
-} from "./teamMembers.controller";
+import { get, create, update } from "./teamMembers.controller";
 
-router.get("/:teammemberid", getTeamMemberById);
-router.put("/:teammemberid", updateTeamMember);
-router.post("/", createTeamMember);
+router.get("/:teammemberid", get);
+router.put("/:teammemberid", update);
+router.post("/", create);
 
 export { router as teamMemberRouter };
