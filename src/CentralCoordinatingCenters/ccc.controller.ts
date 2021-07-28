@@ -20,3 +20,13 @@ export async function createCCC(req: Request, res: Response) {
   await ccc.save();
   return res.status(201).json(ccc);
 }
+
+export async function updateCCC(req: Request, res: Response) {
+  CentralCoordinatingCenter.findByIdAndUpdate(
+    req.params.cccid,
+    req.body,
+    (err, result) => {
+      res.status(204).json(result);
+    }
+  );
+}

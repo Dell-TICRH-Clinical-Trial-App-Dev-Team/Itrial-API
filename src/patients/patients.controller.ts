@@ -41,3 +41,9 @@ export async function createPatient(req: Request, res: Response) {
   await patient.save();
   return res.status(201).json(patient);
 }
+
+export async function updatePatient(req: Request, res: Response) {
+  Patient.findByIdAndUpdate(req.params.patientid, req.body, (err, result) => {
+    res.status(204).json(result);
+  });
+}

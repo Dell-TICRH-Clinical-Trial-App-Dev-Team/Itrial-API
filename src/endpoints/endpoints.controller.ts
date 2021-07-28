@@ -33,3 +33,9 @@ export async function createEndpoint(req: Request, res: Response) {
   await endpoint.save();
   return res.status(201).json(endpoint);
 }
+
+export async function updateEndpoint(req: Request, res: Response) {
+  Endpoint.findByIdAndUpdate(req.params.endpointid, req.body, (err, result) => {
+    res.status(204).json(result);
+  });
+}

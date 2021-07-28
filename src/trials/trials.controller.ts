@@ -35,3 +35,9 @@ export async function createTrial(req: Request, res: Response) {
   await trial.save();
   return res.status(201).json(trial);
 }
+
+export async function updateTrial(req: Request, res: Response) {
+  Trial.findByIdAndUpdate(req.params.trialid, req.body, (err, result) => {
+    res.status(204).json(result);
+  });
+}
