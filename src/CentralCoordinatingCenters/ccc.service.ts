@@ -7,8 +7,8 @@ export async function getCCCById(id: string): Promise<any> {
   return CentralCoordinatingCenter.findById(id);
 }
 
-export async function createCCC(cccToCreate: ICentralCoordinatingCenter) {
-  const ccc = CentralCoordinatingCenter.build(cccToCreate);
+export async function createCCC(newCCC: ICentralCoordinatingCenter) {
+  const ccc = CentralCoordinatingCenter.build(newCCC);
 
   await ccc.save();
   return ccc;

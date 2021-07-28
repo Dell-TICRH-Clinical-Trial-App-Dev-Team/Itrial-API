@@ -16,7 +16,7 @@ interface IPatient {
 }
 
 interface PatientModel extends mongoose.Model<IPatient> {
-  build(attr: IPatient): any;
+  build(patient: IPatient): any;
 }
 
 const patientSchema = new Schema<IPatient, PatientModel>({
@@ -50,7 +50,6 @@ const patientSchema = new Schema<IPatient, PatientModel>({
   },
   documents: {
     type: [String],
-    required: false,
   },
   endpoints: [
     {
@@ -61,22 +60,19 @@ const patientSchema = new Schema<IPatient, PatientModel>({
   site: {
     type: Schema.Types.ObjectId,
     ref: "Site",
-    required: false,
   },
   group: {
     type: Schema.Types.ObjectId,
     ref: "Group",
-    required: false,
   },
   trial: {
     type: Schema.Types.ObjectId,
     ref: "Trial",
-    required: false,
   },
 });
 
-patientSchema.statics.build = (attr: IPatient) => {
-  return new Patient(attr);
+patientSchema.statics.build = (patient: IPatient) => {
+  return new Patient(patient);
 };
 
 const Patient = mongoose.model<IPatient, PatientModel>(
