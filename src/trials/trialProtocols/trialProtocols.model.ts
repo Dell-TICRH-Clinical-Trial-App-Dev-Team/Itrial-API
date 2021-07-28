@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import {
-  Intervention,
+  IIntervention,
   InterventionSchema,
 } from "../interventions/interventions.model";
 
@@ -28,7 +28,7 @@ export const EndpointInfoSchema = new mongoose.Schema({
 
 export interface TrialProtocol {
   name: string;
-  interventions: [Intervention];
+  interventions: [IIntervention];
   endpointInfo: EndpointInfo;
 }
 

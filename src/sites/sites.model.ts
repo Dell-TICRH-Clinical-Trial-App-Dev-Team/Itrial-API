@@ -9,7 +9,7 @@ interface ISite {
 }
 
 interface SiteModel extends mongoose.Model<ISite> {
-  build(attr: ISite): any;
+  build(site: ISite): any;
 }
 
 const siteSchema = new Schema<ISite, SiteModel>({
@@ -41,8 +41,8 @@ const siteSchema = new Schema<ISite, SiteModel>({
   ],
 });
 
-siteSchema.statics.build = (attr: ISite) => {
-  return new Site(attr);
+siteSchema.statics.build = (site: ISite) => {
+  return new Site(site);
 };
 
 const Site = mongoose.model<ISite, SiteModel>("Site", siteSchema);

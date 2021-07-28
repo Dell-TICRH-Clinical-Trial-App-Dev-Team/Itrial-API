@@ -2,7 +2,7 @@ import dotenvExtended from "dotenv-extended";
 import dotenvParseVariables from "dotenv-parse-variables";
 
 const env = dotenvExtended.load({
-  path: process.env.ENV_FILE,
+  path: process.env.ENV_FILE || "./config/.env.dev",
   defaults: "./config/.env.defaults",
   schema: "./config/.env.schema",
   includeProcessEnv: true,

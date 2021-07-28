@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "ENV_FILE=./config/.env.prod node ./dist/app.js",
     "dev": "ENV_FILE=./config/.env.dev ts-node src/app.ts",
-    "test": "ENV_FILE=./config/.env.test jest --coverage"
+    "test": "ENV_FILE=./config/.env.test jest --coverage",
+    "devWindows": "ts-node src/app.ts"
   },
   "repository": {
     "type": "git",
