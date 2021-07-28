@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import config from "./config";
 
-function connect() {
+async function connectToDB() {
   const dbURI = config.mongoUrl;
 
   mongoose.set("useCreateIndex", true);
@@ -21,4 +21,4 @@ function connect() {
   });
 }
 
-export default connect;
+export default connectToDB;
