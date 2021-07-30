@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-interface IPatient {
+interface IPatient extends Document {
   dccid: string;
   name: string;
   address: string;

@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-interface ICentralCoordinatingCenter {
+interface ICentralCoordinatingCenter extends Document {
   name: string;
   sites?: [Schema.Types.ObjectId];
   trials?: [Schema.Types.ObjectId];

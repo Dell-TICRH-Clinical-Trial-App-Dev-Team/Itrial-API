@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-interface IEndpoint {
+interface IEndpoint extends Document {
   name: string;
   date: Date;
   description: string;
