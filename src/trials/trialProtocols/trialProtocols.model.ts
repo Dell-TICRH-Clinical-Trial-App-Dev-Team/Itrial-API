@@ -26,7 +26,7 @@ export const EndpointInfoSchema = new mongoose.Schema({
   },
 });
 
-export interface TrialProtocol {
+export interface ITrialProtocol extends Document {
   name: string;
   interventions: [IIntervention];
   endpointInfo: EndpointInfo;

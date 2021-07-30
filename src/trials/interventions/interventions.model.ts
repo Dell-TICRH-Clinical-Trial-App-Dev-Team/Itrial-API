@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface IIntervention {
+export interface IIntervention extends Document {
   name: string;
   description: string;
   amount?: string;

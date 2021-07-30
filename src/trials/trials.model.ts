@@ -1,13 +1,13 @@
 import mongoose, { Document, Schema } from "mongoose";
 import {
-  TrialProtocol,
+  ITrialProtocol,
   TrialProtocolSchema,
 } from "./trialProtocols/trialProtocols.model";
 
 interface ITrial extends Document {
   name: string;
   endpointResults?: string;
-  protocols?: [TrialProtocol];
+  protocols?: [ITrialProtocol];
   permissions?: [string];
   blinded?: boolean;
   sites?: [Schema.Types.ObjectId];
