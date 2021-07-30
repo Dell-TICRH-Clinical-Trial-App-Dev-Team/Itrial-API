@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-interface IGroup {
+interface IGroup extends Document {
   name: string;
   endpointResults?: string;
   patients?: [Schema.Types.ObjectId];
