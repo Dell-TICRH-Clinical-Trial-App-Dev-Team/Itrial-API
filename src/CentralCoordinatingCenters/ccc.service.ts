@@ -1,17 +1,17 @@
-import { NativeError, ObjectId } from "mongoose";
+import { NativeError, ObjectId } from 'mongoose';
 import {
   CentralCoordinatingCenter,
   ICentralCoordinatingCenter,
-} from "./ccc.model";
+} from './ccc.model';
 
 const updateOptions = [
-  "rename",
-  "add trials",
-  "add sites",
-  "add teamMembers",
-  "remove trials",
-  "remove sites",
-  "remove teamMembers",
+  'rename',
+  'add trials',
+  'add sites',
+  'add teamMembers',
+  'remove trials',
+  'remove sites',
+  'remove teamMembers',
 ];
 export type UpdateOption = typeof updateOptions[number];
 
@@ -66,30 +66,30 @@ export async function updateCCC(
       reject({ status: 404, message: e.message });
     }
 
-    if (typeof payload == "string") ccc.name = payload;
+    if (typeof payload == 'string') ccc.name = payload;
     else {
       switch (operation) {
-        case "add trials":
+        case 'add trials':
           ccc.trials.push(...payload);
           break;
-        case "add sites":
+        case 'add sites':
           ccc.sites.push(...payload);
           break;
-        case "add teamMembers":
+        case 'add teamMembers':
           ccc.teamMembers.push(...payload);
           break;
-        case "remove trials":
-          payload.forEach(trialId => {
+        case 'remove trials':
+          payload.forEach((trialId) => {
             ccc.trials.splice(ccc.trials.indexOf(trialId));
           });
           break;
-        case "remove sites":
-          payload.forEach(siteId => {
+        case 'remove sites':
+          payload.forEach((siteId) => {
             ccc.sites.splice(ccc.sites.indexOf(siteId));
           });
           break;
-        case "remove teamMembers":
-          payload.forEach(teamMemberId => {
+        case 'remove teamMembers':
+          payload.forEach((teamMemberId) => {
             ccc.teamMembers.splice(ccc.teamMembers.indexOf(teamMemberId));
           });
           break;

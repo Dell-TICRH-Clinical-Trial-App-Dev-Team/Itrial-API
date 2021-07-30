@@ -1,16 +1,16 @@
-import { NativeError, ObjectId } from "mongoose";
-import { Endpoint, IEndpoint } from "./endpoints.model";
+import { NativeError, ObjectId } from 'mongoose';
+import { Endpoint, IEndpoint } from './endpoints.model';
 
 const updateOptions = [
-  "rename",
-  "change date",
-  "update description",
-  "update score",
-  "add documents",
-  "change site",
-  "change trial",
-  "change group",
-  "change patient",
+  'rename',
+  'change date',
+  'update description',
+  'update score',
+  'add documents',
+  'change site',
+  'change trial',
+  'change group',
+  'change patient',
 ];
 export type UpdateOption = typeof updateOptions[number];
 
@@ -61,34 +61,34 @@ export async function updateEndpoint(
     }
 
     if (Array.isArray(payload)) {
-      if (operation == "add documents") endpoint.documents.push(...payload);
-    } else if (typeof payload == "string") {
+      if (operation == 'add documents') endpoint.documents.push(...payload);
+    } else if (typeof payload == 'string') {
       switch (operation) {
-        case "rename":
+        case 'rename':
           endpoint.name = payload;
           break;
-        case "change date":
+        case 'change date':
           endpoint.date = new Date(payload);
           break;
-        case "update description":
+        case 'update description':
           endpoint.description = payload;
           break;
-        case "update score":
+        case 'update score':
           endpoint.score = payload;
           break;
       }
     } else {
       switch (operation) {
-        case "change site":
+        case 'change site':
           endpoint.site = payload;
           break;
-        case "change trial":
+        case 'change trial':
           endpoint.trial = payload;
           break;
-        case "change group":
+        case 'change group':
           endpoint.group = payload;
           break;
-        case "change trial":
+        case 'change trial':
           endpoint.patient = payload;
           break;
       }

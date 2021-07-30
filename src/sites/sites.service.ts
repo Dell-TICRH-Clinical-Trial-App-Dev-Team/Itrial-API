@@ -1,12 +1,12 @@
-import { NativeError, ObjectId } from "mongoose";
-import { Site, ISite } from "./sites.model";
+import { NativeError, ObjectId } from 'mongoose';
+import { Site, ISite } from './sites.model';
 
 const updateOptions = [
-  "rename",
-  "update address",
-  "add trials",
-  "add teamMembers",
-  "add cccs",
+  'rename',
+  'update address',
+  'add trials',
+  'add teamMembers',
+  'add cccs',
 ];
 export type UpdateOption = typeof updateOptions[number];
 
@@ -56,22 +56,22 @@ export async function updateSite(
 
     if (Array.isArray(payload)) {
       switch (operation) {
-        case "add trials":
+        case 'add trials':
           site.trials.push(...payload);
           break;
-        case "add teamMembers":
+        case 'add teamMembers':
           site.teamMembers.push(...payload);
           break;
-        case "add cccs":
+        case 'add cccs':
           site.cccs.push(...payload);
           break;
       }
     } else {
       switch (operation) {
-        case "rename":
+        case 'rename':
           site.name = payload;
           break;
-        case "update address":
+        case 'update address':
           site.address = payload;
           break;
       }

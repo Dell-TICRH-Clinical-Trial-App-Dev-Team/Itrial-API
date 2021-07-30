@@ -1,12 +1,12 @@
-import { Schema, Document } from "mongoose";
+import { Schema, Document } from 'mongoose';
 import {
   IIntervention,
   InterventionSchema,
-} from "../interventions/interventions.model";
+} from '../interventions/interventions.model';
 
 /* needs some work */
 export interface IEndpointInfo extends Document {
-  type: "quantitative" | "qualitative" | "file";
+  type: 'quantitative' | 'qualitative' | 'file';
   range?: [string | number, string | number];
   url?: string;
 }
@@ -14,7 +14,7 @@ export interface IEndpointInfo extends Document {
 export const EndpointInfoSchema = new Schema({
   type: {
     type: String,
-    enum: ["quantitative", "qualitative", "file"],
+    enum: ['quantitative', 'qualitative', 'file'],
   },
   range: {
     type: [Schema.Types.Mixed],

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 
 interface ICentralCoordinatingCenter extends Document {
   name: string;
@@ -23,19 +23,19 @@ const centralCoordinatingCenterSchema = new Schema<
   sites: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Site",
+      ref: 'Site',
     },
   ],
   trials: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Trial",
+      ref: 'Trial',
     },
   ],
   teamMembers: [
     {
       type: Schema.Types.ObjectId,
-      ref: "TeamMember",
+      ref: 'TeamMember',
     },
   ],
 });
@@ -49,6 +49,6 @@ centralCoordinatingCenterSchema.statics.build = (
 const CentralCoordinatingCenter = mongoose.model<
   ICentralCoordinatingCenter,
   CentralCoordinatingCenterModel
->("CentralCoordinatingCenter", centralCoordinatingCenterSchema);
+>('CentralCoordinatingCenter', centralCoordinatingCenterSchema);
 
 export { CentralCoordinatingCenter, ICentralCoordinatingCenter };

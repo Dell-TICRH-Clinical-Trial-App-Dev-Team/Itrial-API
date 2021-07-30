@@ -1,8 +1,8 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 import {
   ITrialProtocol,
   TrialProtocolSchema,
-} from "./trialProtocols/trialProtocols.model";
+} from './trialProtocols/trialProtocols.model';
 
 interface ITrial extends Document {
   name: string;
@@ -40,25 +40,25 @@ const trialSchema = new Schema<ITrial, TrialModel>({
   sites: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Site",
+      ref: 'Site',
     },
   ],
   teamMembers: [
     {
       type: Schema.Types.ObjectId,
-      ref: "TeamMember",
+      ref: 'TeamMember',
     },
   ],
   groups: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Group",
+      ref: 'Group',
     },
   ],
   patients: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Patient",
+      ref: 'Patient',
     },
   ],
 });
@@ -67,6 +67,6 @@ trialSchema.statics.build = (attr: ITrial) => {
   return new Trial(attr);
 };
 
-const Trial = mongoose.model<ITrial, TrialModel>("Trial", trialSchema);
+const Trial = mongoose.model<ITrial, TrialModel>('Trial', trialSchema);
 
 export { Trial, ITrial };

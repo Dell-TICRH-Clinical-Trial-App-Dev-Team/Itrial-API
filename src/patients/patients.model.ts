@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 interface IPatient extends Document {
   dccid: string;
@@ -54,20 +54,20 @@ const patientSchema = new Schema<IPatient, PatientModel>({
   endpoints: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Endpoint",
+      ref: 'Endpoint',
     },
   ],
   site: {
     type: Schema.Types.ObjectId,
-    ref: "Site",
+    ref: 'Site',
   },
   group: {
     type: Schema.Types.ObjectId,
-    ref: "Group",
+    ref: 'Group',
   },
   trial: {
     type: Schema.Types.ObjectId,
-    ref: "Trial",
+    ref: 'Trial',
   },
 });
 
@@ -76,7 +76,7 @@ patientSchema.statics.build = (patient: IPatient) => {
 };
 
 const Patient = mongoose.model<IPatient, PatientModel>(
-  "Patient",
+  'Patient',
   patientSchema
 );
 

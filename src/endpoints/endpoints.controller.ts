@@ -1,36 +1,36 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 import {
   getEndpointById,
   createEndpoint,
   updateEndpoint,
-} from "./endpoints.service";
+} from './endpoints.service';
 
 export async function get(req: Request, res: Response) {
   getEndpointById(req.params.endpointid)
-    .then(endpoint => {
+    .then((endpoint) => {
       return res.status(200).json(endpoint);
     })
-    .catch(err => {
+    .catch((err) => {
       return res.status(err.status).json({ error: err.message });
     });
 }
 
 export async function create(req: Request, res: Response) {
   createEndpoint(req.body)
-    .then(endpoint => {
+    .then((endpoint) => {
       return res.status(201).json(endpoint);
     })
-    .catch(err => {
+    .catch((err) => {
       return res.status(400).json({ error: err.message });
     });
 }
 
 export async function update(req: Request, res: Response) {
   updateEndpoint(req.params.endpointid, req.body.operation, req.body.payload)
-    .then(endpoint => {
+    .then((endpoint) => {
       res.status(204).json(endpoint);
     })
-    .catch(err => {
+    .catch((err) => {
       return res.status(err.status).json({ error: err.message });
     });
 }

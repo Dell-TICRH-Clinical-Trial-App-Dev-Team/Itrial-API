@@ -1,10 +1,10 @@
-import dotenvExtended from "dotenv-extended";
-import dotenvParseVariables from "dotenv-parse-variables";
+import dotenvExtended from 'dotenv-extended';
+import dotenvParseVariables from 'dotenv-parse-variables';
 
 const env = dotenvExtended.load({
-  path: process.env.ENV_FILE || "./config/.env.dev",
-  defaults: "./config/.env.defaults",
-  schema: "./config/.env.schema",
+  path: process.env.ENV_FILE || './config/.env.dev',
+  defaults: './config/.env.defaults',
+  schema: './config/.env.schema',
   includeProcessEnv: true,
   silent: false,
   errorOnMissing: true,

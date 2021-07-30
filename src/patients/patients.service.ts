@@ -1,16 +1,16 @@
-import { NativeError } from "mongoose";
-import { Patient, IPatient } from "./patients.model";
+import { NativeError } from 'mongoose';
+import { Patient, IPatient } from './patients.model';
 
 const updateOptions = [
-  "rename",
-  "update address",
-  "update email",
-  "update phone number",
-  "add documents",
-  "add endpoints",
-  "change group",
-  "change site",
-  "change trial",
+  'rename',
+  'update address',
+  'update email',
+  'update phone number',
+  'add documents',
+  'add endpoints',
+  'change group',
+  'change site',
+  'change trial',
 ];
 export type UpdateOption = typeof updateOptions[number];
 
@@ -59,35 +59,35 @@ export async function updatePatient(
     }
 
     if (Array.isArray(payload)) {
-      if (typeof payload[0] == "string" && operation == "add documents")
+      if (typeof payload[0] == 'string' && operation == 'add documents')
         patient.documents.push(...payload);
-      else if (operation == "add endpoints") patient.endpoints.push(...payload);
-    } else if (typeof payload == "string") {
+      else if (operation == 'add endpoints') patient.endpoints.push(...payload);
+    } else if (typeof payload == 'string') {
       switch (operation) {
-        case "rename":
+        case 'rename':
           patient.name = payload;
           break;
-        case "update address":
+        case 'update address':
           patient.address = payload;
           break;
-        case "update email":
+        case 'update email':
           patient.email = payload;
           break;
       }
     } else if (
-      typeof payload == "number" &&
-      operation == "update phone number"
+      typeof payload == 'number' &&
+      operation == 'update phone number'
     ) {
       patient.phoneNumber = payload;
     } else {
       switch (operation) {
-        case "change site":
+        case 'change site':
           patient.site = payload;
           break;
-        case "change trial":
+        case 'change trial':
           patient.trial = payload;
           break;
-        case "change group":
+        case 'change group':
           patient.group = payload;
           break;
       }

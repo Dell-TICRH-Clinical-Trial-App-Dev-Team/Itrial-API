@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 interface IEndpoint extends Document {
   name: string;
@@ -39,22 +39,22 @@ const endpointSchema = new Schema<IEndpoint, EndpointModel>({
   },
   site: {
     type: Schema.Types.ObjectId,
-    ref: "Site",
+    ref: 'Site',
     required: true,
   },
   trial: {
     type: Schema.Types.ObjectId,
-    ref: "Trial",
+    ref: 'Trial',
     required: true,
   },
   group: {
     type: Schema.Types.ObjectId,
-    ref: "Group",
+    ref: 'Group',
     required: true,
   },
   patient: {
     type: Schema.Types.ObjectId,
-    ref: "Patient",
+    ref: 'Patient',
     required: true,
   },
 });
@@ -64,7 +64,7 @@ endpointSchema.statics.build = (attr: IEndpoint) => {
 };
 
 const Endpoint = mongoose.model<IEndpoint, EndpointModel>(
-  "Endpoint",
+  'Endpoint',
   endpointSchema
 );
 

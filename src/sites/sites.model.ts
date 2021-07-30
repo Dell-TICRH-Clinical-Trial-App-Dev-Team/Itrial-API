@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 
 interface ISite extends Document {
   name: string;
@@ -24,19 +24,19 @@ const siteSchema = new Schema<ISite, SiteModel>({
   trials: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Trial",
+      ref: 'Trial',
     },
   ],
   teamMembers: [
     {
       type: Schema.Types.ObjectId,
-      ref: "TeamMember",
+      ref: 'TeamMember',
     },
   ],
   cccs: [
     {
       type: Schema.Types.ObjectId,
-      ref: "CentralCoordinatingCenter",
+      ref: 'CentralCoordinatingCenter',
     },
   ],
 });
@@ -45,6 +45,6 @@ siteSchema.statics.build = (site: ISite) => {
   return new Site(site);
 };
 
-const Site = mongoose.model<ISite, SiteModel>("Site", siteSchema);
+const Site = mongoose.model<ISite, SiteModel>('Site', siteSchema);
 
 export { Site, ISite };

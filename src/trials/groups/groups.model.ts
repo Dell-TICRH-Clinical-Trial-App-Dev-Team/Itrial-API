@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 interface IGroup extends Document {
   name: string;
@@ -23,17 +23,17 @@ const groupSchema = new Schema<IGroup, GroupModel>({
   sites: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Site",
+      ref: 'Site',
     },
   ],
   trial: {
     type: Schema.Types.ObjectId,
-    ref: "Trial",
+    ref: 'Trial',
   },
   patients: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Patient",
+      ref: 'Patient',
     },
   ],
 });
@@ -42,6 +42,6 @@ groupSchema.statics.build = (attr: IGroup) => {
   return new Group(attr);
 };
 
-const Group = mongoose.model<IGroup, GroupModel>("Group", groupSchema);
+const Group = mongoose.model<IGroup, GroupModel>('Group', groupSchema);
 
 export { Group, IGroup };

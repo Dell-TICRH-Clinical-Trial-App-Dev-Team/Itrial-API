@@ -1,17 +1,17 @@
-import { NativeError, ObjectId } from "mongoose";
-import { TeamMember, ITeamMember } from "./teamMembers.model";
+import { NativeError, ObjectId } from 'mongoose';
+import { TeamMember, ITeamMember } from './teamMembers.model';
 
 const updateOptions = [
-  "rename",
-  "update address",
-  "update email",
-  "update phoneNumber",
-  "add permissions",
-  "remove permissions",
-  "set permissions",
-  "add documents",
-  "add sites",
-  "add cccs",
+  'rename',
+  'update address',
+  'update email',
+  'update phoneNumber',
+  'add permissions',
+  'remove permissions',
+  'set permissions',
+  'add documents',
+  'add sites',
+  'add cccs',
 ];
 export type UpdateOption = typeof updateOptions[number];
 
@@ -62,49 +62,49 @@ export async function updateTeamMember(
     }
 
     if (Array.isArray(payload)) {
-      if (typeof payload[0] == "string") {
+      if (typeof payload[0] == 'string') {
         switch (operation) {
-          case "add permissions":
+          case 'add permissions':
             teamMember.permissions.push(...payload);
             break;
-          case "remove permissions":
-            payload.forEach(perm => {
+          case 'remove permissions':
+            payload.forEach((perm) => {
               teamMember.permissions.splice(
                 teamMember.permissions.indexOf(perm)
               );
             });
             break;
-          case "set permissions":
+          case 'set permissions':
             teamMember.permissions = payload as [string];
             break;
         }
       } else {
         switch (operation) {
-          case "add trials":
+          case 'add trials':
             teamMember.trials.push(...payload);
             break;
-          case "add sites":
+          case 'add sites':
             teamMember.sites.push(...payload);
             break;
-          case "add cccs":
+          case 'add cccs':
             teamMember.cccs.push(...payload);
             break;
         }
       }
-    } else if (typeof payload == "string") {
+    } else if (typeof payload == 'string') {
       switch (operation) {
-        case "rename":
+        case 'rename':
           teamMember.name = payload;
           break;
-        case "update address":
+        case 'update address':
           teamMember.address = payload;
           break;
-        case "update description":
+        case 'update description':
           teamMember.email = payload;
           break;
       }
     } else {
-      if (operation == "update phoneNumber") teamMember.phone = payload;
+      if (operation == 'update phoneNumber') teamMember.phone = payload;
     }
 
     teamMember.save((err: NativeError, updatedTeamMember: ITeamMember) => {

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 
 interface ITeamMember extends Document {
   name: string;
@@ -38,19 +38,19 @@ const teamMemberSchema = new Schema<ITeamMember, TeamMemberModel>({
   trials: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Trial",
+      ref: 'Trial',
     },
   ],
   sites: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Site",
+      ref: 'Site',
     },
   ],
   cccs: [
     {
       type: Schema.Types.ObjectId,
-      ref: "CentralCoordinatingCenter",
+      ref: 'CentralCoordinatingCenter',
     },
   ],
 });
@@ -60,7 +60,7 @@ teamMemberSchema.statics.build = (attr: ITeamMember) => {
 };
 
 const TeamMember = mongoose.model<ITeamMember, TeamMemberModel>(
-  "TeamMember",
+  'TeamMember',
   teamMemberSchema
 );
 

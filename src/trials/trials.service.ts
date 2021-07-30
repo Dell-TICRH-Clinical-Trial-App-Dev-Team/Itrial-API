@@ -1,25 +1,25 @@
-import { NativeError } from "mongoose";
-import { Trial, ITrial } from "./trials.model";
-import { ITrialProtocol } from "./trialProtocols/trialProtocols.model";
+import { NativeError } from 'mongoose';
+import { Trial, ITrial } from './trials.model';
+import { ITrialProtocol } from './trialProtocols/trialProtocols.model';
 
 const updateOptions = [
-  "rename",
-  "update endpointResults",
-  "add protocols",
-  "remove protocols",
-  "set protocols",
-  "add permissions",
-  "remove permissions",
-  "set permissions",
-  "update blinded",
-  "add sites",
-  "add teamMembers",
-  "add groups",
-  "add patient",
-  "remove sites",
-  "remove teamMembers",
-  "remove groups",
-  "remove patient",
+  'rename',
+  'update endpointResults',
+  'add protocols',
+  'remove protocols',
+  'set protocols',
+  'add permissions',
+  'remove permissions',
+  'set permissions',
+  'update blinded',
+  'add sites',
+  'add teamMembers',
+  'add groups',
+  'add patient',
+  'remove sites',
+  'remove teamMembers',
+  'remove groups',
+  'remove patient',
 ];
 export type UpdateOption = typeof updateOptions[number];
 
@@ -69,70 +69,70 @@ export async function updateTrial(
 
     if (Array.isArray(payload)) {
       switch (operation) {
-        case "add permissions":
+        case 'add permissions':
           trial.permissions.push(...payload);
           break;
-        case "remove permissions":
-          payload.forEach(perm => {
+        case 'remove permissions':
+          payload.forEach((perm) => {
             trial.permissions.splice(trial.permissions.indexOf(perm));
           });
           break;
-        case "set permissions":
+        case 'set permissions':
           trial.permissions = payload as [string];
           break;
-        case "add sites":
+        case 'add sites':
           trial.sites.push(...payload);
           break;
-        case "add teamMembers":
+        case 'add teamMembers':
           trial.teamMembers.push(...payload);
           break;
-        case "add groups":
+        case 'add groups':
           trial.groups.push(...payload);
           break;
-        case "add patients":
+        case 'add patients':
           trial.patients.push(...payload);
           break;
-        case "remove sites":
-          payload.forEach(site => {
+        case 'remove sites':
+          payload.forEach((site) => {
             trial.sites.splice(trial.sites.indexOf(site));
           });
           break;
-        case "remove teamMembers":
-          payload.forEach(teamMember => {
+        case 'remove teamMembers':
+          payload.forEach((teamMember) => {
             trial.teamMembers.splice(trial.teamMembers.indexOf(teamMember));
           });
           break;
-        case "remove groups":
-          payload.forEach(group => {
+        case 'remove groups':
+          payload.forEach((group) => {
             trial.groups.splice(trial.groups.indexOf(group));
           });
           break;
-        case "remove patients":
-          payload.forEach(patient => {
+        case 'remove patients':
+          payload.forEach((patient) => {
             trial.patients.splice(trial.patients.indexOf(patient));
           });
           break;
-        case "add protocols":
+        case 'add protocols':
           trial.protocols.push(...payload);
           break;
-        case "remove protocols":
-          trial.protocols.filter(protocol => payload.includes(protocol));
+        case 'remove protocols':
+          trial.protocols.filter((protocol) => payload.includes(protocol));
           break;
-        case "set protocols":
+        case 'set protocols':
           trial.protocols = payload as [ITrialProtocol];
       }
-    } else if (typeof payload == "string") {
+    } else if (typeof payload == 'string') {
       switch (operation) {
-        case "rename":
+        case 'rename':
           trial.name = payload;
           break;
-        case "update endpointResults":
+        case 'update endpointResults':
           trial.endpointResults = payload;
           break;
       }
     } else {
       switch (operation) {
-        case "update blinded":
+        case 'update blinded':
           trial.blinded = payload;
           break;
       }

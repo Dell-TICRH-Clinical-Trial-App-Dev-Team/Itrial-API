@@ -1,4 +1,4 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document } from 'mongoose';
 
 export interface IIntervention extends Document {
   name: string;
@@ -14,6 +14,6 @@ export const InterventionSchema = new mongoose.Schema<IIntervention>({
   amount: String,
   timing: [String],
   groups: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "Group", required: true },
+    { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
   ],
 });
