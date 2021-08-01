@@ -4,7 +4,7 @@ interface ITeamMember extends Document {
   name: string;
   address: string;
   email: string;
-  phone: number;
+  phoneNumber: number;
   permissions: [string];
   trials?: [Schema.Types.ObjectId];
   sites?: [Schema.Types.ObjectId];
@@ -28,7 +28,7 @@ const teamMemberSchema = new Schema<ITeamMember, TeamMemberModel>({
     type: String,
     required: true,
   },
-  phone: {
+  phoneNumber: {
     type: Number,
     required: true,
   },

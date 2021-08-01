@@ -1,27 +1,28 @@
-import { NativeError } from 'mongoose';
+import { NativeError, ObjectId } from 'mongoose';
 import { Trial, ITrial } from './trials.model';
 import { ITrialProtocol } from './trialProtocols/trialProtocols.model';
+import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
 
-const updateOptions = [
-  'rename',
-  'update endpointResults',
-  'add protocols',
-  'remove protocols',
-  'set protocols',
-  'add permissions',
-  'remove permissions',
-  'set permissions',
-  'update blinded',
-  'add sites',
-  'add teamMembers',
-  'add groups',
-  'add patient',
-  'remove sites',
-  'remove teamMembers',
-  'remove groups',
-  'remove patient',
-];
-export type UpdateOption = typeof updateOptions[number];
+const updateFunctions = new Map([
+  ['rename', rename],
+  ['update endpointResults', updateEndpointResults],
+  ['add protocols', addProtocols],
+  ['remove protocols', removeProtocols],
+  ['set protocols', setProtocols],
+  ['add permissions', addPermissions],
+  ['remove permissions', removePermissions],
+  ['set permissions', setPermissions],
+  ['update blinded', updateBlinded],
+  ['add sites', addSites],
+  ['add teamMembers', addTeamMembers],
+  ['add groups', addGroups],
+  ['add patient', addPatients],
+  ['remove sites', removeSites],
+  ['remove teamMembers', removeTeamMembers],
+  ['remove groups', removeGroups],
+  ['remove patient', removePatients],
+]);
+const updateOptions = [...updateFunctions.keys()];
 
 export async function getTrialById(id: string): Promise<ITrial> {
   return new Promise((resolve, reject) => {
@@ -50,7 +51,7 @@ export async function createTrial(newTrial: ITrial): Promise<ITrial> {
 
 export async function updateTrial(
   id: string,
-  operation: UpdateOption,
+  operation: string,
   payload: any
 ): Promise<ITrial> {
   return new Promise(async (resolve, reject) => {
@@ -67,80 +68,223 @@ export async function updateTrial(
       reject({ status: 404, message: e.message });
     }
 
-    if (Array.isArray(payload)) {
-      switch (operation) {
-        case 'add permissions':
-          trial.permissions.push(...payload);
-          break;
-        case 'remove permissions':
-          payload.forEach((perm) => {
-            trial.permissions.splice(trial.permissions.indexOf(perm));
-          });
-          break;
-        case 'set permissions':
-          trial.permissions = payload as [string];
-          break;
-        case 'add sites':
-          trial.sites.push(...payload);
-          break;
-        case 'add teamMembers':
-          trial.teamMembers.push(...payload);
-          break;
-        case 'add groups':
-          trial.groups.push(...payload);
-          break;
-        case 'add patients':
-          trial.patients.push(...payload);
-          break;
-        case 'remove sites':
-          payload.forEach((site) => {
-            trial.sites.splice(trial.sites.indexOf(site));
-          });
-          break;
-        case 'remove teamMembers':
-          payload.forEach((teamMember) => {
-            trial.teamMembers.splice(trial.teamMembers.indexOf(teamMember));
-          });
-          break;
-        case 'remove groups':
-          payload.forEach((group) => {
-            trial.groups.splice(trial.groups.indexOf(group));
-          });
-          break;
-        case 'remove patients':
-          payload.forEach((patient) => {
-            trial.patients.splice(trial.patients.indexOf(patient));
-          });
-          break;
-        case 'add protocols':
-          trial.protocols.push(...payload);
-          break;
-        case 'remove protocols':
-          trial.protocols.filter((protocol) => payload.includes(protocol));
-          break;
-        case 'set protocols':
-          trial.protocols = payload as [ITrialProtocol];
-      }
-    } else if (typeof payload == 'string') {
-      switch (operation) {
-        case 'rename':
-          trial.name = payload;
-          break;
-        case 'update endpointResults':
-          trial.endpointResults = payload;
-          break;
-      }
-    } else {
-      switch (operation) {
-        case 'update blinded':
-          trial.blinded = payload;
-          break;
-      }
+    try {
+      updateFunctions.get(operation)(trial, payload);
+    } catch (err) {
+      reject(err);
     }
 
     trial.save((err: NativeError, updatedTrial: ITrial) => {
       if (err) reject({ status: 400, message: err.message });
       else resolve(updatedTrial);
     });
+  });
+}
+
+function rename(trial: ITrial, name: any): void {
+  if (typeof name != 'string' || name == '')
+    throw { status: 400, message: 'Invalid name' };
+  trial.name = name;
+}
+
+function updateBlinded(trial: ITrial, blinded: any): void {
+  if (typeof blinded != 'boolean')
+    throw { status: 400, message: 'Blinded must be a boolean' };
+  trial.blinded = blinded;
+}
+
+function updateEndpointResults(trial: ITrial, endpointResults: any): void {
+  if (typeof endpointResults != 'string')
+    throw { status: 400, message: 'endpointResults must be a string' };
+  trial.endpointResults = endpointResults;
+}
+
+function addTeamMembers(trial: ITrial, teamMembers: any): void {
+  if (!isArrayOfStrings(teamMembers))
+    throw {
+      status: 400,
+      message: 'teamMembers must be passed in as [ObjectId]',
+    };
+
+  teamMembers.forEach((teamMemberid: string) => {
+    if (!doesDocumentWithIdExist(teamMemberid, 'TeamMember'))
+      throw {
+        status: 404,
+        message: `teamMember with id ${teamMemberid} not found`,
+      };
+  });
+
+  trial.teamMembers.push(...teamMembers);
+}
+
+function removeTeamMembers(trial: ITrial, teamMembers: any): void {
+  if (!isArrayOfStrings(teamMembers))
+    throw {
+      status: 400,
+      message: 'teamMembers must be passed in as [ObjectId]',
+    };
+
+  teamMembers.forEach((teamMemberid: ObjectId) => {
+    trial.teamMembers.splice(trial.teamMembers.indexOf(teamMemberid));
+  });
+}
+
+function addPermissions(trial: ITrial, permissions: any): void {
+  if (!isArrayOfStrings(permissions))
+    throw {
+      status: 400,
+      message: 'permissions must be passed in as [string]',
+    };
+
+  trial.permissions.push(...permissions);
+}
+
+function removePermissions(trial: ITrial, permissions: any): void {
+  if (!isArrayOfStrings(permissions))
+    throw {
+      status: 400,
+      message: 'permissions must be passed in as [string]',
+    };
+
+  permissions.forEach((permission: string) => {
+    trial.permissions.splice(trial.permissions.indexOf(permission));
+  });
+}
+
+function setPermissions(trial: ITrial, permissions: any): void {
+  if (!isArrayOfStrings(permissions))
+    throw {
+      status: 400,
+      message: 'permissions must be passed in as [string]',
+    };
+
+  trial.permissions = permissions;
+}
+
+function addProtocols(trial: ITrial, protocols: any): void {
+  if (!protocols[0]?.name)
+    throw {
+      status: 400,
+      message: 'protocols must be passed in as [ITrialProtcol]',
+    };
+
+  trial.protocols.push(...protocols);
+}
+
+function removeProtocols(trial: ITrial, protocols: any): void {
+  if (!protocols[0]?.name)
+    throw {
+      status: 400,
+      message: 'protocols must be passed in as [ITrialProtcol]',
+    };
+
+  const filteredProtocols = trial.protocols.filter((protocol1) => {
+    var shouldKeep: boolean = true;
+    protocols.forEach((protocol2: ITrialProtocol) => {
+      if (protocol1.name == protocol2.name) shouldKeep = false;
+    });
+    return shouldKeep;
+  }) as [ITrialProtocol];
+
+  trial.protocols = filteredProtocols;
+}
+
+function setProtocols(trial: ITrial, protocols: any): void {
+  if (!protocols[0]?.name)
+    throw {
+      status: 400,
+      message: 'protocols must be passed in as [ITrialProtcol]',
+    };
+
+  trial.protocols = protocols;
+}
+
+function addGroups(trial: ITrial, groups: any): void {
+  if (!isArrayOfStrings(groups))
+    throw {
+      status: 400,
+      message: 'groups must be passed in as [ObjectId]',
+    };
+
+  groups.forEach((groupid: string) => {
+    if (!doesDocumentWithIdExist(groupid, 'Group'))
+      throw {
+        status: 404,
+        message: `group with id ${groupid} not found`,
+      };
+  });
+
+  trial.groups.push(...groups);
+}
+
+function removeGroups(trial: ITrial, groups: any): void {
+  if (!isArrayOfStrings(groups))
+    throw {
+      status: 400,
+      message: 'groups must be passed in as [ObjectId]',
+    };
+
+  groups.forEach((groupid: ObjectId) => {
+    trial.groups.splice(trial.groups.indexOf(groupid));
+  });
+}
+
+function addPatients(trial: ITrial, patients: any): void {
+  if (!isArrayOfStrings(patients))
+    throw {
+      status: 400,
+      message: 'patients must be passed in as [ObjectId]',
+    };
+
+  patients.forEach((patientid: string) => {
+    if (!doesDocumentWithIdExist(patientid, 'TeamMember'))
+      throw {
+        status: 404,
+        message: `patient with id ${patientid} not found`,
+      };
+  });
+
+  trial.patients.push(...patients);
+}
+
+function removePatients(trial: ITrial, patients: any): void {
+  if (!isArrayOfStrings(patients))
+    throw {
+      status: 400,
+      message: 'patients must be passed in as [ObjectId]',
+    };
+
+  patients.forEach((patientid: ObjectId) => {
+    trial.patients.splice(trial.patients.indexOf(patientid));
+  });
+}
+
+function addSites(trial: ITrial, sites: any): void {
+  if (!isArrayOfStrings(sites))
+    throw {
+      status: 400,
+      message: 'sites must be passed in as [ObjectId]',
+    };
+
+  sites.forEach((siteid: string) => {
+    if (!doesDocumentWithIdExist(siteid, 'Site'))
+      throw {
+        status: 404,
+        message: `sites with id ${siteid} not found`,
+      };
+  });
+
+  trial.sites.push(...sites);
+}
+
+function removeSites(trial: ITrial, sites: any): void {
+  if (!isArrayOfStrings(sites))
+    throw {
+      status: 400,
+      message: 'sites must be passed in as [ObjectId]',
+    };
+
+  sites.forEach((siteid: ObjectId) => {
+    trial.sites.splice(trial.sites.indexOf(siteid));
   });
 }

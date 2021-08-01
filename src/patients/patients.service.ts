@@ -1,18 +1,22 @@
-import { NativeError } from 'mongoose';
+import { NativeError, ObjectId } from 'mongoose';
 import { Patient, IPatient } from './patients.model';
 
-const updateOptions = [
-  'rename',
-  'update address',
-  'update email',
-  'update phone number',
-  'add documents',
-  'add endpoints',
-  'change group',
-  'change site',
-  'change trial',
-];
-export type UpdateOption = typeof updateOptions[number];
+import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
+
+const updateFunctions = new Map([
+  ['rename', rename],
+  ['update address', updateAddress],
+  ['update email', updateEmail],
+  ['update phoneNumber', updatePhoneNumber],
+  ['add documents', addDocuments],
+  ['remove documents', removeDocuments],
+  ['add endpoints', addEndpoints],
+  ['remove endpoints', removeEndpoints],
+  ['change group', changeGroup],
+  ['change site', changeSite],
+  ['change trial', changeTrial],
+]);
+const updateOptions = [...updateFunctions.keys()];
 
 export async function getPatientById(id: string): Promise<IPatient> {
   return new Promise((resolve, reject) => {
@@ -41,15 +45,16 @@ export async function createPatient(newPatient: IPatient): Promise<IPatient> {
 
 export async function updatePatient(
   id: string,
-  operation: UpdateOption,
+  operation: string,
   payload: any
 ): Promise<IPatient> {
   return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation))
+    if (!updateOptions.includes(operation)) {
       reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
+    }
 
     var patient: IPatient;
     try {
@@ -58,39 +63,10 @@ export async function updatePatient(
       reject({ status: 404, message: e.message });
     }
 
-    if (Array.isArray(payload)) {
-      if (typeof payload[0] == 'string' && operation == 'add documents')
-        patient.documents.push(...payload);
-      else if (operation == 'add endpoints') patient.endpoints.push(...payload);
-    } else if (typeof payload == 'string') {
-      switch (operation) {
-        case 'rename':
-          patient.name = payload;
-          break;
-        case 'update address':
-          patient.address = payload;
-          break;
-        case 'update email':
-          patient.email = payload;
-          break;
-      }
-    } else if (
-      typeof payload == 'number' &&
-      operation == 'update phone number'
-    ) {
-      patient.phoneNumber = payload;
-    } else {
-      switch (operation) {
-        case 'change site':
-          patient.site = payload;
-          break;
-        case 'change trial':
-          patient.trial = payload;
-          break;
-        case 'change group':
-          patient.group = payload;
-          break;
-      }
+    try {
+      updateFunctions.get(operation)(patient, payload);
+    } catch (err) {
+      reject(err);
     }
 
     patient.save((err: NativeError, updatedPatient: IPatient) => {
@@ -98,4 +74,90 @@ export async function updatePatient(
       else resolve(updatedPatient);
     });
   });
+}
+
+function rename(patient: IPatient, name: any): void {
+  if (typeof name != 'string' || name == '')
+    throw { status: 400, message: 'Invalid name' };
+  patient.name = name;
+}
+
+function updateAddress(patient: IPatient, address: any): void {
+  if (typeof address != 'string' || address == '')
+    throw { status: 400, message: 'Invalid address' };
+  patient.address = address;
+}
+
+function updateEmail(patient: IPatient, email: any): void {
+  if (typeof email != 'string' || email == '')
+    throw { status: 400, message: 'Invalid email' };
+  patient.email = email;
+}
+
+function updatePhoneNumber(patient: IPatient, phoneNumber: any): void {
+  if (typeof phoneNumber != 'number' || phoneNumber < 1000000000)
+    throw { status: 400, message: 'Invalid name' };
+  patient.phoneNumber = phoneNumber;
+}
+
+function addEndpoints(patient: IPatient, endpoints: any): void {
+  if (!isArrayOfStrings(endpoints))
+    throw {
+      status: 400,
+      message: 'endpoints must be passed in as [ObjectId]',
+    };
+
+  patient.endpoints.push(...endpoints);
+}
+
+function removeEndpoints(patient: IPatient, endpoints: any): void {
+  if (!isArrayOfStrings(endpoints))
+    throw {
+      status: 400,
+      message: 'endpoints must be passed in as [ObjectId]',
+    };
+
+  endpoints.forEach((endpointid: ObjectId) => {
+    patient.endpoints.splice(patient.endpoints.indexOf(endpointid));
+  });
+}
+
+function addDocuments(patient: IPatient, documents: any): void {
+  if (!isArrayOfStrings(documents))
+    throw {
+      status: 400,
+      message: 'documents must be passed in as [string]',
+    };
+
+  patient.documents.push(...documents);
+}
+
+function removeDocuments(patient: IPatient, documents: any): void {
+  if (!isArrayOfStrings(documents))
+    throw {
+      status: 400,
+      message: 'documents must be passed in as [string]',
+    };
+
+  documents.forEach((document: string) => {
+    patient.documents.splice(patient.documents.indexOf(document));
+  });
+}
+
+function changeSite(patient: IPatient, siteid: any): void {
+  if (!doesDocumentWithIdExist(siteid, 'Site'))
+    throw { status: 404, message: `site with id ${siteid} not found` };
+  patient.site = siteid;
+}
+
+function changeTrial(patient: IPatient, trialid: any): void {
+  if (!doesDocumentWithIdExist(trialid, 'Trial'))
+    throw { status: 404, message: `trial with id ${trialid} not found` };
+  patient.trial = trialid;
+}
+
+function changeGroup(patient: IPatient, groupid: any): void {
+  if (!doesDocumentWithIdExist(groupid, 'Group'))
+    throw { status: 404, message: `group with id ${groupid} not found` };
+  patient.group = groupid;
 }
