@@ -59,6 +59,12 @@ export async function updateSite(
       return reject({ status: 404, message: e.message });
     }
 
+    if (site == null)
+      return reject({
+        status: 404,
+        message: `site with id: ${id} not found`,
+      });
+
     try {
       updateFunctions.get(operation)(site, payload);
     } catch (err) {

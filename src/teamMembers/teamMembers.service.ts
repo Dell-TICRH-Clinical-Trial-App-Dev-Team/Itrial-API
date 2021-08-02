@@ -71,6 +71,12 @@ export async function updateTeamMember(
       return reject(err);
     }
 
+    if (teamMember == null)
+      return reject({
+        status: 404,
+        message: `teamMember with id: ${id} not found`,
+      });
+
     teamMember.save((err: NativeError, updatedTeamMember: ITeamMember) => {
       if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedTeamMember);

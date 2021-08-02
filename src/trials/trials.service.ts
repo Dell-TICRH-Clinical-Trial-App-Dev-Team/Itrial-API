@@ -68,6 +68,12 @@ export async function updateTrial(
       return reject({ status: 404, message: e.message });
     }
 
+    if (trial == null)
+      return reject({
+        status: 404,
+        message: `trial with id: ${id} not found`,
+      });
+
     try {
       updateFunctions.get(operation)(trial, payload);
     } catch (err) {
