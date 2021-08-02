@@ -111,7 +111,7 @@ describe('POST /api/endpoints/', () => {
 });
 
 describe('PUT /api/endpoints/:endpointid', () => {
-  var endpointid: string;
+  var endpointid: ObjectId;
 
   beforeAll(async () => {
     const endpoint = await Endpoint.create({
@@ -125,7 +125,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
       score: 8,
       documents: ['test document'],
     });
-    endpointid = endpoint._id.toString();
+    endpointid = endpoint._id;
   });
 
   it('should return reject an invalid update operation', async () => {
@@ -261,7 +261,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     await Endpoint.findById(
       endpointid,
       (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.site.toString()).toBe(newsiteid);
+        expect(updatedEndpoint.site.toString()).toBe(reqBody.payload);
       }
     );
   });

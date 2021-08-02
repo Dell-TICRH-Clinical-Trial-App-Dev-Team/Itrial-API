@@ -1,4 +1,4 @@
-import mongoose, { NativeError } from 'mongoose';
+import mongoose, { NativeError, ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
@@ -64,21 +64,21 @@ describe('POST /api/cccs/', () => {
 
 describe('PUT /api/cccs/:cccid', () => {
   var cccid: string;
-  var trialid: string;
-  var siteid: string;
-  var teamMemberid: string;
+  var trialid: ObjectId;
+  var siteid: ObjectId;
+  var teamMemberid: ObjectId;
 
   beforeAll(async () => {
     const trial = await Trial.create({
       name: 'Test Trial',
     });
-    trialid = trial._id.toString();
+    trialid = trial._id;
 
     const site = await Site.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
-    siteid = site._id.toString();
+    siteid = site._id;
 
     const teamMember = await TeamMember.create({
       name: faker.name.firstName(),
@@ -87,7 +87,7 @@ describe('PUT /api/cccs/:cccid', () => {
       phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
       permissions: ['admin'],
     });
-    teamMemberid = teamMember._id.toString();
+    teamMemberid = teamMember._id;
 
     const ccc = await CentralCoordinatingCenter.create({
       name: 'Test CCC',
@@ -145,7 +145,7 @@ describe('PUT /api/cccs/:cccid', () => {
     await CentralCoordinatingCenter.findById(
       cccid,
       (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.trials.length).toBe(0);
+        expect(updatedCCC.trials).not.toContainEqual(reqBody.payload[0]);
       }
     );
   });
@@ -161,7 +161,7 @@ describe('PUT /api/cccs/:cccid', () => {
     await CentralCoordinatingCenter.findById(
       cccid,
       (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.sites.length).toBe(0);
+        expect(updatedCCC.sites).not.toContainEqual(reqBody.payload[0]);
       }
     );
   });
@@ -177,7 +177,7 @@ describe('PUT /api/cccs/:cccid', () => {
     await CentralCoordinatingCenter.findById(
       cccid,
       (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.teamMembers.length).toBe(0);
+        expect(updatedCCC.teamMembers).not.toContainEqual(reqBody.payload[0]);
       }
     );
   });
@@ -186,7 +186,7 @@ describe('PUT /api/cccs/:cccid', () => {
     const trial = await Trial.create({
       name: 'Test Trial',
     });
-    const newtrialid = trial._id.toString();
+    const newtrialid = trial._id;
 
     var reqBody = {
       operation: 'add trials',
@@ -198,7 +198,7 @@ describe('PUT /api/cccs/:cccid', () => {
     await CentralCoordinatingCenter.findById(
       cccid,
       (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.trials.length).toBe(1);
+        expect(updatedCCC.trials).toContainEqual(reqBody.payload[0]);
       }
     );
   });
@@ -208,7 +208,7 @@ describe('PUT /api/cccs/:cccid', () => {
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
-    const newsiteid = site._id.toString();
+    const newsiteid = site._id;
 
     var reqBody = {
       operation: 'add sites',
@@ -220,7 +220,7 @@ describe('PUT /api/cccs/:cccid', () => {
     await CentralCoordinatingCenter.findById(
       cccid,
       (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.sites.length).toBe(1);
+        expect(updatedCCC.sites).toContainEqual(reqBody.payload[0]);
       }
     );
   });
@@ -233,7 +233,7 @@ describe('PUT /api/cccs/:cccid', () => {
       phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
       permissions: ['admin'],
     });
-    const newteammemberid = teamMember._id.toString();
+    const newteammemberid = teamMember._id;
 
     var reqBody = {
       operation: 'add teamMembers',
@@ -245,7 +245,7 @@ describe('PUT /api/cccs/:cccid', () => {
     await CentralCoordinatingCenter.findById(
       cccid,
       (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.teamMembers.length).toBe(1);
+        expect(updatedCCC.teamMembers).toContainEqual(reqBody.payload[0]);
       }
     );
   });
