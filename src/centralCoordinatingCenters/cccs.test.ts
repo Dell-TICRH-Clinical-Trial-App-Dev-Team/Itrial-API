@@ -1,8 +1,8 @@
 import mongoose, { NativeError } from 'mongoose';
 import faker from 'faker';
 
-import server from '../../config/server';
-import { connectToDB, dropDB } from '../../config/db';
+import server from '../config/server';
+import { connectToDB, dropDB } from '../config/db';
 
 import request from 'supertest';
 const req = request(server);
@@ -10,10 +10,10 @@ const req = request(server);
 import {
   CentralCoordinatingCenter,
   ICentralCoordinatingCenter,
-} from '../cccs.model';
-import { Trial } from '../../trials/trials.model';
-import { Site } from '../../sites/sites.model';
-import { TeamMember } from '../../teamMembers/teamMembers.model';
+} from './cccs.model';
+import { Trial } from '../trials/trials.model';
+import { Site } from '../sites/sites.model';
+import { TeamMember } from '../teamMembers/teamMembers.model';
 
 beforeAll(async () => {
   await connectToDB('ccctestdb');

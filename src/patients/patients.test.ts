@@ -1,17 +1,17 @@
 import mongoose, { NativeError, ObjectId } from 'mongoose';
 import faker from 'faker';
 
-import server from '../../config/server';
-import { connectToDB, dropDB } from '../../config/db';
+import server from '../config/server';
+import { connectToDB, dropDB } from '../config/db';
 
 import request from 'supertest';
 const req = request(server);
 
-import { Patient, IPatient } from '../patients.model';
-import { Trial } from '../../trials/trials.model';
-import { Site } from '../../sites/sites.model';
-import { Group } from '../../trials/groups/groups.model';
-import { Endpoint } from '../../endpoints/endpoints.model';
+import { Patient, IPatient } from './patients.model';
+import { Trial } from '../trials/trials.model';
+import { Site } from '../sites/sites.model';
+import { Group } from '../trials/groups/groups.model';
+import { Endpoint } from '../endpoints/endpoints.model';
 
 beforeAll(async () => {
   await connectToDB('patienttestdb');
