@@ -2,13 +2,13 @@ import { NativeError, ObjectId } from 'mongoose';
 import {
   CentralCoordinatingCenter,
   ICentralCoordinatingCenter,
-} from './ccc.model';
+} from './cccs.model';
 
 import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
 
 const updateFunctions = new Map([
-  ['add trials', addTrials],
   ['rename', rename],
+  ['add trials', addTrials],
   ['add sites', addSites],
   ['add teamMembers', addTeamMembers],
   ['remove trials', removeTrials],
@@ -24,9 +24,9 @@ export async function getCCCById(
     CentralCoordinatingCenter.findById(
       id,
       (err: NativeError, ccc: ICentralCoordinatingCenter) => {
-        if (err) reject({ status: 400, message: err.message });
+        if (err) return reject({ status: 400, message: err.message });
         else if (!ccc)
-          reject({
+          return reject({
             status: 404,
             message: `Central Coordinating Center with id: ${id} not found`,
           });
@@ -43,7 +43,7 @@ export async function createCCC(
     const ccc = CentralCoordinatingCenter.build(newCCC);
 
     ccc.save((err: NativeError, ccc: ICentralCoordinatingCenter) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       else resolve(ccc);
     });
   });
@@ -56,7 +56,7 @@ export async function updateCCC(
 ): Promise<ICentralCoordinatingCenter> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation))
-      reject({
+      return reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
@@ -65,17 +65,20 @@ export async function updateCCC(
     try {
       ccc = await CentralCoordinatingCenter.findById(id);
     } catch (e) {
-      reject({ status: 404, message: e.message });
+      return reject({ status: 404, message: e.message });
     }
+
+    if (ccc == null)
+      return reject({ status: 404, message: `ccc with id: ${id} not found` });
 
     try {
       updateFunctions.get(operation)(ccc, payload);
     } catch (err) {
-      reject(err);
+      return reject(err);
     }
 
     ccc.save((err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedCCC);
     });
   });

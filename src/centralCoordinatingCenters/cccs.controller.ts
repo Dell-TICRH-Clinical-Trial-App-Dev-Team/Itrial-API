@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getCCCById, createCCC, updateCCC } from './ccc.service';
+import { getCCCById, createCCC, updateCCC } from './cccs.service';
 
 export async function get(req: Request, res: Response) {
   getCCCById(req.params.cccid)

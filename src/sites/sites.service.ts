@@ -18,9 +18,9 @@ const updateOptions = [...updateFunctions.keys()];
 export async function getSiteById(id: string): Promise<ISite> {
   return new Promise((resolve, reject) => {
     Site.findById(id, (err: NativeError, site: ISite) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else if (!site)
-        reject({
+        return reject({
           status: 404,
           message: `Site with id: ${id} not found`,
         });
@@ -34,7 +34,7 @@ export async function createSite(newSite: ISite): Promise<ISite> {
     const site = Site.build(newSite);
 
     site.save((err: NativeError, newSite: ISite) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       else resolve(newSite);
     });
   });
@@ -47,7 +47,7 @@ export async function updateSite(
 ): Promise<ISite> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation))
-      reject({
+      return reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
@@ -56,17 +56,17 @@ export async function updateSite(
     try {
       site = await Site.findById(id);
     } catch (e) {
-      reject({ status: 404, message: e.message });
+      return reject({ status: 404, message: e.message });
     }
 
     try {
       updateFunctions.get(operation)(site, payload);
     } catch (err) {
-      reject(err);
+      return reject(err);
     }
 
     site.save((err: NativeError, updatedSite: ISite) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedSite);
     });
   });

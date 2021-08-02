@@ -27,9 +27,9 @@ const updateOptions = [...updateFunctions.keys()];
 export async function getTrialById(id: string): Promise<ITrial> {
   return new Promise((resolve, reject) => {
     Trial.findById(id, (err: NativeError, trial: ITrial) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else if (!trial)
-        reject({
+        return reject({
           status: 404,
           message: `Trial with id: ${id} not found`,
         });
@@ -43,7 +43,7 @@ export async function createTrial(newTrial: ITrial): Promise<ITrial> {
     const trial = Trial.build(newTrial);
 
     trial.save((err: NativeError, newTrial: ITrial) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       else resolve(newTrial);
     });
   });
@@ -56,7 +56,7 @@ export async function updateTrial(
 ): Promise<ITrial> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation))
-      reject({
+      return reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
@@ -65,17 +65,17 @@ export async function updateTrial(
     try {
       trial = await Trial.findById(id);
     } catch (e) {
-      reject({ status: 404, message: e.message });
+      return reject({ status: 404, message: e.message });
     }
 
     try {
       updateFunctions.get(operation)(trial, payload);
     } catch (err) {
-      reject(err);
+      return reject(err);
     }
 
     trial.save((err: NativeError, updatedTrial: ITrial) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedTrial);
     });
   });

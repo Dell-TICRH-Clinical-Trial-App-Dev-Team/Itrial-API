@@ -21,9 +21,9 @@ const updateOptions = [...updateFunctions.keys()];
 export async function getPatientById(id: string): Promise<IPatient> {
   return new Promise((resolve, reject) => {
     Patient.findById(id, (err: NativeError, patient: IPatient) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else if (!patient)
-        reject({
+        return reject({
           status: 404,
           message: `Patient with id: ${id} not found`,
         });
@@ -37,7 +37,7 @@ export async function createPatient(newPatient: IPatient): Promise<IPatient> {
     const patient = Patient.build(newPatient);
 
     patient.save((err: NativeError, newPatient: IPatient) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       else resolve(newPatient);
     });
   });
@@ -50,7 +50,7 @@ export async function updatePatient(
 ): Promise<IPatient> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation)) {
-      reject({
+      return reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
@@ -60,17 +60,17 @@ export async function updatePatient(
     try {
       patient = await Patient.findById(id);
     } catch (e) {
-      reject({ status: 404, message: e.message });
+      return reject({ status: 404, message: e.message });
     }
 
     try {
       updateFunctions.get(operation)(patient, payload);
     } catch (err) {
-      reject(err);
+      return reject(err);
     }
 
     patient.save((err: NativeError, updatedPatient: IPatient) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedPatient);
     });
   });

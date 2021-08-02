@@ -10,7 +10,7 @@ const req = request(server);
 import {
   CentralCoordinatingCenter,
   ICentralCoordinatingCenter,
-} from '../ccc.model';
+} from '../cccs.model';
 import { Trial } from '../../trials/trials.model';
 import { Site } from '../../sites/sites.model';
 import { TeamMember } from '../../teamMembers/teamMembers.model';
@@ -85,7 +85,7 @@ describe('PUT /api/cccs/:cccid', () => {
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
-      phone: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
       permissions: ['admin'],
     });
     teamMemberid = teamMember._id.toString();
@@ -97,6 +97,27 @@ describe('PUT /api/cccs/:cccid', () => {
       teamMembers: [teamMemberid],
     });
     cccid = ccc._id.toString();
+  });
+
+  it('should return reject an invalid update operation', async () => {
+    reqBody = {
+      operation: 'invalid operation',
+      payload: '',
+    };
+
+    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(400);
+  });
+
+  it('should not update a nonexistant ccc', async () => {
+    reqBody = {
+      operation: 'rename',
+      payload: 'Test CCC',
+    };
+
+    await req
+      .put(`/api/cccs/${mongoose.Types.ObjectId()}`)
+      .send(reqBody)
+      .expect(404);
   });
 
   it('should rename CCC', async () => {
@@ -210,7 +231,7 @@ describe('PUT /api/cccs/:cccid', () => {
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
-      phone: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
       permissions: ['admin'],
     });
     const newteammemberid = teamMember._id.toString();

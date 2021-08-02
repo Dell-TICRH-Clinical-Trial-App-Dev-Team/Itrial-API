@@ -21,6 +21,7 @@ export async function create(req: Request, res: Response) {
       return res.status(201).json(endpoint);
     })
     .catch((err) => {
+      console.log('create', err);
       return res.status(400).json({ error: err.message });
     });
 }
@@ -31,6 +32,7 @@ export async function update(req: Request, res: Response) {
       res.status(204).json(endpoint);
     })
     .catch((err) => {
+      console.log('update', err);
       return res.status(err.status).json({ error: err.message });
     });
 }
