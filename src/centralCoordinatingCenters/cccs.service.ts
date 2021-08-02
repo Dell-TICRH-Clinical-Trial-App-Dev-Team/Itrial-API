@@ -61,12 +61,8 @@ export async function updateCCC(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var ccc: ICentralCoordinatingCenter;
-    try {
-      ccc = await CentralCoordinatingCenter.findById(id);
-    } catch (e) {
-      return reject({ status: 404, message: e.message });
-    }
+    var ccc: ICentralCoordinatingCenter =
+      await CentralCoordinatingCenter.findById(id);
 
     if (ccc == null)
       return reject({ status: 404, message: `ccc with id: ${id} not found` });

@@ -56,12 +56,7 @@ export async function updatePatient(
       });
     }
 
-    var patient: IPatient;
-    try {
-      patient = await Patient.findById(id);
-    } catch (e) {
-      return reject({ status: 404, message: e.message });
-    }
+    var patient: IPatient = await Patient.findById(id);
 
     if (patient == null)
       return reject({

@@ -58,12 +58,7 @@ export async function updateTeamMember(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var teamMember: ITeamMember;
-    try {
-      teamMember = await TeamMember.findById(id);
-    } catch (e) {
-      return reject({ status: 404, message: e.message });
-    }
+    var teamMember: ITeamMember = await TeamMember.findById(id);
 
     try {
       updateFunctions.get(operation)(teamMember, payload);

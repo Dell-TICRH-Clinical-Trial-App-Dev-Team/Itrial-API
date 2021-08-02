@@ -61,12 +61,7 @@ export async function updateTrial(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var trial: ITrial;
-    try {
-      trial = await Trial.findById(id);
-    } catch (e) {
-      return reject({ status: 404, message: e.message });
-    }
+    var trial: ITrial = await Trial.findById(id);
 
     if (trial == null)
       return reject({

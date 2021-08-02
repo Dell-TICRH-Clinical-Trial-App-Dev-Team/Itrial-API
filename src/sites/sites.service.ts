@@ -52,12 +52,7 @@ export async function updateSite(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var site: ISite;
-    try {
-      site = await Site.findById(id);
-    } catch (e) {
-      return reject({ status: 404, message: e.message });
-    }
+    var site: ISite = await Site.findById(id);
 
     if (site == null)
       return reject({
