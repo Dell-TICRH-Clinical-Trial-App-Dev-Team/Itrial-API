@@ -53,9 +53,9 @@ describe('GET /api/endpoints/:endpointid', () => {
       date: Date.now(),
       description: 'This is a test endpoint',
       site: siteid,
-      trial: mongoose.Types.ObjectId(), //trialid,
-      group: mongoose.Types.ObjectId(), //groupid,
-      patient: mongoose.Types.ObjectId(), //patientid,
+      trial: trialid,
+      group: groupid,
+      patient: patientid,
     });
     const id = endpoint._id.toString();
 
@@ -98,42 +98,8 @@ describe('POST /api/endpoints/', () => {
     await req
       .post('/api/endpoints/')
       .send({
-        name: 'Test Endpoint',
+        // name: 'Test Endpoint',
         date: Date.now(),
-        description: 'This is a test endpoint',
-        site: siteid,
-        trial: trialid,
-        group: groupid,
-      })
-      .expect(400);
-
-    await req
-      .post('/api/endpoints/')
-      .send({
-        date: Date.now(),
-        description: 'This is a test endpoint',
-        site: siteid,
-        trial: trialid,
-        group: groupid,
-      })
-      .expect(400);
-
-    await req
-      .post('/api/endpoints/')
-      .send({
-        name: 'Test Endpoint',
-        date: Date.now(),
-        site: siteid,
-        trial: trialid,
-        group: groupid,
-        patient: patientid,
-      })
-      .expect(400);
-
-    await req
-      .post('/api/endpoints/')
-      .send({
-        name: 'Test Endpoint',
         description: 'This is a test endpoint',
         site: siteid,
         trial: trialid,
@@ -146,7 +112,6 @@ describe('POST /api/endpoints/', () => {
 
 describe('PUT /api/endpoints/:endpointid', () => {
   var endpointid: string;
-  var reqBody: { operation: string; payload: any };
 
   beforeAll(async () => {
     const endpoint = await Endpoint.create({
@@ -164,7 +129,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should return reject an invalid update operation', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -173,7 +138,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should not update a nonexistant endpoint', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'rename',
       payload: 'Test Endpoint',
     };
@@ -185,7 +150,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should rename', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'rename',
       payload: 'New Test Endpoint',
     };
@@ -200,7 +165,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should change date', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'change date',
       payload: new Date(),
     };
@@ -216,7 +181,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should change description', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'change description',
       payload: 'new test description',
     };
@@ -226,13 +191,13 @@ describe('PUT /api/endpoints/:endpointid', () => {
     await Endpoint.findById(
       endpointid,
       (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.description).toBe('new test description');
+        expect(updatedEndpoint.description).toBe(reqBody.payload);
       }
     );
   });
 
   it('should update score', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'update score',
       payload: '10',
     };
@@ -248,7 +213,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should add documents', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'add documents',
       payload: ['new test document'],
     };
@@ -264,7 +229,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should remove documents', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove documents',
       payload: ['test document'],
     };
@@ -286,7 +251,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     });
     var newsiteid = site._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'change site',
       payload: newsiteid,
     };
@@ -307,7 +272,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     });
     var newgroupid = group._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'change group',
       payload: newgroupid,
     };
@@ -328,7 +293,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     });
     var newtrialid = trial._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'change trial',
       payload: newtrialid,
     };
@@ -355,7 +320,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     });
     var newpatientid = patient._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'change patient',
       payload: newpatientid,
     };

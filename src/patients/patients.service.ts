@@ -63,6 +63,12 @@ export async function updatePatient(
       return reject({ status: 404, message: e.message });
     }
 
+    if (patient == null)
+      return reject({
+        status: 404,
+        message: `patient with id: ${id} not found`,
+      });
+
     try {
       updateFunctions.get(operation)(patient, payload);
     } catch (err) {

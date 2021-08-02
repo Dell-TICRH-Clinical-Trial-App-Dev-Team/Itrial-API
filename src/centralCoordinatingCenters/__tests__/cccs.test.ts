@@ -67,7 +67,6 @@ describe('PUT /api/cccs/:cccid', () => {
   var trialid: string;
   var siteid: string;
   var teamMemberid: string;
-  var reqBody: { operation: string; payload: any };
 
   beforeAll(async () => {
     const trial = await Trial.create({
@@ -100,7 +99,7 @@ describe('PUT /api/cccs/:cccid', () => {
   });
 
   it('should return reject an invalid update operation', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -109,7 +108,7 @@ describe('PUT /api/cccs/:cccid', () => {
   });
 
   it('should not update a nonexistant ccc', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'rename',
       payload: 'Test CCC',
     };
@@ -121,7 +120,7 @@ describe('PUT /api/cccs/:cccid', () => {
   });
 
   it('should rename CCC', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'rename',
       payload: 'New Test CCC',
     };
@@ -136,7 +135,7 @@ describe('PUT /api/cccs/:cccid', () => {
   });
 
   it('should remove trials', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove trials',
       payload: [trialid],
     };
@@ -152,7 +151,7 @@ describe('PUT /api/cccs/:cccid', () => {
   });
 
   it('should remove sites', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove sites',
       payload: [siteid],
     };
@@ -168,7 +167,7 @@ describe('PUT /api/cccs/:cccid', () => {
   });
 
   it('should remove teamMembers', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove teamMembers',
       payload: [teamMemberid],
     };
@@ -189,7 +188,7 @@ describe('PUT /api/cccs/:cccid', () => {
     });
     const newtrialid = trial._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'add trials',
       payload: [newtrialid],
     };
@@ -211,7 +210,7 @@ describe('PUT /api/cccs/:cccid', () => {
     });
     const newsiteid = site._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'add sites',
       payload: [newsiteid],
     };
@@ -236,7 +235,7 @@ describe('PUT /api/cccs/:cccid', () => {
     });
     const newteammemberid = teamMember._id.toString();
 
-    reqBody = {
+    var reqBody = {
       operation: 'add teamMembers',
       payload: [newteammemberid],
     };
