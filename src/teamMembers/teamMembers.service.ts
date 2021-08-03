@@ -22,9 +22,9 @@ const updateOptions = [...updateFunctions.keys()];
 export async function getTeamMemberById(id: string): Promise<ITeamMember> {
   return new Promise((resolve, reject) => {
     TeamMember.findById(id, (err: NativeError, teamMember: ITeamMember) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else if (!teamMember)
-        reject({
+        return reject({
           status: 404,
           message: `Team Member with id: ${id} not found`,
         });
@@ -40,7 +40,7 @@ export async function createTeamMember(
     const teamMember = TeamMember.build(newTeamMember);
 
     teamMember.save((err: NativeError, newTeamMember: ITeamMember) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       else resolve(newTeamMember);
     });
   });
@@ -53,26 +53,30 @@ export async function updateTeamMember(
 ): Promise<ITeamMember> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation))
-      reject({
+      return reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var teamMember: ITeamMember;
-    try {
-      teamMember = await TeamMember.findById(id);
-    } catch (e) {
-      reject({ status: 404, message: e.message });
-    }
+    var teamMember: ITeamMember = await TeamMember.findById(id);
+
+    if (teamMember == null)
+      return reject({
+        status: 404,
+        message: `teamMember with id: ${id} not found`,
+      });
 
     try {
       updateFunctions.get(operation)(teamMember, payload);
     } catch (err) {
-      reject(err);
+      return reject({
+        status: 400,
+        message: err.message,
+      });
     }
 
     teamMember.save((err: NativeError, updatedTeamMember: ITeamMember) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedTeamMember);
     });
   });
@@ -194,7 +198,7 @@ function addTrials(teamMember: ITeamMember, trials: any): void {
       throw { status: 404, message: `trial with id: ${trialid} not found` };
   });
 
-  teamMember.sites.push(...trials);
+  teamMember.trials.push(...trials);
 }
 
 function removeTrials(teamMember: ITeamMember, trials: any): void {

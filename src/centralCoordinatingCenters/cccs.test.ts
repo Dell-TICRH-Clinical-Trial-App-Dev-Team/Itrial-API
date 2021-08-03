@@ -1,19 +1,16 @@
-import mongoose, { NativeError } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
-import server from '../../config/server';
-import { connectToDB, dropDB } from '../../config/db';
+import server from '../config/server';
+import { connectToDB, dropDB } from '../config/db';
 
 import request from 'supertest';
 const req = request(server);
 
-import {
-  CentralCoordinatingCenter,
-  ICentralCoordinatingCenter,
-} from '../ccc.model';
-import { Trial } from '../../trials/trials.model';
-import { Site } from '../../sites/sites.model';
-import { TeamMember } from '../../teamMembers/teamMembers.model';
+import { CentralCoordinatingCenter } from './cccs.model';
+import { Trial } from '../trials/trials.model';
+import { Site } from '../sites/sites.model';
+import { TeamMember } from '../teamMembers/teamMembers.model';
 
 beforeAll(async () => {
   await connectToDB('ccctestdb');
@@ -64,31 +61,30 @@ describe('POST /api/cccs/', () => {
 
 describe('PUT /api/cccs/:cccid', () => {
   var cccid: string;
-  var trialid: string;
-  var siteid: string;
-  var teamMemberid: string;
-  var reqBody: { operation: string; payload: any };
+  var trialid: ObjectId;
+  var siteid: ObjectId;
+  var teamMemberid: ObjectId;
 
   beforeAll(async () => {
     const trial = await Trial.create({
       name: 'Test Trial',
     });
-    trialid = trial._id.toString();
+    trialid = trial._id;
 
     const site = await Site.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
-    siteid = site._id.toString();
+    siteid = site._id;
 
     const teamMember = await TeamMember.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
-      phone: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
       permissions: ['admin'],
     });
-    teamMemberid = teamMember._id.toString();
+    teamMemberid = teamMember._id;
 
     const ccc = await CentralCoordinatingCenter.create({
       name: 'Test CCC',
@@ -99,88 +95,98 @@ describe('PUT /api/cccs/:cccid', () => {
     cccid = ccc._id.toString();
   });
 
+  it('should reject an invalid update operation', async () => {
+    var reqBody = {
+      operation: 'invalid operation',
+      payload: '',
+    };
+
+    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(400);
+  });
+
+  it('should not update a nonexistant ccc', async () => {
+    var reqBody = {
+      operation: 'rename',
+      payload: 'Test CCC',
+    };
+
+    await req
+      .put(`/api/cccs/${mongoose.Types.ObjectId()}`)
+      .send(reqBody)
+      .expect(404);
+  });
+
+  it('should reject an invalid update payload', async () => {
+    var reqBody = {
+      operation: 'rename',
+      payload: 12,
+    };
+
+    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(400);
+  });
+
   it('should rename CCC', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'rename',
       payload: 'New Test CCC',
     };
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.name).toBe(reqBody.payload);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.name).toBe(reqBody.payload);
   });
 
   it('should remove trials', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove trials',
       payload: [trialid],
     };
 
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.trials.length).toBe(0);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.trials).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove sites', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove sites',
       payload: [siteid],
     };
 
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.sites.length).toBe(0);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.sites).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove teamMembers', async () => {
-    reqBody = {
+    var reqBody = {
       operation: 'remove teamMembers',
       payload: [teamMemberid],
     };
 
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.teamMembers.length).toBe(0);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.teamMembers).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should add trials', async () => {
     const trial = await Trial.create({
       name: 'Test Trial',
     });
-    const newtrialid = trial._id.toString();
+    const newtrialid = trial._id;
 
-    reqBody = {
+    var reqBody = {
       operation: 'add trials',
       payload: [newtrialid],
     };
 
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.trials.length).toBe(1);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.trials).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add sites', async () => {
@@ -188,21 +194,17 @@ describe('PUT /api/cccs/:cccid', () => {
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
-    const newsiteid = site._id.toString();
+    const newsiteid = site._id;
 
-    reqBody = {
+    var reqBody = {
       operation: 'add sites',
       payload: [newsiteid],
     };
 
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.sites.length).toBe(1);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.sites).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add team members', async () => {
@@ -210,24 +212,20 @@ describe('PUT /api/cccs/:cccid', () => {
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
-      phone: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
       permissions: ['admin'],
     });
-    const newteammemberid = teamMember._id.toString();
+    const newteammemberid = teamMember._id;
 
-    reqBody = {
+    var reqBody = {
       operation: 'add teamMembers',
       payload: [newteammemberid],
     };
 
     await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
 
-    await CentralCoordinatingCenter.findById(
-      cccid,
-      (err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
-        expect(updatedCCC.teamMembers.length).toBe(1);
-      }
-    );
+    const updatedCCC = await CentralCoordinatingCenter.findById(cccid).lean();
+    expect(updatedCCC.teamMembers).toContainEqual(reqBody.payload[0]);
   });
 });
 

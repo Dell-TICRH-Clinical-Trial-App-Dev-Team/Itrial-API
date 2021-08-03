@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import { get, create, update } from './ccc.controller';
+import { get, create, update } from './cccs.controller';
 
 router.get('/:cccid', get);
 router.put('/:cccid', update);

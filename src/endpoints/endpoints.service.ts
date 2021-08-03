@@ -21,9 +21,9 @@ const updateOptions = [...updateFunctions.keys()];
 export async function getEndpointById(id: string): Promise<IEndpoint> {
   return new Promise((resolve, reject) => {
     Endpoint.findById(id, (err: NativeError, endpoint: IEndpoint) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else if (!endpoint)
-        reject({
+        return reject({
           status: 404,
           message: `Endpoint with id: ${id} not found`,
         });
@@ -39,7 +39,7 @@ export async function createEndpoint(
     const endpoint = Endpoint.build(newEndpoint);
 
     endpoint.save((err: NativeError, newEndpoint: IEndpoint) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       else resolve(newEndpoint);
     });
   });
@@ -52,26 +52,26 @@ export async function updateEndpoint(
 ): Promise<IEndpoint> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation))
-      reject({
+      return reject({
         status: 400,
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var endpoint: IEndpoint;
-    try {
-      endpoint = await Endpoint.findById(id);
-    } catch (e) {
-      reject({ status: 404, message: e.message });
-    }
+    var endpoint: IEndpoint = await Endpoint.findById(id);
+    if (endpoint == null)
+      return reject({
+        status: 404,
+        message: `endpoint with id ${id} not found`,
+      });
 
     try {
       updateFunctions.get(operation)(endpoint, payload);
     } catch (err) {
-      reject(err);
+      return reject(err);
     }
 
     endpoint.save((err: NativeError, updatedEndpoint: IEndpoint) => {
-      if (err) reject({ status: 400, message: err.message });
+      if (err) return reject({ status: 400, message: err.message });
       else resolve(updatedEndpoint);
     });
   });

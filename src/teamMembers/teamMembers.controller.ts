@@ -6,7 +6,7 @@ import {
 } from './teamMembers.service';
 
 export async function get(req: Request, res: Response) {
-  getTeamMemberById(req.params.teamMemberid)
+  getTeamMemberById(req.params.teammemberid)
     .then((teamMember) => {
       return res.status(200).json(teamMember);
     })
@@ -27,7 +27,7 @@ export async function create(req: Request, res: Response) {
 
 export async function update(req: Request, res: Response) {
   updateTeamMember(
-    req.params.teamMemberid,
+    req.params.teammemberid,
     req.body.operation,
     req.body.payload
   )

@@ -33,7 +33,7 @@ export interface ITrialProtocol extends Document {
 }
 
 export const TrialProtocolSchema = new Schema({
-  name: String,
+  name: { type: String, required: true },
   interventions: [InterventionSchema],
   endpointInfo: EndpointInfoSchema,
 });
