@@ -16,11 +16,11 @@ const updateFunctions = new Map([
   ['add sites', addSites],
   ['add teamMembers', addTeamMembers],
   ['add groups', addGroups],
-  ['add patient', addPatients],
+  ['add patients', addPatients],
   ['remove sites', removeSites],
   ['remove teamMembers', removeTeamMembers],
   ['remove groups', removeGroups],
-  ['remove patient', removePatients],
+  ['remove patients', removePatients],
 ]);
 const updateOptions = [...updateFunctions.keys()];
 

@@ -13,6 +13,6 @@ router.use('/trials', trialRouter);
 router.use('/endpoints', endpointRouter);
 router.use('/patients', patientRouter);
 router.use('/sites', siteRouter);
-router.use('/team-member', teamMemberRouter);
+router.use('/team-members', teamMemberRouter);
 
 export { router as router };

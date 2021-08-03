@@ -5,7 +5,7 @@ interface ITeamMember extends Document {
   address: string;
   email: string;
   phoneNumber: number;
-  permissions: [string];
+  permissions?: [string];
   trials?: [Schema.Types.ObjectId];
   sites?: [Schema.Types.ObjectId];
   cccs?: [Schema.Types.ObjectId];

@@ -60,17 +60,20 @@ export async function updateTeamMember(
 
     var teamMember: ITeamMember = await TeamMember.findById(id);
 
-    try {
-      updateFunctions.get(operation)(teamMember, payload);
-    } catch (err) {
-      return reject(err);
-    }
-
     if (teamMember == null)
       return reject({
         status: 404,
         message: `teamMember with id: ${id} not found`,
       });
+
+    try {
+      updateFunctions.get(operation)(teamMember, payload);
+    } catch (err) {
+      return reject({
+        status: 400,
+        message: err.message,
+      });
+    }
 
     teamMember.save((err: NativeError, updatedTeamMember: ITeamMember) => {
       if (err) return reject({ status: 400, message: err.message });
@@ -195,7 +198,7 @@ function addTrials(teamMember: ITeamMember, trials: any): void {
       throw { status: 404, message: `trial with id: ${trialid} not found` };
   });
 
-  teamMember.sites.push(...trials);
+  teamMember.trials.push(...trials);
 }
 
 function removeTrials(teamMember: ITeamMember, trials: any): void {

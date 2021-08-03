@@ -1,4 +1,4 @@
-import mongoose, { NativeError, ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
@@ -7,7 +7,7 @@ import { connectToDB, dropDB } from '../config/db';
 import request from 'supertest';
 const req = request(server);
 
-import { Endpoint, IEndpoint } from './endpoints.model';
+import { Endpoint } from './endpoints.model';
 import { Trial } from '../trials/trials.model';
 import { Site } from '../sites/sites.model';
 import { Group } from '../trials/groups/groups.model';
@@ -128,7 +128,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     endpointid = endpoint._id;
   });
 
-  it('should return reject an invalid update operation', async () => {
+  it('should reject an invalid update operation', async () => {
     var reqBody = {
       operation: 'invalid operation',
       payload: '',
@@ -156,12 +156,16 @@ describe('PUT /api/endpoints/:endpointid', () => {
     };
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.name).toBe(reqBody.payload);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.name).toBe(reqBody.payload);
+  });
+
+  it('should reject an invalid payload', async () => {
+    var reqBody = {
+      operation: 'rename',
+      payload: 12,
+    };
+    await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(400);
   });
 
   it('should change date', async () => {
@@ -172,12 +176,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.date).toStrictEqual(reqBody.payload);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.date).toStrictEqual(reqBody.payload);
   });
 
   it('should change description', async () => {
@@ -188,12 +188,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.description).toBe(reqBody.payload);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.description).toBe(reqBody.payload);
   });
 
   it('should update score', async () => {
@@ -204,12 +200,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.score).toBe(reqBody.payload);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.score).toBe(reqBody.payload);
   });
 
   it('should add documents', async () => {
@@ -220,12 +212,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.documents).toContain(reqBody.payload[0]);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.documents).toContain(reqBody.payload[0]);
   });
 
   it('should remove documents', async () => {
@@ -236,12 +224,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.documents).not.toContain(reqBody.payload[0]);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.documents).not.toContain(reqBody.payload[0]);
   });
 
   it('should change site', async () => {
@@ -258,12 +242,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.site.toString()).toBe(reqBody.payload);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.site.toString()).toBe(reqBody.payload);
   });
 
   it('should change group', async () => {
@@ -279,12 +259,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.group.toString()).toBe(newgroupid);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.group.toString()).toBe(newgroupid);
   });
 
   it('should change trial', async () => {
@@ -300,12 +276,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.trial.toString()).toBe(newtrialid);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.trial.toString()).toBe(newtrialid);
   });
 
   it('should change patient', async () => {
@@ -327,12 +299,8 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    await Endpoint.findById(
-      endpointid,
-      (err: NativeError, updatedEndpoint: IEndpoint) => {
-        expect(updatedEndpoint.patient.toString()).toBe(newpatientid);
-      }
-    );
+    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    expect(updatedEndpoint.patient.toString()).toBe(newpatientid);
   });
 });
 

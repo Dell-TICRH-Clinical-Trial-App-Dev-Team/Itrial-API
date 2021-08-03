@@ -157,6 +157,14 @@ describe('PUT /api/patients/:patientid', () => {
       .expect(404);
   });
 
+  it('should reject an invalid payload', async () => {
+    var reqBody = {
+      operation: 'rename',
+      payload: 12,
+    };
+    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(400);
+  });
+
   it('should rename', async () => {
     var reqBody = {
       operation: 'rename',
@@ -164,12 +172,8 @@ describe('PUT /api/patients/:patientid', () => {
     };
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.name).toBe(reqBody.payload);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.name).toBe(reqBody.payload);
   });
 
   it('should update address', async () => {
@@ -180,12 +184,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.address).toStrictEqual(reqBody.payload);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.address).toStrictEqual(reqBody.payload);
   });
 
   it('should update email', async () => {
@@ -196,12 +196,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.email).toBe(reqBody.payload);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.email).toBe(reqBody.payload);
   });
 
   it('should update phoneNumber', async () => {
@@ -212,12 +208,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.phoneNumber).toBe(reqBody.payload);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.phoneNumber).toBe(reqBody.payload);
   });
 
   it('should add documents', async () => {
@@ -228,12 +220,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.documents).toContain(reqBody.payload[0]);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.documents).toContain(reqBody.payload[0]);
   });
 
   it('should remove documents', async () => {
@@ -244,12 +232,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.documents).not.toContain(reqBody.payload[0]);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.documents).not.toContain(reqBody.payload[0]);
   });
 
   it('should add endpoints', async () => {
@@ -269,12 +253,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.endpoints).toContainEqual(reqBody.payload[0]);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.endpoints).toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove endpoints', async () => {
@@ -285,12 +265,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.endpoints).not.toContain(reqBody.payload[0]);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.endpoints).not.toContain(reqBody.payload[0]);
   });
 
   it('should change site', async () => {
@@ -307,12 +283,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.site.toString()).toBe(newsiteid);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.site.toString()).toBe(newsiteid);
   });
 
   it('should change group', async () => {
@@ -328,12 +300,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.group.toString()).toBe(newgroupid);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.group.toString()).toBe(newgroupid);
   });
 
   it('should change trial', async () => {
@@ -349,12 +317,8 @@ describe('PUT /api/patients/:patientid', () => {
 
     await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
 
-    await Patient.findById(
-      patientid,
-      (err: NativeError, updatedPatient: IPatient) => {
-        expect(updatedPatient.trial.toString()).toBe(newtrialid);
-      }
-    );
+    const updatedPatient = await Patient.findById(patientid).lean();
+    expect(updatedPatient.trial.toString()).toBe(newtrialid);
   });
 });
 

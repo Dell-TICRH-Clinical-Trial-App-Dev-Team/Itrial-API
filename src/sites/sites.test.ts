@@ -1,4 +1,4 @@
-import mongoose, { NativeError, ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
@@ -7,7 +7,7 @@ import { connectToDB, dropDB } from '../config/db';
 import request from 'supertest';
 const req = request(server);
 
-import { Site, ISite } from './sites.model';
+import { Site } from './sites.model';
 import { Trial } from '../trials/trials.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
 import { CentralCoordinatingCenter } from '../centralCoordinatingCenters/cccs.model';
@@ -101,7 +101,7 @@ describe('PUT /api/sites/:siteid', () => {
     siteid = site._id.toString();
   });
 
-  it('should return reject an invalid update operation', async () => {
+  it('should reject an invalid update operation', async () => {
     var reqBody = {
       operation: 'invalid operation',
       payload: '',
@@ -122,6 +122,14 @@ describe('PUT /api/sites/:siteid', () => {
       .expect(404);
   });
 
+  it('should reject an invalid payload', async () => {
+    var reqBody = {
+      operation: 'rename',
+      payload: 12,
+    };
+    await req.put(`/api/sites/${siteid}`).send(reqBody).expect(400);
+  });
+
   it('should rename', async () => {
     var reqBody = {
       operation: 'rename',
@@ -129,9 +137,8 @@ describe('PUT /api/sites/:siteid', () => {
     };
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.name).toBe(reqBody.payload);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.name).toBe(reqBody.payload);
   });
 
   it('should update address', async () => {
@@ -141,9 +148,8 @@ describe('PUT /api/sites/:siteid', () => {
     };
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.address).toBe(reqBody.payload);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.address).toBe(reqBody.payload);
   });
 
   it('should remove trials', async () => {
@@ -154,9 +160,8 @@ describe('PUT /api/sites/:siteid', () => {
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.trials).not.toContainEqual(reqBody.payload[0]);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.trials).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove cccs', async () => {
@@ -167,9 +172,8 @@ describe('PUT /api/sites/:siteid', () => {
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.cccs).not.toContainEqual(reqBody.payload[0]);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.cccs).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove teamMembers', async () => {
@@ -180,9 +184,8 @@ describe('PUT /api/sites/:siteid', () => {
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.teamMembers).not.toContainEqual(reqBody.payload[0]);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.teamMembers).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should add trials', async () => {
@@ -198,9 +201,8 @@ describe('PUT /api/sites/:siteid', () => {
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.trials).toContainEqual(reqBody.payload[0]);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.trials).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add cccs', async () => {
@@ -216,9 +218,8 @@ describe('PUT /api/sites/:siteid', () => {
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.cccs).toContainEqual(reqBody.payload[0]);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.cccs).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add team members', async () => {
@@ -238,9 +239,8 @@ describe('PUT /api/sites/:siteid', () => {
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    await Site.findById(siteid, (err: NativeError, updatedSite: ISite) => {
-      expect(updatedSite.teamMembers).toContainEqual(reqBody.payload[0]);
-    });
+    const updatedSite = await Site.findById(siteid).lean();
+    expect(updatedSite.teamMembers).toContainEqual(reqBody.payload[0]);
   });
 });
 
