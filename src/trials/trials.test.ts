@@ -14,7 +14,7 @@ import { TeamMember } from '../teamMembers/teamMembers.model';
 import { Patient } from '../patients/patients.model';
 
 beforeAll(async () => {
-  await connectToDB('teammembertestdb');
+  await connectToDB('trialstestdb');
 });
 
 describe('GET /api/trials/:trialid', () => {
