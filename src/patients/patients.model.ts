@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import passportLocalMongoose from 'passport-local-mongoose';
 
 interface IPatient extends Document {
   dccid: string;
@@ -15,11 +16,11 @@ interface IPatient extends Document {
   trial?: Schema.Types.ObjectId;
 }
 
-interface PatientModel extends mongoose.Model<IPatient> {
-  build(patient: IPatient): any;
-}
+// interface PatientModel extends mongoose.Model<IPatient> {
+//   build(patient: IPatient): any;
+// }
 
-const patientSchema = new Schema<IPatient, PatientModel>({
+const patientSchema = new Schema({
   dccid: {
     type: String,
     required: true,
@@ -71,13 +72,12 @@ const patientSchema = new Schema<IPatient, PatientModel>({
   },
 });
 
-patientSchema.statics.build = (patient: IPatient) => {
-  return new Patient(patient);
-};
+// patientSchema.statics.build = (patient: IPatient) => {
+//   return new Patient(patient);
+// };
 
-const Patient = mongoose.model<IPatient, PatientModel>(
-  'Patient',
-  patientSchema
-);
+patientSchema.plugin(passportLocalMongoose);
+
+const Patient = mongoose.model<IPatient>('Patient', patientSchema);
 
 export { Patient, IPatient };
