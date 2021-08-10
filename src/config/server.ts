@@ -1,16 +1,24 @@
 import express, { Request, Response } from 'express';
 import { json } from 'body-parser';
 import morgan from 'morgan';
+import cors from 'cors';
+
 import { router } from '../router';
+import jwtCheck from './auth';
 
 const server = express();
 server.use(morgan('dev'));
 server.use(json());
+server.use(cors());
 
 server.get('/', (req: Request, res: Response) => {
-  res.send('The API is up!');
+  res.json('The API is up!');
 });
 
-server.use('/api', router);
+server.get('/auth', jwtCheck, (req: Request, res: Response) => {
+  res.json('This is a protected resource.');
+});
+
+server.use('/api', jwtCheck, router);
 
 export default server;
