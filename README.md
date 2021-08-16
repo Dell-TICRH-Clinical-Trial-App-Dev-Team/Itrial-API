@@ -1,8 +1,11 @@
 # Itrial-API
 Monolith backend api for web client and mobile app.
 
-1. Create a folder in the root directory (if not already present) called "config", and in it, create these files: .env.defaults .env.prod .env.test .env.dev and .env.schema
-2. The contents of these files are: 
+
+1. Install and setup MongoDB: https://docs.mongodb.com/manual/installation/
+2. Create a folder in the root directory (if not already present) called "config", and in it, create these files: .env.defaults .env.prod .env.test .env.dev and .env.schema
+
+3. The contents of these files are: 
 
 ```bash
 # .env.defaults
@@ -49,4 +52,4 @@ AUTH0_AUDIENCE=
 AUTH0_DOMAIN=
 ```
 
-3. You will probably only run 4 commands: **yarn install**, **yarn local**, **yarn dev (or devWindows if you're on windows)**, and **yarn test**. The first installs all the dependencies, the second is for local development, the third is for local dev but using the hosted DB (it should have some good fake data), and the last is for running all unit tests (I would do this every now and then).
+4. You will probably only run 4 commands: **yarn install**, **yarn local**, **yarn dev (or devWindows if you're on windows)**, and **yarn test**. The first installs all the dependencies, the second is for local development, the third is for local dev but using the hosted DB (it should have some good fake data), and the last is for running all unit tests (I would do this every now and then).
