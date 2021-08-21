@@ -52,7 +52,7 @@ export async function updateSite(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var site: ISite = await Site.findById(id);
+    let site: ISite = await Site.findById(id);
 
     if (site == null)
       return reject({

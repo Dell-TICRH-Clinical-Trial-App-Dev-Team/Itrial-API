@@ -77,8 +77,8 @@ describe('POST /api/team-members/', () => {
 });
 
 describe('PUT /api/team-members/:teamMemberid', () => {
-  var teamMemberid: string;
-  var siteid: ObjectId, trialid: ObjectId, cccid: ObjectId;
+  let teamMemberid: string;
+  let siteid: ObjectId, trialid: ObjectId, cccid: ObjectId;
 
   beforeAll(async () => {
     const trial = await Trial.create({
@@ -111,7 +111,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -123,7 +123,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should not update a nonexistant teamMember', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test TeamMember',
     };
@@ -135,7 +135,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -146,7 +146,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test TeamMember',
     };
@@ -160,7 +160,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should update address', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update address',
       payload: faker.address.streetAddress(),
     };
@@ -175,7 +175,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should update email', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update email',
       payload: faker.internet.email(),
     };
@@ -190,7 +190,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should update phoneNumber', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update phoneNumber',
       payload: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
     };
@@ -205,7 +205,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should add permissions', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'add permissions',
       payload: ['perm1'],
     };
@@ -220,7 +220,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should remove permissions', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove permissions',
       payload: ['test'],
     };
@@ -240,7 +240,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     });
     const newcccid = newccc._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add cccs',
       payload: [newcccid],
     };
@@ -261,7 +261,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     });
     const newsiteid = newsite._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add sites',
       payload: [newsiteid],
     };
@@ -281,7 +281,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     });
     const newtrialid = newtrial._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add trials',
       payload: [newtrialid],
     };
@@ -296,7 +296,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should remove cccs', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove cccs',
       payload: [cccid],
     };
@@ -311,7 +311,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should remove sites', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove sites',
       payload: [siteid],
     };
@@ -326,7 +326,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   });
 
   it('should remove trials', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove trials',
       payload: [trialid],
     };

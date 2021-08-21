@@ -59,9 +59,9 @@ describe('POST /api/trials/', () => {
 });
 
 describe('PUT /api/trials/:trialid', () => {
-  var trialid: string;
+  let trialid: string;
 
-  var siteid: ObjectId,
+  let siteid: ObjectId,
     groupid: ObjectId,
     teamMemberid: ObjectId,
     patientid: ObjectId;
@@ -112,7 +112,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -121,7 +121,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should not update a nonexistant trial', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test Trial',
     };
@@ -133,7 +133,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -141,7 +141,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test Trial',
     };
@@ -152,7 +152,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should update endpointResults', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update endpointResults',
       payload: 'new endpoint results',
     };
@@ -164,7 +164,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should add protocols', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'add protocols',
       payload: [{ name: 'new test protocol' }],
     };
@@ -182,7 +182,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should remove protocols', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove protocols',
       payload: [{ name: 'test protocol' }],
     };
@@ -200,7 +200,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should set protocols', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'set protocols',
       payload: [{ name: 'another new test protocol' }],
     };
@@ -218,7 +218,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should add permissions', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'add permissions',
       payload: ['test perm2'],
     };
@@ -230,7 +230,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should remove permissions', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove permissions',
       payload: ['test perm1'],
     };
@@ -242,7 +242,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should set permissions', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'set permissions',
       payload: ['test perm3'],
     };
@@ -254,7 +254,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should update blinded', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update blinded',
       payload: false,
     };
@@ -274,7 +274,7 @@ describe('PUT /api/trials/:trialid', () => {
     });
     const newteammemberid = newteammember._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add teamMembers',
       payload: [newteammemberid],
     };
@@ -292,7 +292,7 @@ describe('PUT /api/trials/:trialid', () => {
     });
     const newsiteid = newsite._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add sites',
       payload: [newsiteid],
     };
@@ -309,7 +309,7 @@ describe('PUT /api/trials/:trialid', () => {
     });
     const newgroupid = newgroup._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add groups',
       payload: [newgroupid],
     };
@@ -332,7 +332,7 @@ describe('PUT /api/trials/:trialid', () => {
     });
     const newpatientid = newpatient._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add patients',
       payload: [newpatientid],
     };
@@ -344,7 +344,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should remove teamMembers', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove teamMembers',
       payload: [teamMemberid],
     };
@@ -356,7 +356,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should remove sites', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove sites',
       payload: [siteid],
     };
@@ -368,7 +368,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should remove groups', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove groups',
       payload: [groupid],
     };
@@ -380,7 +380,7 @@ describe('PUT /api/trials/:trialid', () => {
   });
 
   it('should remove patients', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove patients',
       payload: [patientid],
     };

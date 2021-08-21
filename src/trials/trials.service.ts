@@ -61,7 +61,7 @@ export async function updateTrial(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var trial: ITrial = await Trial.findById(id);
+    let trial: ITrial = await Trial.findById(id);
 
     if (trial == null)
       return reject({
@@ -180,7 +180,7 @@ function removeProtocols(trial: ITrial, protocols: any): void {
     };
 
   const filteredProtocols = trial.protocols.filter((protocol1) => {
-    var shouldKeep: boolean = true;
+    let shouldKeep: boolean = true;
     protocols.forEach((protocol2: ITrialProtocol) => {
       if (protocol1.name == protocol2.name) shouldKeep = false;
     });

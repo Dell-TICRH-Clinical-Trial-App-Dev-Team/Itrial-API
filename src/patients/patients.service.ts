@@ -56,7 +56,7 @@ export async function updatePatient(
       });
     }
 
-    var patient: IPatient = await Patient.findById(id);
+    let patient: IPatient = await Patient.findById(id);
 
     if (patient == null)
       return reject({

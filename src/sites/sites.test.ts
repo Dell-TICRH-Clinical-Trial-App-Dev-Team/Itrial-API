@@ -66,10 +66,10 @@ describe('POST /api/sites/', () => {
 });
 
 describe('PUT /api/sites/:siteid', () => {
-  var siteid: string;
-  var cccid: ObjectId;
-  var trialid: ObjectId;
-  var teamMemberid: ObjectId;
+  let siteid: string;
+  let cccid: ObjectId;
+  let trialid: ObjectId;
+  let teamMemberid: ObjectId;
 
   beforeAll(async () => {
     const trial = await Trial.create({
@@ -102,7 +102,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -111,7 +111,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should not update a nonexistant site', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test Site',
     };
@@ -123,7 +123,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -131,7 +131,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test Site',
     };
@@ -142,7 +142,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should update address', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update address',
       payload: faker.address.streetAddress(),
     };
@@ -153,7 +153,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should remove trials', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove trials',
       payload: [trialid],
     };
@@ -165,7 +165,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should remove cccs', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove cccs',
       payload: [cccid],
     };
@@ -177,7 +177,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should remove teamMembers', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove teamMembers',
       payload: [teamMemberid],
     };
@@ -194,7 +194,7 @@ describe('PUT /api/sites/:siteid', () => {
     });
     const newtrialid = trial._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add trials',
       payload: [newtrialid],
     };
@@ -211,7 +211,7 @@ describe('PUT /api/sites/:siteid', () => {
     });
     const newcccid = ccc._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add cccs',
       payload: [newcccid],
     };
@@ -232,7 +232,7 @@ describe('PUT /api/sites/:siteid', () => {
     });
     const newteammemberid = teamMember._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add teamMembers',
       payload: [newteammemberid],
     };

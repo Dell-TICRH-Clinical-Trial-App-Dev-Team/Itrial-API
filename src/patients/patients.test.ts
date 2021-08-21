@@ -85,10 +85,10 @@ describe('POST /api/patients/', () => {
 });
 
 describe('PUT /api/patients/:patientid', () => {
-  var patientid: string;
-  var endpointid: string;
+  let patientid: string;
+  let endpointid: string;
 
-  var siteid: ObjectId, trialid: ObjectId, groupid: ObjectId;
+  let siteid: ObjectId, trialid: ObjectId, groupid: ObjectId;
 
   beforeAll(async () => {
     const patient = await Patient.create({
@@ -137,7 +137,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -146,7 +146,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should not update a nonexistant patient', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test Patient',
     };
@@ -158,7 +158,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -166,7 +166,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test Patient',
     };
@@ -177,7 +177,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should update address', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update address',
       payload: faker.address.streetAddress(),
     };
@@ -189,7 +189,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should update email', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update email',
       payload: faker.internet.email(),
     };
@@ -201,7 +201,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should update phoneNumber', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update phoneNumber',
       payload: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
     };
@@ -213,7 +213,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should add documents', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'add documents',
       payload: ['new test document'],
     };
@@ -225,7 +225,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should remove documents', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove documents',
       payload: ['test document'],
     };
@@ -246,7 +246,7 @@ describe('PUT /api/patients/:patientid', () => {
       group: groupid,
       patient: patientid,
     });
-    var reqBody = {
+    let reqBody = {
       operation: 'add endpoints',
       payload: [newendpoint._id],
     };
@@ -258,7 +258,7 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should remove endpoints', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove endpoints',
       payload: [endpointid],
     };
@@ -274,9 +274,9 @@ describe('PUT /api/patients/:patientid', () => {
       name: 'New Test Site',
       address: faker.address.streetAddress(),
     });
-    var newsiteid = site._id.toString();
+    let newsiteid = site._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change site',
       payload: newsiteid,
     };
@@ -291,9 +291,9 @@ describe('PUT /api/patients/:patientid', () => {
     const group = await Group.create({
       name: 'New Test Group',
     });
-    var newgroupid = group._id.toString();
+    let newgroupid = group._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change group',
       payload: newgroupid,
     };
@@ -308,9 +308,9 @@ describe('PUT /api/patients/:patientid', () => {
     const trial = await Trial.create({
       name: 'Test Trial',
     });
-    var newtrialid = trial._id.toString();
+    let newtrialid = trial._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change trial',
       payload: newtrialid,
     };

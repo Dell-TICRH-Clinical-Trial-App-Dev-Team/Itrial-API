@@ -8,7 +8,7 @@ import { TeamMember } from '../teamMembers/teamMembers.model';
 import { Group } from '../trials/groups/groups.model';
 import { Trial } from '../trials/trials.model';
 
-var modelMap: Map<string, any> = new Map();
+let modelMap: Map<string, any> = new Map();
 modelMap.set('Central Coordinating Center', CentralCoordinatingCenter);
 modelMap.set('CCC', CentralCoordinatingCenter);
 modelMap.set('Endpoint', Endpoint);

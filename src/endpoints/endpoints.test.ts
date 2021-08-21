@@ -13,7 +13,7 @@ import { Site } from '../sites/sites.model';
 import { Group } from '../trials/groups/groups.model';
 import { Patient } from '../patients/patients.model';
 
-var siteid: ObjectId, trialid: ObjectId, groupid: ObjectId, patientid: ObjectId;
+let siteid: ObjectId, trialid: ObjectId, groupid: ObjectId, patientid: ObjectId;
 
 beforeAll(async () => {
   await connectToDB('endpointtestdb');
@@ -111,7 +111,7 @@ describe('POST /api/endpoints/', () => {
 });
 
 describe('PUT /api/endpoints/:endpointid', () => {
-  var endpointid: ObjectId;
+  let endpointid: ObjectId;
 
   beforeAll(async () => {
     const endpoint = await Endpoint.create({
@@ -129,7 +129,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -138,7 +138,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should not update a nonexistant endpoint', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test Endpoint',
     };
@@ -150,7 +150,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test Endpoint',
     };
@@ -161,7 +161,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -169,7 +169,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should change date', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'change date',
       payload: new Date(),
     };
@@ -181,7 +181,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should change description', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'change description',
       payload: 'new test description',
     };
@@ -193,7 +193,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should update score', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update score',
       payload: '10',
     };
@@ -205,7 +205,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should add documents', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'add documents',
       payload: ['new test document'],
     };
@@ -217,7 +217,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   });
 
   it('should remove documents', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove documents',
       payload: ['test document'],
     };
@@ -233,9 +233,9 @@ describe('PUT /api/endpoints/:endpointid', () => {
       name: 'New Test Site',
       address: faker.address.streetAddress(),
     });
-    var newsiteid = site._id.toString();
+    let newsiteid = site._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change site',
       payload: newsiteid,
     };
@@ -250,9 +250,9 @@ describe('PUT /api/endpoints/:endpointid', () => {
     const group = await Group.create({
       name: 'New Test Group',
     });
-    var newgroupid = group._id.toString();
+    let newgroupid = group._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change group',
       payload: newgroupid,
     };
@@ -267,9 +267,9 @@ describe('PUT /api/endpoints/:endpointid', () => {
     const trial = await Trial.create({
       name: 'Test Trial',
     });
-    var newtrialid = trial._id.toString();
+    let newtrialid = trial._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change trial',
       payload: newtrialid,
     };
@@ -290,9 +290,9 @@ describe('PUT /api/endpoints/:endpointid', () => {
       consentForm: 'fake/url/to/diff/consent/form',
       screenFail: true,
     });
-    var newpatientid = patient._id.toString();
+    let newpatientid = patient._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change patient',
       payload: newpatientid,
     };

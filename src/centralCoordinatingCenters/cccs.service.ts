@@ -61,7 +61,7 @@ export async function updateCCC(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var ccc: ICentralCoordinatingCenter =
+    let ccc: ICentralCoordinatingCenter =
       await CentralCoordinatingCenter.findById(id);
 
     if (ccc == null)

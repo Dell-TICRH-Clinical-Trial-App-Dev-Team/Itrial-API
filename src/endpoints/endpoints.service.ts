@@ -57,7 +57,7 @@ export async function updateEndpoint(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    var endpoint: IEndpoint = await Endpoint.findById(id);
+    let endpoint: IEndpoint = await Endpoint.findById(id);
     if (endpoint == null)
       return reject({
         status: 404,
