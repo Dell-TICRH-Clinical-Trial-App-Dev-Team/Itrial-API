@@ -18,6 +18,7 @@ interface Config {
   port: number;
   domain: string;
   audience: string;
+  isTesting: boolean;
 }
 
 const config: Config = {
@@ -25,6 +26,7 @@ const config: Config = {
   port: parsedEnv.PORT as number,
   domain: parsedEnv.AUTH0_DOMAIN as string,
   audience: parsedEnv.AUTH0_AUDIENCE as string,
+  isTesting: parsedEnv.isTesting as boolean,
 };
 
 export default config;
