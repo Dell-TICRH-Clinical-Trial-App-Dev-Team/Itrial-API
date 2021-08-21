@@ -1,7 +1,7 @@
 import { NativeError, ObjectId } from 'mongoose';
 
 import { Endpoint } from '../endpoints/endpoints.model';
-import { CentralCoordinatingCenter } from '../centralCoordinatingCenters/cccs.model';
+import { Ccc } from '../cccs/cccs.model';
 import { Site } from '../sites/sites.model';
 import { Patient } from '../patients/patients.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
@@ -9,8 +9,7 @@ import { Group } from '../trials/groups/groups.model';
 import { Trial } from '../trials/trials.model';
 
 let modelMap: Map<string, any> = new Map();
-modelMap.set('Central Coordinating Center', CentralCoordinatingCenter);
-modelMap.set('CCC', CentralCoordinatingCenter);
+modelMap.set('Ccc', Ccc);
 modelMap.set('Endpoint', Endpoint);
 modelMap.set('Patient', Patient);
 modelMap.set('Site', Site);

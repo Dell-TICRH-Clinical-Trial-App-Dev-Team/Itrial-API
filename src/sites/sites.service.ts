@@ -8,10 +8,10 @@ const updateFunctions = new Map([
   ['update address', updateAddress],
   ['add trials', addTrials],
   ['add teamMembers', addTeamMembers],
-  ['add cccs', addCCCs],
+  ['add cccs', addCccs],
   ['remove trials', removeTrials],
   ['remove teamMembers', removeTeamMembers],
-  ['remove cccs', removeCCCs],
+  ['remove cccs', removeCccs],
 ]);
 const updateOptions = [...updateFunctions.keys()];
 
@@ -145,7 +145,7 @@ function removeTrials(site: ISite, trials: any): void {
   });
 }
 
-function addCCCs(site: ISite, cccs: any): void {
+function addCccs(site: ISite, cccs: any): void {
   if (!isArrayOfStrings(cccs))
     throw {
       status: 400,
@@ -153,7 +153,7 @@ function addCCCs(site: ISite, cccs: any): void {
     };
 
   cccs.forEach((cccid: string) => {
-    if (!doesDocumentWithIdExist(cccid, 'CCC'))
+    if (!doesDocumentWithIdExist(cccid, 'Ccc'))
       throw {
         status: 404,
         message: `ccc with id ${cccid} not found`,
@@ -163,7 +163,7 @@ function addCCCs(site: ISite, cccs: any): void {
   site.cccs.push(...cccs);
 }
 
-function removeCCCs(site: ISite, cccs: any): void {
+function removeCccs(site: ISite, cccs: any): void {
   if (!isArrayOfStrings(cccs))
     throw {
       status: 400,

@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import { cccRouter } from './centralCoordinatingCenters/cccs.router';
+import { cccRouter } from './cccs/cccs.router';
 import { trialRouter } from './trials/trials.router';
 import { endpointRouter } from './endpoints/endpoints.router';
 import { patientRouter } from './patients/patients.router';

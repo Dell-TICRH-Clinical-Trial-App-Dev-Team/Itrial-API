@@ -1,8 +1,5 @@
 import { NativeError, ObjectId } from 'mongoose';
-import {
-  CentralCoordinatingCenter,
-  ICentralCoordinatingCenter,
-} from './cccs.model';
+import {Ccc, ICcc} from './cccs.model';
 
 import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
 
@@ -17,13 +14,13 @@ const updateFunctions = new Map([
 ]);
 const updateOptions = [...updateFunctions.keys()];
 
-export async function getCCCById(
+export async function getCccById(
   id: string
-): Promise<ICentralCoordinatingCenter> {
+): Promise<ICcc> {
   return new Promise((resolve, reject) => {
-    CentralCoordinatingCenter.findById(
+    Ccc.findById(
       id,
-      (err: NativeError, ccc: ICentralCoordinatingCenter) => {
+      (err: NativeError, ccc: ICcc) => {
         if (err) return reject({ status: 400, message: err.message });
         else if (!ccc)
           return reject({
@@ -36,24 +33,24 @@ export async function getCCCById(
   });
 }
 
-export async function createCCC(
-  newCCC: ICentralCoordinatingCenter
-): Promise<ICentralCoordinatingCenter> {
+export async function createCcc(
+  newCcc: ICcc
+): Promise<ICcc> {
   return new Promise((resolve, reject) => {
-    const ccc = CentralCoordinatingCenter.build(newCCC);
+    const ccc = Ccc.build(newCcc);
 
-    ccc.save((err: NativeError, ccc: ICentralCoordinatingCenter) => {
+    ccc.save((err: NativeError, ccc: ICcc) => {
       if (err) return reject(err);
       else resolve(ccc);
     });
   });
 }
 
-export async function updateCCC(
+export async function updateCcc(
   id: string,
   operation: string,
   payload: string | [ObjectId]
-): Promise<ICentralCoordinatingCenter> {
+): Promise<ICcc> {
   return new Promise(async (resolve, reject) => {
     if (!updateOptions.includes(operation))
       return reject({
@@ -61,8 +58,8 @@ export async function updateCCC(
         message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
       });
 
-    let ccc: ICentralCoordinatingCenter =
-      await CentralCoordinatingCenter.findById(id);
+    let ccc: ICcc =
+      await Ccc.findById(id);
 
     if (ccc == null)
       return reject({ status: 404, message: `ccc with id: ${id} not found` });
@@ -73,20 +70,20 @@ export async function updateCCC(
       return reject(err);
     }
 
-    ccc.save((err: NativeError, updatedCCC: ICentralCoordinatingCenter) => {
+    ccc.save((err: NativeError, updatedCcc: ICcc) => {
       if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedCCC);
+      else resolve(updatedCcc);
     });
   });
 }
 
-function rename(ccc: ICentralCoordinatingCenter, name: any): void {
+function rename(ccc: ICcc, name: any): void {
   if (typeof name != 'string' || name == '')
     throw { status: 400, message: 'Invalid name' };
   ccc.name = name;
 }
 
-function addTrials(ccc: ICentralCoordinatingCenter, trialsids: any): void {
+function addTrials(ccc: ICcc, trialsids: any): void {
   if (!isArrayOfStrings(trialsids))
     throw {
       status: 400,
@@ -101,7 +98,7 @@ function addTrials(ccc: ICentralCoordinatingCenter, trialsids: any): void {
   ccc.trials.push(...trialsids);
 }
 
-function addSites(ccc: ICentralCoordinatingCenter, sitesids: any): void {
+function addSites(ccc: ICcc, sitesids: any): void {
   if (!isArrayOfStrings(sitesids))
     throw {
       status: 400,
@@ -117,7 +114,7 @@ function addSites(ccc: ICentralCoordinatingCenter, sitesids: any): void {
 }
 
 function addTeamMembers(
-  ccc: ICentralCoordinatingCenter,
+  ccc: ICcc,
   teammembersids: any
 ): void {
   if (!isArrayOfStrings(teammembersids))
@@ -137,7 +134,7 @@ function addTeamMembers(
   ccc.teamMembers.push(...teammembersids);
 }
 
-function removeTrials(ccc: ICentralCoordinatingCenter, trialsids: any): void {
+function removeTrials(ccc: ICcc, trialsids: any): void {
   if (!isArrayOfStrings(trialsids))
     throw {
       status: 400,
@@ -148,7 +145,7 @@ function removeTrials(ccc: ICentralCoordinatingCenter, trialsids: any): void {
   });
 }
 
-function removeSites(ccc: ICentralCoordinatingCenter, sitesids: any): void {
+function removeSites(ccc: ICcc, sitesids: any): void {
   if (!isArrayOfStrings(sitesids))
     throw {
       status: 400,
@@ -160,7 +157,7 @@ function removeSites(ccc: ICentralCoordinatingCenter, sitesids: any): void {
 }
 
 function removeTeamMembers(
-  ccc: ICentralCoordinatingCenter,
+  ccc: ICcc,
   teammembersids: any
 ): void {
   if (!isArrayOfStrings(teammembersids))

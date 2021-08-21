@@ -10,7 +10,7 @@ const req = request(server);
 import { Site } from './sites.model';
 import { Trial } from '../trials/trials.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
-import { CentralCoordinatingCenter } from '../centralCoordinatingCenters/cccs.model';
+import { Ccc } from '../cccs/cccs.model';
 
 beforeAll(async () => {
   await connectToDB('sitetestdb');
@@ -77,8 +77,8 @@ describe('PUT /api/sites/:siteid', () => {
     });
     trialid = trial._id;
 
-    const ccc = await CentralCoordinatingCenter.create({
-      name: 'Test CCC',
+    const ccc = await Ccc.create({
+      name: 'Test Ccc',
     });
     cccid = ccc._id;
 
@@ -206,8 +206,8 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should add cccs', async () => {
-    const ccc = await CentralCoordinatingCenter.create({
-      name: 'Test CCC',
+    const ccc = await Ccc.create({
+      name: 'Test Ccc',
     });
     const newcccid = ccc._id;
 

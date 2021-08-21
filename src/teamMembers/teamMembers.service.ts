@@ -10,10 +10,10 @@ const updateFunctions = new Map([
   ['add permissions', addPermissions],
   ['remove permissions', removePermissions],
   ['set permissions', setPermissions],
-  ['add cccs', addCCCs],
+  ['add cccs', addCccs],
   ['add sites', addSites],
   ['add trials', addTrials],
-  ['remove cccs', removeCCCs],
+  ['remove cccs', removeCccs],
   ['remove sites', removeSites],
   ['remove trials', removeTrials],
 ]);
@@ -129,7 +129,7 @@ function setPermissions(teamMember: ITeamMember, permissions: any): void {
   teamMember.permissions = permissions;
 }
 
-function addCCCs(teamMember: ITeamMember, cccs: any): void {
+function addCccs(teamMember: ITeamMember, cccs: any): void {
   if (!isArrayOfStrings(cccs))
     throw {
       status: 400,
@@ -137,7 +137,7 @@ function addCCCs(teamMember: ITeamMember, cccs: any): void {
     };
 
   cccs.forEach((cccid: ObjectId) => {
-    if (!doesDocumentWithIdExist(cccid, 'CCC'))
+    if (!doesDocumentWithIdExist(cccid, 'Ccc'))
       throw {
         status: 404,
         message: `ccc with id: ${cccid} does not exist`,
@@ -147,7 +147,7 @@ function addCCCs(teamMember: ITeamMember, cccs: any): void {
   teamMember.cccs.push(...cccs);
 }
 
-function removeCCCs(teamMember: ITeamMember, cccs: any): void {
+function removeCccs(teamMember: ITeamMember, cccs: any): void {
   if (!isArrayOfStrings(cccs))
     throw {
       status: 400,
