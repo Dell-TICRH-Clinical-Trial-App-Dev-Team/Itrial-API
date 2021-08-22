@@ -32,6 +32,21 @@ export async function getPatientById(id: string): Promise<IPatient> {
   });
 }
 
+export async function getPatientByEmail(email: string): Promise<IPatient> {
+  return new Promise((resolve, reject) => {
+    Patient.findOne({ email: email }, (err: NativeError, patient: IPatient) => {
+      if (!email.includes('@'))
+        return reject({ status: 400, message: 'invalid email' });
+      else if (!patient)
+        return reject({
+          status: 404,
+          message: `Patient with email: ${email} not found`,
+        });
+      else resolve(patient);
+    });
+  });
+}
+
 export async function createPatient(newPatient: IPatient): Promise<IPatient> {
   return new Promise((resolve, reject) => {
     const patient = Patient.build(newPatient);

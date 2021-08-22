@@ -33,6 +33,26 @@ export async function getTeamMemberById(id: string): Promise<ITeamMember> {
   });
 }
 
+export async function getTeamMemberByEmail(
+  email: string
+): Promise<ITeamMember> {
+  return new Promise((resolve, reject) => {
+    TeamMember.findOne(
+      { email: email },
+      (err: NativeError, teamMember: ITeamMember) => {
+        if (!email.includes('@'))
+          return reject({ status: 400, message: 'invalid email' });
+        else if (!teamMember)
+          return reject({
+            status: 404,
+            message: `Team Member with email: ${email} not found`,
+          });
+        else resolve(teamMember);
+      }
+    );
+  });
+}
+
 export async function createTeamMember(
   newTeamMember: ITeamMember
 ): Promise<ITeamMember> {
