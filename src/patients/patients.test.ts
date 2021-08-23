@@ -17,8 +17,8 @@ beforeAll(async () => {
   await connectToDB('patienttestdb');
 });
 
-describe('GET /api/patients/:patientid', () => {
-  it('should get an Patient by id', async () => {
+describe('GET /api/patients/', () => {
+  it('should get a Patient by id', async () => {
     const patient = await Patient.create({
       dccid: 'fakedccid',
       name: faker.name.firstName(),
@@ -30,18 +30,39 @@ describe('GET /api/patients/:patientid', () => {
     });
     const id = patient._id.toString();
 
-    const response = await req.get(`/api/patients/${id}`);
+    const response = await req.get(`/api/patients/id/${id}`);
 
     expect(response.status).toBe(200);
     expect(response.body._id).toEqual(id);
   });
 
-  it('should return a 400 when ObjectId is invalid or missing', async () => {
-    await req.get('/api/patients/69').expect(400);
+  it('should get a Patient by email', async () => {
+    const patient = await Patient.create({
+      dccid: 'fakedccid',
+      name: faker.name.firstName(),
+      address: faker.address.streetAddress(),
+      email: faker.internet.email(),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+      consentForm: 'fake/url/to/consent/form',
+      screenFail: false,
+    });
+    const email = patient.email;
+
+    const response = await req.get(`/api/patients/email/${email}`);
+
+    expect(response.status).toBe(200);
+    console.log(response.body);
+    expect(response.body.email).toEqual(email);
   });
 
-  it('should return a 404 when ObjectId not found', async () => {
-    await req.get(`/api/patients/${mongoose.Types.ObjectId()}`).expect(404);
+  it('should return a 400 when ObjectId or email is invalid or missing', async () => {
+    await req.get('/api/patients/id/69').expect(400);
+    await req.get('/api/patients/email/69').expect(400);
+  });
+
+  it('should return a 404 when ObjectId or email not found', async () => {
+    await req.get(`/api/patients/id/${mongoose.Types.ObjectId()}`).expect(404);
+    await req.get(`/api/patients/email/${faker.internet.email()}`).expect(404);
   });
 });
 
@@ -142,7 +163,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: '',
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(400);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(400);
   });
 
   it('should not update a nonexistant patient', async () => {
@@ -152,7 +173,7 @@ describe('PUT /api/patients/:patientid', () => {
     };
 
     await req
-      .put(`/api/patients/${mongoose.Types.ObjectId()}`)
+      .put(`/api/patients/id/${mongoose.Types.ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
@@ -162,7 +183,7 @@ describe('PUT /api/patients/:patientid', () => {
       operation: 'rename',
       payload: 12,
     };
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(400);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(400);
   });
 
   it('should rename', async () => {
@@ -170,7 +191,7 @@ describe('PUT /api/patients/:patientid', () => {
       operation: 'rename',
       payload: 'New Test Patient',
     };
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.name).toBe(reqBody.payload);
@@ -182,7 +203,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: faker.address.streetAddress(),
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.address).toStrictEqual(reqBody.payload);
@@ -194,7 +215,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: faker.internet.email(),
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.email).toBe(reqBody.payload);
@@ -206,7 +227,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.phoneNumber).toBe(reqBody.payload);
@@ -218,7 +239,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: ['new test document'],
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.documents).toContain(reqBody.payload[0]);
@@ -230,7 +251,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: ['test document'],
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.documents).not.toContain(reqBody.payload[0]);
@@ -251,7 +272,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: [newendpoint._id],
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.endpoints).toContainEqual(reqBody.payload[0]);
@@ -263,7 +284,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: [endpointid],
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.endpoints).not.toContain(reqBody.payload[0]);
@@ -281,7 +302,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: newsiteid,
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.site.toString()).toBe(newsiteid);
@@ -298,7 +319,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: newgroupid,
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.group.toString()).toBe(newgroupid);
@@ -315,7 +336,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: newtrialid,
     };
 
-    await req.put(`/api/patients/${patientid}`).send(reqBody).expect(204);
+    await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
     const updatedPatient = await Patient.findById(patientid).lean();
     expect(updatedPatient.trial.toString()).toBe(newtrialid);

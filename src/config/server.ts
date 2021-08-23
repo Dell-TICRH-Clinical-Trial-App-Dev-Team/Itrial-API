@@ -4,8 +4,8 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import { router } from '../router';
-import { jwtCheck, teamMemberRoleCheck } from './auth';
-import jwtAuthz from 'express-jwt-authz';
+import jwtCheck from './auth';
+import config from './config';
 
 const server = express();
 server.use(morgan('dev'));
@@ -20,16 +20,7 @@ server.get('/auth', jwtCheck, (req: Request, res: Response) => {
   res.json(`This is a protected resource. Hello, ${req.query.email}.`);
 });
 
-server.get(
-  '/auth-scoped',
-  jwtCheck,
-  teamMemberRoleCheck,
-  (req: Request, res: Response) => {
-    res.json('This is a protected scoped resource.');
-  }
-);
-
-// server.use('/api', jwtCheck, router); tests wont pass if this is left as is
-server.use('/api', router);
+if (!config.isTesting) server.use('/api', jwtCheck, router);
+else server.use('/api', router);
 
 export default server;

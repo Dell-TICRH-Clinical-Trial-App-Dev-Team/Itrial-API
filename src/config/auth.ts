@@ -1,7 +1,6 @@
 import jwt from 'express-jwt';
 import config from './config';
 import jwks from 'jwks-rsa';
-import jwtAuthz from 'express-jwt-authz';
 
 const jwtCheck = jwt({
   secret: jwks.expressJwtSecret({
@@ -15,6 +14,4 @@ const jwtCheck = jwt({
   algorithms: ['RS256'],
 });
 
-const teamMemberRoleCheck = jwtAuthz(['teammember']);
-
-export { jwtCheck, teamMemberRoleCheck };
+export default jwtCheck;

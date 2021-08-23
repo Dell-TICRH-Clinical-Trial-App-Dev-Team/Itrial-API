@@ -2,9 +2,9 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 interface ITeamMember extends Document {
   name: string;
-  address: string;
+  address?: string;
   email: string;
-  phoneNumber: number;
+  phoneNumber?: number;
   permissions?: [string];
   trials?: [Schema.Types.ObjectId];
   sites?: [Schema.Types.ObjectId];

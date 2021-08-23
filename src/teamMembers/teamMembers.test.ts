@@ -7,7 +7,7 @@ import { connectToDB, dropDB } from '../config/db';
 import request from 'supertest';
 const req = request(server);
 
-import { TeamMember } from './teamMembers.model';
+import { ITeamMember, TeamMember } from './teamMembers.model';
 import { Trial } from '../trials/trials.model';
 import { Site } from '../sites/sites.model';
 import { Ccc } from '../cccs/cccs.model';
@@ -16,7 +16,7 @@ beforeAll(async () => {
   await connectToDB('teammembertestdb');
 });
 
-describe('GET /api/team-members/:teammemberid', () => {
+describe('GET /api/team-members/', () => {
   it('should get a TeamMember by id', async () => {
     const teamMember = await TeamMember.create({
       name: faker.name.firstName(),
@@ -26,18 +26,39 @@ describe('GET /api/team-members/:teammemberid', () => {
     });
     const id = teamMember._id.toString();
 
-    const response = await req.get(`/api/team-members/${id}`);
+    const response = await req.get(`/api/team-members/id/${id}`);
 
     expect(response.status).toBe(200);
     expect(response.body._id).toEqual(id);
   });
 
-  it('should return a 400 when ObjectId is invalid or missing', async () => {
-    await req.get('/api/team-members/69').expect(400);
+  it('should get a TeamMember by email', async () => {
+    const teamMember = await TeamMember.create({
+      name: faker.name.firstName(),
+      address: faker.address.streetAddress(),
+      email: faker.internet.email(),
+      phoneNumber: faker.datatype.number({ min: 1000000000, max: 9999999999 }),
+    });
+    const email = teamMember.email;
+
+    const response = await req.get(`/api/team-members/email/${email}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.email).toEqual(email);
   });
 
-  it('should return a 404 when ObjectId not found', async () => {
-    await req.get(`/api/team-members/${mongoose.Types.ObjectId()}`).expect(404);
+  it('should return a 400 when ObjectId or email is invalid or missing', async () => {
+    await req.get('/api/team-members/id/69').expect(400);
+    await req.get('/api/team-members/email/69').expect(400);
+  });
+
+  it('should return a 404 when ObjectId or email not found', async () => {
+    await req
+      .get(`/api/team-members/id/${mongoose.Types.ObjectId()}`)
+      .expect(404);
+    await req
+      .get(`/api/team-members/email/${faker.internet.email()}`)
+      .expect(404);
   });
 });
 
@@ -117,7 +138,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(400);
   });
@@ -129,7 +150,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${mongoose.Types.ObjectId()}`)
+      .put(`/api/team-members/id/${mongoose.Types.ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
@@ -140,7 +161,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       payload: 12,
     };
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(400);
   });
@@ -151,7 +172,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       payload: 'New Test TeamMember',
     };
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -166,7 +187,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -181,7 +202,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -196,7 +217,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -211,7 +232,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -226,7 +247,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -246,7 +267,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -267,7 +288,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -287,7 +308,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -302,7 +323,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -317,7 +338,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
@@ -332,7 +353,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
     };
 
     await req
-      .put(`/api/team-members/${teamMemberid}`)
+      .put(`/api/team-members/id/${teamMemberid}`)
       .send(reqBody)
       .expect(204);
 
