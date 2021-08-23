@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import config from './config';
 
 async function connectToDB(testUri?: string) {
-  const dbURI = `mongodb://localhost:27017/${testUri}` || config.mongoUrl;
+  const dbURI = testUri
+    ? `mongodb://localhost:27017/${testUri}`
+    : config.mongoUrl;
 
   mongoose.set('useCreateIndex', true);
   mongoose.connect(dbURI, {
@@ -11,7 +13,7 @@ async function connectToDB(testUri?: string) {
   });
 
   mongoose.connection.on('connected', () => {
-    // console.log(`Mongoose connected to ${dbURI}`);
+    console.log(`Mongoose connected to ${dbURI}`);
   });
   mongoose.connection.on('error', (err) => {
     console.log(`Mongoose connection error: ${err}`);

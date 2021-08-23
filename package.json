@@ -9,7 +9,7 @@
     "local": "ENV_FILE=./config/.env.defaults ts-node-dev src/app.ts",
     "dev": "ENV_FILE=./config/.env.dev ts-node src/app.ts",
     "test": "ENV_FILE=./config/.env.test jest",
-    "lint": "prettier --write",
+    "lint": "prettier --write .",
     "devWindows": "ts-node src/app.ts"
   },
   "repository": {
