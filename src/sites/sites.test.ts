@@ -1,16 +1,13 @@
-import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
 import { connectToDB, dropDB } from '../config/db';
+import { ObjectId } from '../utils/utils';
 
 import request from 'supertest';
 const req = request(server);
 
-import { Site } from './sites.model';
-import { Trial } from '../trials/trials.model';
-import { TeamMember } from '../teamMembers/teamMembers.model';
-import { CentralCoordinatingCenter } from '../centralCoordinatingCenters/cccs.model';
+import { SiteModel, TrialModel, TeamMemberModel, CccModel } from '../models';
 
 beforeAll(async () => {
   await connectToDB('sitetestdb');
@@ -18,7 +15,7 @@ beforeAll(async () => {
 
 describe('GET /api/sites/:siteid', () => {
   it('should get a Site by id', async () => {
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
@@ -35,7 +32,7 @@ describe('GET /api/sites/:siteid', () => {
   });
 
   it('should return a 404 when ObjectId not found', async () => {
-    await req.get(`/api/sites/${mongoose.Types.ObjectId()}`).expect(404);
+    await req.get(`/api/sites/${ObjectId()}`).expect(404);
   });
 });
 
@@ -66,23 +63,23 @@ describe('POST /api/sites/', () => {
 });
 
 describe('PUT /api/sites/:siteid', () => {
-  var siteid: string;
-  var cccid: ObjectId;
-  var trialid: ObjectId;
-  var teamMemberid: ObjectId;
+  let siteid: string;
+  let cccid: ObjectId;
+  let trialid: ObjectId;
+  let teamMemberid: ObjectId;
 
   beforeAll(async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
     trialid = trial._id;
 
-    const ccc = await CentralCoordinatingCenter.create({
-      name: 'Test CCC',
+    const ccc = await CccModel.create({
+      name: 'Test Ccc',
     });
     cccid = ccc._id;
 
-    const teamMember = await TeamMember.create({
+    const teamMember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
@@ -91,7 +88,7 @@ describe('PUT /api/sites/:siteid', () => {
     });
     teamMemberid = teamMember._id;
 
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
       trials: [trialid],
@@ -102,7 +99,7 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -111,19 +108,19 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should not update a nonexistant site', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test Site',
     };
 
     await req
-      .put(`/api/sites/${mongoose.Types.ObjectId()}`)
+      .put(`/api/sites/${ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -131,99 +128,99 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test Site',
     };
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.name).toBe(reqBody.payload);
   });
 
   it('should update address', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update address',
       payload: faker.address.streetAddress(),
     };
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.address).toBe(reqBody.payload);
   });
 
   it('should remove trials', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove trials',
       payload: [trialid],
     };
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.trials).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove cccs', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove cccs',
       payload: [cccid],
     };
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.cccs).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove teamMembers', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove teamMembers',
       payload: [teamMemberid],
     };
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.teamMembers).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should add trials', async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
     const newtrialid = trial._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add trials',
       payload: [newtrialid],
     };
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.trials).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add cccs', async () => {
-    const ccc = await CentralCoordinatingCenter.create({
-      name: 'Test CCC',
+    const ccc = await CccModel.create({
+      name: 'Test Ccc',
     });
     const newcccid = ccc._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add cccs',
       payload: [newcccid],
     };
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.cccs).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add team members', async () => {
-    const teamMember = await TeamMember.create({
+    const teamMember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
@@ -232,14 +229,14 @@ describe('PUT /api/sites/:siteid', () => {
     });
     const newteammemberid = teamMember._id;
 
-    var reqBody = {
+    let reqBody = {
       operation: 'add teamMembers',
       payload: [newteammemberid],
     };
 
     await req.put(`/api/sites/${siteid}`).send(reqBody).expect(204);
 
-    const updatedSite = await Site.findById(siteid).lean();
+    const updatedSite = await SiteModel.findById(siteid).lean();
     expect(updatedSite.teamMembers).toContainEqual(reqBody.payload[0]);
   });
 });

@@ -1,19 +1,22 @@
-import mongoose, { Document } from 'mongoose';
+import { prop, Ref } from '@typegoose/typegoose';
+import { Group } from '../groups/groups.model';
 
-export interface IIntervention extends Document {
+class Intervention {
+  @prop({ required: true })
   name: string;
+
+  @prop({ required: true })
   description: string;
+
+  @prop({ required: false })
   amount?: string;
-  timing?: [String];
-  groups: [mongoose.Schema.Types.ObjectId];
+
+  @prop({ required: true, type: () => [String] })
+  timing: string[];
+
+  
+  @prop({ required: true, ref: () => Group })
+  groups: Ref<Group>[];
 }
 
-export const InterventionSchema = new mongoose.Schema<IIntervention>({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  amount: String,
-  timing: [String],
-  groups: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
-  ],
-});
+export { Intervention }

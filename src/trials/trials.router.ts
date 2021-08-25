@@ -1,10 +1,8 @@
-import express from 'express';
-const router = express.Router();
+import { router } from '../crud/router';
 
-import { get, create, update } from './trials.controller';
+import { TrialModel } from '../models';
+import { updateFunctions } from './trials.service';
 
-router.get('/:trialid', get);
-router.put('/:trialid', update);
-router.post('/', create);
+const trialRouter = router(TrialModel, updateFunctions);
 
-export { router as trialRouter };
+export { trialRouter };

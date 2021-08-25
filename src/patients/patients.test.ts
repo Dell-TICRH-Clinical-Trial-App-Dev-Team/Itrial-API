@@ -1,4 +1,6 @@
-import mongoose, { NativeError, ObjectId } from 'mongoose';
+import { NativeError } from 'mongoose';
+import { ObjectId } from '../utils/utils';
+import { DocumentType as Doc } from '@typegoose/typegoose';
 import faker from 'faker';
 
 import server from '../config/server';
@@ -7,11 +9,8 @@ import { connectToDB, dropDB } from '../config/db';
 import request from 'supertest';
 const req = request(server);
 
-import { Patient, IPatient } from './patients.model';
-import { Trial } from '../trials/trials.model';
-import { Site } from '../sites/sites.model';
-import { Group } from '../trials/groups/groups.model';
-import { Endpoint } from '../endpoints/endpoints.model';
+import { Patient } from './patients.model';
+import { PatientModel, TrialModel, SiteModel, GroupModel, EndpointModel } from '../models';
 
 beforeAll(async () => {
   await connectToDB('patienttestdb');
@@ -19,7 +18,7 @@ beforeAll(async () => {
 
 describe('GET /api/patients/', () => {
   it('should get a Patient by id', async () => {
-    const patient = await Patient.create({
+    const patient = await PatientModel.create({
       dccid: 'fakedccid',
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -37,7 +36,7 @@ describe('GET /api/patients/', () => {
   });
 
   it('should get a Patient by email', async () => {
-    const patient = await Patient.create({
+    const patient = await PatientModel.create({
       dccid: 'fakedccid',
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -61,7 +60,7 @@ describe('GET /api/patients/', () => {
   });
 
   it('should return a 404 when ObjectId or email not found', async () => {
-    await req.get(`/api/patients/id/${mongoose.Types.ObjectId()}`).expect(404);
+    await req.get(`/api/patients/id/${ObjectId()}`).expect(404);
     await req.get(`/api/patients/email/${faker.internet.email()}`).expect(404);
   });
 });
@@ -106,13 +105,13 @@ describe('POST /api/patients/', () => {
 });
 
 describe('PUT /api/patients/:patientid', () => {
-  var patientid: string;
-  var endpointid: string;
+  let patientid: string;
+  let endpointid: string;
 
-  var siteid: ObjectId, trialid: ObjectId, groupid: ObjectId;
+  let siteid: ObjectId, trialid: ObjectId, groupid: ObjectId;
 
   beforeAll(async () => {
-    const patient = await Patient.create({
+    const patient = await PatientModel.create({
       dccid: 'newfakedccid',
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -124,23 +123,23 @@ describe('PUT /api/patients/:patientid', () => {
     });
     patientid = patient._id.toString();
 
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
     trialid = trial._id.toString();
 
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
     siteid = site._id.toString();
 
-    const group = await Group.create({
+    const group = await GroupModel.create({
       name: 'Test Group',
     });
     groupid = group._id.toString();
 
-    const endpoint = await Endpoint.create({
+    const endpoint = await EndpointModel.create({
       name: 'Test Endpoint',
       date: Date.now(),
       description: 'Test Description',
@@ -151,14 +150,14 @@ describe('PUT /api/patients/:patientid', () => {
     });
     endpointid = endpoint._id.toString();
 
-    await Patient.findById(patientid, (err: NativeError, patient: IPatient) => {
+    await PatientModel.findById(patientid, (err: NativeError, patient: Doc<Patient>) => {
       patient.endpoints.push(endpoint._id);
       patient.save();
     });
   });
 
   it('should reject an invalid update operation', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'invalid operation',
       payload: '',
     };
@@ -167,19 +166,19 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should not update a nonexistant patient', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'Test Patient',
     };
 
     await req
-      .put(`/api/patients/id/${mongoose.Types.ObjectId()}`)
+      .put(`/api/patients/id/${ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
 
   it('should reject an invalid payload', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 12,
     };
@@ -187,78 +186,78 @@ describe('PUT /api/patients/:patientid', () => {
   });
 
   it('should rename', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'rename',
       payload: 'New Test Patient',
     };
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.name).toBe(reqBody.payload);
   });
 
   it('should update address', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update address',
       payload: faker.address.streetAddress(),
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.address).toStrictEqual(reqBody.payload);
   });
 
   it('should update email', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update email',
       payload: faker.internet.email(),
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.email).toBe(reqBody.payload);
   });
 
   it('should update phoneNumber', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'update phoneNumber',
       payload: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.phoneNumber).toBe(reqBody.payload);
   });
 
   it('should add documents', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'add documents',
       payload: ['new test document'],
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.documents).toContain(reqBody.payload[0]);
   });
 
   it('should remove documents', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove documents',
       payload: ['test document'],
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.documents).not.toContain(reqBody.payload[0]);
   });
 
   it('should add endpoints', async () => {
-    const newendpoint = await Endpoint.create({
+    const newendpoint = await EndpointModel.create({
       name: 'New Test Endpoint',
       date: Date.now(),
       description: 'New Test Description',
@@ -267,78 +266,78 @@ describe('PUT /api/patients/:patientid', () => {
       group: groupid,
       patient: patientid,
     });
-    var reqBody = {
+    let reqBody = {
       operation: 'add endpoints',
       payload: [newendpoint._id],
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.endpoints).toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove endpoints', async () => {
-    var reqBody = {
+    let reqBody = {
       operation: 'remove endpoints',
       payload: [endpointid],
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.endpoints).not.toContain(reqBody.payload[0]);
   });
 
   it('should change site', async () => {
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'New Test Site',
       address: faker.address.streetAddress(),
     });
-    var newsiteid = site._id.toString();
+    let newsiteid = site._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change site',
       payload: newsiteid,
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.site.toString()).toBe(newsiteid);
   });
 
   it('should change group', async () => {
-    const group = await Group.create({
+    const group = await GroupModel.create({
       name: 'New Test Group',
     });
-    var newgroupid = group._id.toString();
+    let newgroupid = group._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change group',
       payload: newgroupid,
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.group.toString()).toBe(newgroupid);
   });
 
   it('should change trial', async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
-    var newtrialid = trial._id.toString();
+    let newtrialid = trial._id.toString();
 
-    var reqBody = {
+    let reqBody = {
       operation: 'change trial',
       payload: newtrialid,
     };
 
     await req.put(`/api/patients/id/${patientid}`).send(reqBody).expect(204);
 
-    const updatedPatient = await Patient.findById(patientid).lean();
+    const updatedPatient = await PatientModel.findById(patientid).lean();
     expect(updatedPatient.trial.toString()).toBe(newtrialid);
   });
 });

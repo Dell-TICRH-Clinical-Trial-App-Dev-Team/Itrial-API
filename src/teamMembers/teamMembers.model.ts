@@ -1,67 +1,40 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import { TeamMemberModel } from '../models';
+import { Trial } from '../trials/trials.model';
+import { Site } from '../sites/sites.model';
+import { Ccc } from '../cccs/cccs.model';
 
-interface ITeamMember extends Document {
+
+class TeamMember {
+  @prop({ required: true })
   name: string;
+
+  @prop()
   address?: string;
+
+  @prop({ required: true })
   email: string;
+  
+  @prop()
   phoneNumber?: number;
-  permissions?: [string];
-  trials?: [Schema.Types.ObjectId];
-  sites?: [Schema.Types.ObjectId];
-  cccs?: [Schema.Types.ObjectId];
+  
+  @prop({ required: true, type: () => [String] })
+  permissions: string[];
+
+  
+  @prop({ required: true, ref: () => Trial })
+  trials: Ref<Trial>[];
+
+  @prop({ required: true, ref: () => Site })
+  sites: Ref<Site>[];
+
+  @prop({ required: true, ref: () => Ccc })
+  cccs: Ref<Ccc>[];
+
+
+  public static build(this: Model<typeof TeamMember>, obj: TeamMember): Doc<TeamMember> {
+    return new TeamMemberModel(obj);
+  }
 }
 
-interface TeamMemberModel extends mongoose.Model<any> {
-  build(attr: ITeamMember): any;
-}
-
-const teamMemberSchema = new Schema<ITeamMember, TeamMemberModel>({
-  name: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
-    type: Number,
-    required: true,
-  },
-  permissions: {
-    type: [String],
-  },
-  trials: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Trial',
-    },
-  ],
-  sites: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Site',
-    },
-  ],
-  cccs: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'CentralCoordinatingCenter',
-    },
-  ],
-});
-
-teamMemberSchema.statics.build = (attr: ITeamMember) => {
-  return new TeamMember(attr);
-};
-
-const TeamMember = mongoose.model<ITeamMember, TeamMemberModel>(
-  'TeamMember',
-  teamMemberSchema
-);
-
-export { TeamMember, ITeamMember };
+export { TeamMember };

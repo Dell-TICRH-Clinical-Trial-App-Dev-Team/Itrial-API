@@ -1,47 +1,30 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import { GroupModel } from '../../models';
+import { Patient } from '../../patients/patients.model';
+import { Site } from '../../sites/sites.model';
+import { Trial } from '../../trials/trials.model';
 
-interface IGroup extends Document {
+class Group {
+  @prop({ required: true })
   name: string;
+
+  @prop()
   endpointResults?: string;
-  patients?: [Schema.Types.ObjectId];
-  sites?: [Schema.Types.ObjectId];
-  trial?: Schema.Types.ObjectId;
+
+
+  @prop({ required: true, ref: () => Patient })
+  patients: Ref<Patient>[];
+
+  @prop({ required: true, ref: () => Site })
+  sites: Ref<Site>[];
+
+  @prop({ ref: () => Trial })
+  trial?: Ref<Trial>;
+
+
+  public static build(this: Model<typeof Group>, obj: Group): Doc<Group> {
+    return new GroupModel(obj);
+  }
 }
 
-interface GroupModel extends mongoose.Model<IGroup> {
-  build(attr: IGroup): any;
-}
-
-const groupSchema = new Schema<IGroup, GroupModel>({
-  name: {
-    type: String,
-    required: true,
-  },
-  endpointResults: {
-    type: String,
-  },
-  sites: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Site',
-    },
-  ],
-  trial: {
-    type: Schema.Types.ObjectId,
-    ref: 'Trial',
-  },
-  patients: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Patient',
-    },
-  ],
-});
-
-groupSchema.statics.build = (attr: IGroup) => {
-  return new Group(attr);
-};
-
-const Group = mongoose.model<IGroup, GroupModel>('Group', groupSchema);
-
-export { Group, IGroup };
+export { Group };

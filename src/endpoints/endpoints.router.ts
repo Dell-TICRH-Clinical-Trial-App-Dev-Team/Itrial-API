@@ -1,10 +1,8 @@
-import express from 'express';
-const router = express.Router();
+import { router } from '../crud/router';
 
-import { get, create, update } from './endpoints.controller';
+import { EndpointModel } from '../models';
+import { updateFunctions } from './endpoints.service';
 
-router.get('/:endpointid', get);
-router.put('/:endpointid', update);
-router.post('/', create);
+const endpointRouter = router(EndpointModel, updateFunctions);
 
-export { router as endpointRouter };
+export { endpointRouter };

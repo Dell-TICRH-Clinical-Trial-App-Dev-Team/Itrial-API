@@ -1,39 +1,28 @@
-import { Schema, Document } from 'mongoose';
-import {
-  IIntervention,
-  InterventionSchema,
-} from '../interventions/interventions.model';
+import { prop, modelOptions, Severity } from '@typegoose/typegoose';
+import { Intervention } from '../interventions/interventions.model';
 
 /* needs some work */
-export interface IEndpointInfo extends Document {
+@modelOptions({ options: { allowMixed: Severity.ALLOW } })
+class EndpointInfo {
+  @prop({ required: true })
   type: 'quantitative' | 'qualitative' | 'file';
+
+  @prop()
   range?: [string | number, string | number];
+
+  @prop()
   url?: string;
 }
 
-export const EndpointInfoSchema = new Schema({
-  type: {
-    type: String,
-    enum: ['quantitative', 'qualitative', 'file'],
-  },
-  range: {
-    type: [Schema.Types.Mixed],
-    required: false,
-  },
-  url: {
-    type: String,
-    required: false,
-  },
-});
-
-export interface ITrialProtocol extends Document {
+class TrialProtocol {
+  @prop({ required: true })
   name: string;
-  interventions: [IIntervention];
-  endpointInfo: IEndpointInfo;
+
+  @prop({ required: true, type: () => [Intervention] })
+  interventions: Intervention[];
+
+  @prop()
+  endpointInfo?: EndpointInfo;
 }
 
-export const TrialProtocolSchema = new Schema({
-  name: { type: String, required: true },
-  interventions: [InterventionSchema],
-  endpointInfo: EndpointInfoSchema,
-});
+export { EndpointInfo, TrialProtocol };

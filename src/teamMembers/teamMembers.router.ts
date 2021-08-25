@@ -1,11 +1,17 @@
 import express from 'express';
+
+import { create, read, update } from '../crud/controller';
+
+import { readByEmail } from './teamMembers.controller';
+import { TeamMemberModel } from '../models';
+import { updateFunctions } from './teamMembers.service';
+
 const router = express.Router();
 
-import { getById, getByEmail, create, update } from './teamMembers.controller';
+router.post('/', create(TeamMemberModel));
+router.get('/id/:id', read(TeamMemberModel));
+router.put('/id/:id', update(TeamMemberModel, updateFunctions));
 
-router.get('/id/:teammemberid', getById);
-router.get('/email/:teammemberemail', getByEmail);
-router.put('/id/:teammemberid', update);
-router.post('/', create);
+router.get('/email/:email', readByEmail);
 
 export { router as teamMemberRouter };

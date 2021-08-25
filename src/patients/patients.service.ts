@@ -1,9 +1,11 @@
-import { NativeError, ObjectId } from 'mongoose';
-import { Patient, IPatient } from './patients.model';
+import { getName, DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
+import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
 
-const updateFunctions = new Map([
+import { Patient } from './patients.model';
+import { PatientModel } from '../models';
+
+export const updateFunctions = new Map([
   ['rename', rename],
   ['update address', updateAddress],
   ['update email', updateEmail],
@@ -16,164 +18,84 @@ const updateFunctions = new Map([
   ['change site', changeSite],
   ['change trial', changeTrial],
 ]);
-const updateOptions = [...updateFunctions.keys()];
 
-export async function getPatientById(id: string): Promise<IPatient> {
-  return new Promise((resolve, reject) => {
-    Patient.findById(id, (err: NativeError, patient: IPatient) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else if (!patient)
-        return reject({
-          status: 404,
-          message: `Patient with id: ${id} not found`,
-        });
-      else resolve(patient);
-    });
-  });
+export async function getPatientByEmail(email: string): Promise<Doc<Patient>> {
+  let doc = await PatientModel.findOne({ email: email }).exec();
+  if (!doc) throw new ClientError(404, 
+    `document of type "${getName(PatientModel)}" with email "${email}" not found`);
+  return doc;
 }
 
-export async function getPatientByEmail(email: string): Promise<IPatient> {
-  return new Promise((resolve, reject) => {
-    Patient.findOne({ email: email }, (err: NativeError, patient: IPatient) => {
-      if (!email.includes('@'))
-        return reject({ status: 400, message: 'invalid email' });
-      else if (!patient)
-        return reject({
-          status: 404,
-          message: `Patient with email: ${email} not found`,
-        });
-      else resolve(patient);
-    });
-  });
-}
-
-export async function createPatient(newPatient: IPatient): Promise<IPatient> {
-  return new Promise((resolve, reject) => {
-    const patient = Patient.build(newPatient);
-
-    patient.save((err: NativeError, newPatient: IPatient) => {
-      if (err) return reject(err);
-      else resolve(newPatient);
-    });
-  });
-}
-
-export async function updatePatient(
-  id: string,
-  operation: string,
-  payload: any
-): Promise<IPatient> {
-  return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation)) {
-      return reject({
-        status: 400,
-        message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
-      });
-    }
-
-    var patient: IPatient = await Patient.findById(id);
-
-    if (patient == null)
-      return reject({
-        status: 404,
-        message: `patient with id: ${id} not found`,
-      });
-
-    try {
-      updateFunctions.get(operation)(patient, payload);
-    } catch (err) {
-      return reject(err);
-    }
-
-    patient.save((err: NativeError, updatedPatient: IPatient) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedPatient);
-    });
-  });
-}
-
-function rename(patient: IPatient, name: any): void {
+function rename(patient: Doc<Patient>, name: any): void {
   if (typeof name != 'string' || name == '')
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   patient.name = name;
 }
 
-function updateAddress(patient: IPatient, address: any): void {
+function updateAddress(patient: Doc<Patient>, address: any): void {
   if (typeof address != 'string' || address == '')
-    throw { status: 400, message: 'Invalid address' };
+    throw new ClientError(400, 'invalid address');
   patient.address = address;
 }
 
-function updateEmail(patient: IPatient, email: any): void {
+function updateEmail(patient: Doc<Patient>, email: any): void {
   if (typeof email != 'string' || email == '')
-    throw { status: 400, message: 'Invalid email' };
+    throw new ClientError(400, 'invalid email');
   patient.email = email;
 }
 
-function updatePhoneNumber(patient: IPatient, phoneNumber: any): void {
+function updatePhoneNumber(patient: Doc<Patient>, phoneNumber: any): void {
   if (typeof phoneNumber != 'number' || phoneNumber < 1000000000)
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   patient.phoneNumber = phoneNumber;
 }
 
-function addEndpoints(patient: IPatient, endpoints: any): void {
+function addEndpoints(patient: Doc<Patient>, endpoints: any): void {
   if (!isArrayOfStrings(endpoints))
-    throw {
-      status: 400,
-      message: 'endpoints must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'endpoints must be passed in as ObjectId[]');
 
-  patient.endpoints.push(...endpoints);
+  patient.endpoints.push(...endpoints.map(ObjectId));
 }
 
-function removeEndpoints(patient: IPatient, endpoints: any): void {
+function removeEndpoints(patient: Doc<Patient>, endpoints: any): void {
   if (!isArrayOfStrings(endpoints))
-    throw {
-      status: 400,
-      message: 'endpoints must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'endpoints must be passed in as ObjectId[]');
 
-  endpoints.forEach((endpointid: ObjectId) => {
-    patient.endpoints.splice(patient.endpoints.indexOf(endpointid));
-  });
+  for (let endpointId of endpoints) {
+    patient.endpoints.splice(patient.endpoints.indexOf(ObjectId(endpointId)));
+  }    
 }
 
-function addDocuments(patient: IPatient, documents: any): void {
+function addDocuments(patient: Doc<Patient>, documents: any): void {
   if (!isArrayOfStrings(documents))
-    throw {
-      status: 400,
-      message: 'documents must be passed in as [string]',
-    };
+    throw new ClientError(400, 'documents must be passed in as string[]');
 
   patient.documents.push(...documents);
 }
 
-function removeDocuments(patient: IPatient, documents: any): void {
+function removeDocuments(patient: Doc<Patient>, documents: any): void {
   if (!isArrayOfStrings(documents))
-    throw {
-      status: 400,
-      message: 'documents must be passed in as [string]',
-    };
+    throw new ClientError(400, 'documents must be passed in as string[]');
 
-  documents.forEach((document: string) => {
+  for (let document of documents) {
     patient.documents.splice(patient.documents.indexOf(document));
-  });
+  }
 }
 
-function changeSite(patient: IPatient, siteid: any): void {
-  if (!doesDocumentWithIdExist(siteid, 'Site'))
-    throw { status: 404, message: `site with id ${siteid} not found` };
-  patient.site = siteid;
+function changeSite(patient: Doc<Patient>, siteId: any): void {
+  if (!doesDocumentWithIdExist(siteId, 'Site'))
+    throw new ClientError(404, `site with id "${siteId}" not found`);
+  patient.site = siteId;
 }
 
-function changeTrial(patient: IPatient, trialid: any): void {
-  if (!doesDocumentWithIdExist(trialid, 'Trial'))
-    throw { status: 404, message: `trial with id ${trialid} not found` };
-  patient.trial = trialid;
+function changeTrial(patient: Doc<Patient>, trialId: any): void {
+  if (!doesDocumentWithIdExist(trialId, 'Trial'))
+    throw new ClientError(404, `trial with id "${trialId}" not found`);
+  patient.trial = trialId;
 }
 
-function changeGroup(patient: IPatient, groupid: any): void {
-  if (!doesDocumentWithIdExist(groupid, 'Group'))
-    throw { status: 404, message: `group with id ${groupid} not found` };
-  patient.group = groupid;
+function changeGroup(patient: Doc<Patient>, groupId: any): void {
+  if (!doesDocumentWithIdExist(groupId, 'Group'))
+    throw new ClientError(404, `group with id "${groupId}" not found`);
+  patient.group = groupId;
 }

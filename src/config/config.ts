@@ -26,7 +26,7 @@ const config: Config = {
   port: parsedEnv.PORT as number,
   domain: parsedEnv.AUTH0_DOMAIN as string,
   audience: parsedEnv.AUTH0_AUDIENCE as string,
-  isTesting: parsedEnv.isTesting as boolean,
+  isTesting: parsedEnv.IS_TESTING as boolean,
 };
 
 export default config;

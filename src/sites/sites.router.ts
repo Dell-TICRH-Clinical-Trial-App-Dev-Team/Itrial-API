@@ -1,10 +1,8 @@
-import express from 'express';
-const router = express.Router();
+import { router } from '../crud/router';
 
-import { get, create, update } from './sites.controller';
+import { SiteModel } from '../models';
+import { updateFunctions } from './sites.service';
 
-router.get('/:siteid', get);
-router.put('/:siteid', update);
-router.post('/', create);
+const siteRouter = router(SiteModel, updateFunctions);
 
-export { router as siteRouter };
+export { siteRouter };

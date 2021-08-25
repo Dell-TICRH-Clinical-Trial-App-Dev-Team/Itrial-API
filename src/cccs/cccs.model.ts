@@ -1,29 +1,26 @@
 import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
-import { SiteModel } from '../models';
+import { CccModel } from '../models';
+import { Site } from '../sites/sites.model';
 import { Trial } from '../trials/trials.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
-import { Ccc } from '../cccs/cccs.model';
 
-class Site {
+class Ccc {
   @prop({ required: true })
   name: string;
 
-  @prop({ required: true })
-  address: string;
-
+  @prop({ required: true, ref: () => Site })
+  sites: Ref<Site>[];
 
   @prop({ required: true, ref: () => Trial })
   trials: Ref<Trial>[];
 
   @prop({ required: true, ref: () => TeamMember })
   teamMembers: Ref<TeamMember>[];
-
-  @prop({ required: true, ref: () => Ccc })
-  cccs: Ref<Ccc>[];
-
-  public static build(this: Model<typeof Site>, obj: Site): Doc<Site> {
-    return new SiteModel(obj);
+  
+  
+  public static build(this: Model<typeof Ccc>, obj: Ccc): Doc<Ccc> {
+    return new CccModel(obj);
   }
 }
 
-export { Site };
+export { Ccc };

@@ -1,176 +1,92 @@
-import { NativeError, ObjectId } from 'mongoose';
-import { Site, ISite } from './sites.model';
+import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
+import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
 
-const updateFunctions = new Map([
+import { Site } from './sites.model';
+
+
+export const updateFunctions = new Map([
   ['rename', rename],
   ['update address', updateAddress],
   ['add trials', addTrials],
   ['add teamMembers', addTeamMembers],
-  ['add cccs', addCCCs],
+  ['add cccs', addCccs],
   ['remove trials', removeTrials],
   ['remove teamMembers', removeTeamMembers],
-  ['remove cccs', removeCCCs],
+  ['remove cccs', removeCccs],
 ]);
-const updateOptions = [...updateFunctions.keys()];
 
-export async function getSiteById(id: string): Promise<ISite> {
-  return new Promise((resolve, reject) => {
-    Site.findById(id, (err: NativeError, site: ISite) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else if (!site)
-        return reject({
-          status: 404,
-          message: `Site with id: ${id} not found`,
-        });
-      else resolve(site);
-    });
-  });
-}
-
-export async function createSite(newSite: ISite): Promise<ISite> {
-  return new Promise((resolve, reject) => {
-    const site = Site.build(newSite);
-
-    site.save((err: NativeError, newSite: ISite) => {
-      if (err) return reject(err);
-      else resolve(newSite);
-    });
-  });
-}
-
-export async function updateSite(
-  id: string,
-  operation: string,
-  payload: string | [ObjectId]
-): Promise<ISite> {
-  return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation))
-      return reject({
-        status: 400,
-        message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
-      });
-
-    var site: ISite = await Site.findById(id);
-
-    if (site == null)
-      return reject({
-        status: 404,
-        message: `site with id: ${id} not found`,
-      });
-
-    try {
-      updateFunctions.get(operation)(site, payload);
-    } catch (err) {
-      return reject(err);
-    }
-
-    site.save((err: NativeError, updatedSite: ISite) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedSite);
-    });
-  });
-}
-
-function rename(site: ISite, name: any): void {
+function rename(site: Doc<Site>, name: any): void {
   if (typeof name != 'string' || name == '')
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   site.name = name;
 }
 
-function updateAddress(site: ISite, address: any): void {
+function updateAddress(site: Doc<Site>, address: any): void {
   if (typeof address != 'string' || address == '')
-    throw { status: 400, message: 'Invalid address' };
+    throw new ClientError(400, 'invalid address');
   site.address = address;
 }
 
-function addTeamMembers(site: ISite, teamMembers: any): void {
+function addTeamMembers(site: Doc<Site>, teamMembers: any): void {
   if (!isArrayOfStrings(teamMembers))
-    throw {
-      status: 400,
-      message: 'teamMembers must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'teamMembers must be passed in as [ObjectId]');
 
-  teamMembers.forEach((teamMemberid: string) => {
-    if (!doesDocumentWithIdExist(teamMemberid, 'TeamMember'))
-      throw {
-        status: 404,
-        message: `teamMember with id ${teamMemberid} not found`,
-      };
-  });
+  for (let teamMemberId of teamMembers) {
+    if (!doesDocumentWithIdExist(teamMemberId, 'TeamMember'))
+      throw new ClientError(404, `teamMember with id ${teamMemberId} not found`);
+  }
 
-  site.teamMembers.push(...teamMembers);
+  site.teamMembers.push(...teamMembers.map(ObjectId));
 }
 
-function removeTeamMembers(site: ISite, teamMembers: any): void {
+function removeTeamMembers(site: Doc<Site>, teamMembers: any): void {
   if (!isArrayOfStrings(teamMembers))
-    throw {
-      status: 400,
-      message: 'teamMembers must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'teamMembers must be passed in as [ObjectId]');
 
-  teamMembers.forEach((teamMemberid: ObjectId) => {
-    site.teamMembers.splice(site.teamMembers.indexOf(teamMemberid));
-  });
+  for (let teamMemberId of teamMembers) {
+    site.teamMembers.splice(site.teamMembers.indexOf(ObjectId(teamMemberId)));
+  }
 }
 
-function addTrials(site: ISite, trials: any): void {
+function addTrials(site: Doc<Site>, trials: any): void {
   if (!isArrayOfStrings(trials))
-    throw {
-      status: 400,
-      message: 'trials must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'trials must be passed in as [ObjectId]');
 
-  trials.forEach((trialid: string) => {
-    if (!doesDocumentWithIdExist(trialid, 'Trial'))
-      throw {
-        status: 404,
-        message: `trial with id ${trialid} not found`,
-      };
-  });
+  for (let trialId of trials) {
+    if (!doesDocumentWithIdExist(trialId, 'Trial'))
+      throw new ClientError(404, `trial with id ${trialId} not found`);
+  }
 
-  site.trials.push(...trials);
+  site.trials.push(...trials.map(ObjectId));
 }
 
-function removeTrials(site: ISite, trials: any): void {
+function removeTrials(site: Doc<Site>, trials: any): void {
   if (!isArrayOfStrings(trials))
-    throw {
-      status: 400,
-      message: 'trials must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'trials must be passed in as [ObjectId]');
 
-  trials.forEach((trialid: ObjectId) => {
-    site.trials.splice(site.trials.indexOf(trialid));
-  });
+  for (let trialId of trials) {
+    site.trials.splice(site.trials.indexOf(ObjectId(trialId)));
+  }
 }
 
-function addCCCs(site: ISite, cccs: any): void {
+function addCccs(site: Doc<Site>, cccs: any): void {
   if (!isArrayOfStrings(cccs))
-    throw {
-      status: 400,
-      message: 'cccs must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
-  cccs.forEach((cccid: string) => {
-    if (!doesDocumentWithIdExist(cccid, 'CCC'))
-      throw {
-        status: 404,
-        message: `ccc with id ${cccid} not found`,
-      };
-  });
+  for (let cccId of cccs) {
+    if (!doesDocumentWithIdExist(cccId, 'Ccc'))
+      throw new ClientError(404, `ccc with id ${cccId} not found`);
+  }
 
-  site.cccs.push(...cccs);
+  site.cccs.push(...cccs.map(ObjectId));
 }
 
-function removeCCCs(site: ISite, cccs: any): void {
+function removeCccs(site: Doc<Site>, cccs: any): void {
   if (!isArrayOfStrings(cccs))
-    throw {
-      status: 400,
-      message: 'cccs must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
-  cccs.forEach((cccid: ObjectId) => {
-    site.cccs.splice(site.cccs.indexOf(cccid));
-  });
+  for (let cccId of cccs) {
+    site.cccs.splice(site.cccs.indexOf(ObjectId(cccId)));
+  }
 }
