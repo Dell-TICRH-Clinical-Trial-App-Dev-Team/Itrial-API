@@ -124,7 +124,7 @@ describe('PUT /api/cccs/:cccId', () => {
       operation: 'rename',
       payload: 'Test Ccc',
     };
-
+    
     await req.put(`/api/cccs/id/${ObjectId()}`).send(reqBody).expect(404);
   });
 
