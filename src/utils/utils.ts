@@ -1,23 +1,46 @@
-import { NativeError, ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
+import { Result } from 'express-validator';
+import { ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
 
-import { Endpoint } from '../endpoints/endpoints.model';
-import { Ccc } from '../cccs/cccs.model';
-import { Site } from '../sites/sites.model';
-import { Patient } from '../patients/patients.model';
-import { TeamMember } from '../teamMembers/teamMembers.model';
-import { Group } from '../trials/groups/groups.model';
-import { Trial } from '../trials/trials.model';
+import { EndpointModel, CccModel, SiteModel, PatientModel, TeamMemberModel, GroupModel, TrialModel } from '../models';
 
-let modelMap: Map<string, any> = new Map();
-modelMap.set('Ccc', Ccc);
-modelMap.set('Endpoint', Endpoint);
-modelMap.set('Patient', Patient);
-modelMap.set('Site', Site);
-modelMap.set('TeamMember', TeamMember);
-modelMap.set('Trial', Trial);
-modelMap.set('Group', Group);
 
-export function isArrayOfStrings(arr: any): boolean {
+export import ObjectId = mongoose.Types.ObjectId;
+
+interface Buildable<T> {
+  build(obj: T): Doc<T>;
+}
+
+export type CrudModel<T> = Model<new (...args: any) => T> & Buildable<T>;
+export type UpdateFunctions<T> = Map<string, ((doc: Doc<T>, param: any) => void)>;
+
+export class ClientError {
+  status: number;
+  errors: string[]
+  
+  constructor(status: number, message?: string) {
+    this.status = status;
+    this.errors = message ? [message] : [];
+  }
+
+  public push(message: string) {
+    this.errors.push(message);
+  }
+}
+
+
+export function throwValidation(result: Result) {
+  if (!result.isEmpty()) {
+    let errors = new ClientError(400);
+    for (let error of result.array()) {
+      errors.push(`invalid value for parameter "${error.param}": "${error.msg}"`);
+    }
+    throw errors;
+  }
+}
+
+
+export function isArrayOfStrings(arr: any): arr is string[] {
   if (Array.isArray(arr))
     return (
       arr.filter(
@@ -28,11 +51,21 @@ export function isArrayOfStrings(arr: any): boolean {
   return false;
 }
 
+
+let modelMap: Map<string, any> = new Map();
+modelMap.set('Ccc', CccModel);
+modelMap.set('Endpoint', EndpointModel);
+modelMap.set('Patient', PatientModel);
+modelMap.set('Site', SiteModel);
+modelMap.set('TeamMember', TeamMemberModel);
+modelMap.set('Trial', TrialModel);
+modelMap.set('Group', GroupModel);
+
 export async function doesDocumentWithIdExist(
   id: ObjectId | string,
   modelName: string
 ): Promise<boolean> {
+  
   const count = await modelMap.get(modelName).countDocuments({ _id: id });
-
   return count != 0;
 }

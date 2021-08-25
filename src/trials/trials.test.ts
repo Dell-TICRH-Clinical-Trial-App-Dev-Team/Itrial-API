@@ -1,17 +1,14 @@
-import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
 import { connectToDB, dropDB } from '../config/db';
+import { ObjectId } from '../utils/utils';
+
 
 import request from 'supertest';
 const req = request(server);
 
-import { Trial } from './trials.model';
-import { Site } from '../sites/sites.model';
-import { Group } from './groups/groups.model';
-import { TeamMember } from '../teamMembers/teamMembers.model';
-import { Patient } from '../patients/patients.model';
+import { TrialModel, SiteModel, GroupModel, TeamMemberModel, PatientModel } from '../models';
 
 beforeAll(async () => {
   await connectToDB('trialstestdb');
@@ -19,7 +16,7 @@ beforeAll(async () => {
 
 describe('GET /api/trials/:trialid', () => {
   it('should get a Trial by id', async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: faker.name.firstName(),
     });
     const id = trial._id.toString();
@@ -35,7 +32,7 @@ describe('GET /api/trials/:trialid', () => {
   });
 
   it('should return a 404 when ObjectId not found', async () => {
-    await req.get(`/api/trials/${mongoose.Types.ObjectId()}`).expect(404);
+    await req.get(`/api/trials/${ObjectId()}`).expect(404);
   });
 });
 
@@ -67,18 +64,18 @@ describe('PUT /api/trials/:trialid', () => {
     patientid: ObjectId;
 
   beforeAll(async () => {
-    const group = await Group.create({
+    const group = await GroupModel.create({
       name: 'Test Trial',
     });
     groupid = group._id;
 
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
     siteid = site._id;
 
-    const patient = await Patient.create({
+    const patient = await PatientModel.create({
       dccid: 'fakedccid',
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -89,7 +86,7 @@ describe('PUT /api/trials/:trialid', () => {
     });
     patientid = patient._id;
 
-    const teamMember = await TeamMember.create({
+    const teamMember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
@@ -97,7 +94,7 @@ describe('PUT /api/trials/:trialid', () => {
     });
     teamMemberid = teamMember._id.toString();
 
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: faker.name.firstName(),
       endpointResults: 'test endpoint results',
       protocols: [{ name: 'test protocol' }],
@@ -127,7 +124,7 @@ describe('PUT /api/trials/:trialid', () => {
     };
 
     await req
-      .put(`/api/trials/${mongoose.Types.ObjectId()}`)
+      .put(`/api/trials/${ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
@@ -147,7 +144,7 @@ describe('PUT /api/trials/:trialid', () => {
     };
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.name).toBe(reqBody.payload);
   });
 
@@ -159,7 +156,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.endpointResults).toStrictEqual(reqBody.payload);
   });
 
@@ -171,7 +168,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.protocols).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -189,7 +186,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.protocols).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -207,7 +204,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.protocols).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -225,7 +222,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.permissions).toContain(reqBody.payload[0]);
   });
 
@@ -237,7 +234,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.permissions).not.toContain(reqBody.payload[0]);
   });
 
@@ -249,7 +246,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.permissions[0]).toBe(reqBody.payload[0]);
   });
 
@@ -261,12 +258,12 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.blinded).toBe(reqBody.payload);
   });
 
   it('should add teamMembers', async () => {
-    const newteammember = await TeamMember.create({
+    const newteammember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
@@ -281,12 +278,12 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.teamMembers).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add sites', async () => {
-    const newsite = await Site.create({
+    const newsite = await SiteModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
     });
@@ -299,12 +296,12 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.sites).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add groups', async () => {
-    const newgroup = await Group.create({
+    const newgroup = await GroupModel.create({
       name: faker.name.firstName(),
     });
     const newgroupid = newgroup._id;
@@ -316,12 +313,12 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.groups).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add patients', async () => {
-    const newpatient = await Patient.create({
+    const newpatient = await PatientModel.create({
       dccid: 'difffakedccid',
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -339,7 +336,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.patients).toContainEqual(reqBody.payload[0]);
   });
 
@@ -351,7 +348,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.teamMembers).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -363,7 +360,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.sites).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -372,10 +369,9 @@ describe('PUT /api/trials/:trialid', () => {
       operation: 'remove groups',
       payload: [groupid],
     };
-
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.groups).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -387,7 +383,7 @@ describe('PUT /api/trials/:trialid', () => {
 
     await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
 
-    const updatedTrial = await Trial.findById(trialid).lean();
+    const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.patients).not.toContainEqual(reqBody.payload[0]);
   });
 });

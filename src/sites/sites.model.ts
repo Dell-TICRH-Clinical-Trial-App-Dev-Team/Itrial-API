@@ -1,50 +1,29 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import { SiteModel } from '../models';
+import { Trial } from '../trials/trials.model';
+import { TeamMember } from '../teamMembers/teamMembers.model';
+import { Ccc } from '../cccs/cccs.model';
 
-interface ISite extends Document {
+class Site {
+  @prop({ required: true })
   name: string;
+
+  @prop({ required: true })
   address: string;
-  trials?: [Schema.Types.ObjectId];
-  teamMembers?: [Schema.Types.ObjectId];
-  cccs?: [Schema.Types.ObjectId];
+
+
+  @prop({ required: true, ref: () => Trial })
+  trials: Ref<Trial>[];
+
+  @prop({ required: true, ref: () => TeamMember })
+  teamMembers: Ref<TeamMember>[];
+
+  @prop({ required: true, ref: () => Ccc })
+  cccs: Ref<Ccc>[];
+
+  public static build(this: Model<typeof Site>, obj: Site): Doc<Site> {
+    return new SiteModel(obj);
+  }
 }
 
-interface SiteModel extends mongoose.Model<ISite> {
-  build(site: ISite): any;
-}
-
-const siteSchema = new Schema<ISite, SiteModel>({
-  name: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  trials: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Trial',
-    },
-  ],
-  teamMembers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'TeamMember',
-    },
-  ],
-  cccs: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'CentralCoordinatingCenter',
-    },
-  ],
-});
-
-siteSchema.statics.build = (site: ISite) => {
-  return new Site(site);
-};
-
-const Site = mongoose.model<ISite, SiteModel>('Site', siteSchema);
-
-export { Site, ISite };
+export { Site };

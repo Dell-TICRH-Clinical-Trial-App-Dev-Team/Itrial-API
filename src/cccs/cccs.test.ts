@@ -1,24 +1,21 @@
-import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
 import { connectToDB, dropDB } from '../config/db';
+import { ObjectId } from '../utils/utils';
 
 import request from 'supertest';
 const req = request(server);
 
-import { Ccc } from './cccs.model';
-import { Trial } from '../trials/trials.model';
-import { Site } from '../sites/sites.model';
-import { TeamMember } from '../teamMembers/teamMembers.model';
+import { CccModel, TrialModel, SiteModel, TeamMemberModel } from '../models';
 
 beforeAll(async () => {
   await connectToDB('ccctestdb');
 });
 
-describe('GET /api/cccs/:cccid', () => {
+describe('GET /api/cccs/:cccId', () => {
   it('should get a Central Coordindating Center by id', async () => {
-    const ccc = await Ccc.create({
+    const ccc = await CccModel.create({
       name: 'Test Ccc',
     });
     const id = ccc._id.toString();
@@ -34,7 +31,7 @@ describe('GET /api/cccs/:cccid', () => {
   });
 
   it('should return a 404 when ObjectId not found', async () => {
-    await req.get(`/api/cccs/${mongoose.Types.ObjectId()}`).expect(404);
+    await req.get(`/api/cccs/${ObjectId()}`).expect(404);
   });
 });
 
@@ -59,25 +56,25 @@ describe('POST /api/cccs/', () => {
   });
 });
 
-describe('PUT /api/cccs/:cccid', () => {
-  let cccid: string;
+describe('PUT /api/cccs/:cccId', () => {
+  let cccId: string;
   let trialid: ObjectId;
   let siteid: ObjectId;
   let teamMemberid: ObjectId;
 
   beforeAll(async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
     trialid = trial._id;
 
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
     siteid = site._id;
 
-    const teamMember = await TeamMember.create({
+    const teamMember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
@@ -86,13 +83,13 @@ describe('PUT /api/cccs/:cccid', () => {
     });
     teamMemberid = teamMember._id;
 
-    const ccc = await Ccc.create({
+    const ccc = await CccModel.create({
       name: 'Test Ccc',
       trials: [trialid],
       sites: [siteid],
       teamMembers: [teamMemberid],
     });
-    cccid = ccc._id.toString();
+    cccId = ccc._id.toString();
   });
 
   it('should reject an invalid update operation', async () => {
@@ -101,7 +98,7 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: '',
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(400);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(400);
   });
 
   it('should not update a nonexistant ccc', async () => {
@@ -111,7 +108,7 @@ describe('PUT /api/cccs/:cccid', () => {
     };
 
     await req
-      .put(`/api/cccs/${mongoose.Types.ObjectId()}`)
+      .put(`/api/cccs/${ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
@@ -122,7 +119,7 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: 12,
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(400);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(400);
   });
 
   it('should rename Ccc', async () => {
@@ -130,9 +127,9 @@ describe('PUT /api/cccs/:cccid', () => {
       operation: 'rename',
       payload: 'New Test Ccc',
     };
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.name).toBe(reqBody.payload);
   });
 
@@ -142,9 +139,9 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: [trialid],
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.trials).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -154,9 +151,9 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: [siteid],
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.sites).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -166,14 +163,14 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: [teamMemberid],
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.teamMembers).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should add trials', async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
     const newtrialid = trial._id;
@@ -183,14 +180,14 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: [newtrialid],
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.trials).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add sites', async () => {
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'Test Site',
       address: faker.address.streetAddress(),
     });
@@ -201,14 +198,14 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: [newsiteid],
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.sites).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add team members', async () => {
-    const teamMember = await TeamMember.create({
+    const teamMember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
@@ -222,9 +219,9 @@ describe('PUT /api/cccs/:cccid', () => {
       payload: [newteammemberid],
     };
 
-    await req.put(`/api/cccs/${cccid}`).send(reqBody).expect(204);
+    await req.put(`/api/cccs/${cccId}`).send(reqBody).expect(204);
 
-    const updatedCcc = await Ccc.findById(cccid).lean();
+    const updatedCcc = await CccModel.findById(cccId).lean();
     expect(updatedCcc.teamMembers).toContainEqual(reqBody.payload[0]);
   });
 });

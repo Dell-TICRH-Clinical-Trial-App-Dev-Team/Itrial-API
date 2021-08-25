@@ -1,9 +1,10 @@
-import { NativeError, ObjectId } from 'mongoose';
-import { Endpoint, IEndpoint } from './endpoints.model';
+import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { isArrayOfStrings, doesDocumentWithIdExist } from '../utils/utils';
+import { doesDocumentWithIdExist, isArrayOfStrings, ClientError } from '../utils/utils';
 
-const updateFunctions = new Map([
+import { Endpoint } from './endpoints.model';
+
+export const updateFunctions = new Map([
   ['rename', rename],
   ['change date', changeDate],
   ['change description', changeDescription],
@@ -16,137 +17,70 @@ const updateFunctions = new Map([
   ['change patient', changePatient],
 ]);
 
-const updateOptions = [...updateFunctions.keys()];
-
-export async function getEndpointById(id: string): Promise<IEndpoint> {
-  return new Promise((resolve, reject) => {
-    Endpoint.findById(id, (err: NativeError, endpoint: IEndpoint) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else if (!endpoint)
-        return reject({
-          status: 404,
-          message: `Endpoint with id: ${id} not found`,
-        });
-      else resolve(endpoint);
-    });
-  });
-}
-
-export async function createEndpoint(
-  newEndpoint: IEndpoint
-): Promise<IEndpoint> {
-  return new Promise((resolve, reject) => {
-    const endpoint = Endpoint.build(newEndpoint);
-
-    endpoint.save((err: NativeError, newEndpoint: IEndpoint) => {
-      if (err) return reject(err);
-      else resolve(newEndpoint);
-    });
-  });
-}
-
-export async function updateEndpoint(
-  id: string,
-  operation: string,
-  payload: string | [String] | ObjectId
-): Promise<IEndpoint> {
-  return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation))
-      return reject({
-        status: 400,
-        message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
-      });
-
-    let endpoint: IEndpoint = await Endpoint.findById(id);
-    if (endpoint == null)
-      return reject({
-        status: 404,
-        message: `endpoint with id ${id} not found`,
-      });
-
-    try {
-      updateFunctions.get(operation)(endpoint, payload);
-    } catch (err) {
-      return reject(err);
-    }
-
-    endpoint.save((err: NativeError, updatedEndpoint: IEndpoint) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedEndpoint);
-    });
-  });
-}
-
-function rename(endpoint: IEndpoint, name: any): void {
+function rename(endpoint: Doc<Endpoint>, name: any): void {
   if (typeof name != 'string' || name == '')
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   endpoint.name = name;
 }
 
-function changeDate(endpoint: IEndpoint, date: any): void {
+function changeDate(endpoint: Doc<Endpoint>, date: any): void {
   if (typeof date != 'string' || date == '')
-    throw { status: 400, message: 'Invalid date' };
+    throw new ClientError(400, 'invalid date');
 
   endpoint.date = new Date(date);
 }
 
-function changeDescription(endpoint: IEndpoint, description: any): void {
+function changeDescription(endpoint: Doc<Endpoint>, description: any): void {
   if (typeof description != 'string')
-    throw { status: 400, message: 'Invalid description' };
+    throw new ClientError(400, 'invalid description');
 
   endpoint.description = description;
 }
 
-function updateScore(endpoint: IEndpoint, score: any): void {
+function updateScore(endpoint: Doc<Endpoint>, score: any): void {
   endpoint.score = score;
 }
 
-function addDocuments(endpoint: IEndpoint, documents: any): void {
+function addDocuments(endpoint: Doc<Endpoint>, documents: any): void {
   if (!isArrayOfStrings(documents))
-    throw {
-      status: 400,
-      message: 'documents must be passed in as [string]',
-    };
+    throw new ClientError(400, 'documents must be passed in as string[]');
 
   endpoint.documents.push(...documents);
 }
 
-function removeDocuments(endpoint: IEndpoint, documents: any): void {
+function removeDocuments(endpoint: Doc<Endpoint>, documents: any): void {
   if (!isArrayOfStrings(documents))
-    throw {
-      status: 400,
-      message: 'documents must be passed in as [string]',
-    };
+    throw new ClientError(400, 'documents must be passed in as string[]');
 
-  documents.forEach((document: string) => {
+  for (let document of documents) {
     endpoint.documents.splice(endpoint.documents.indexOf(document));
-  });
+  }
 }
 
-function changeSite(endpoint: IEndpoint, siteid: any): void {
-  if (!doesDocumentWithIdExist(siteid, 'Site'))
-    throw { status: 404, message: `site with id ${siteid} not found` };
+function changeSite(endpoint: Doc<Endpoint>, siteId: any): void {
+  if (!doesDocumentWithIdExist(siteId, 'Site'))
+    throw new ClientError(404, `site with id "${siteId}" not found`);
 
-  endpoint.site = siteid;
+  endpoint.site = siteId;
 }
 
-function changeTrial(endpoint: IEndpoint, trialid: any): void {
-  if (!doesDocumentWithIdExist(trialid, 'Trial'))
-    throw { status: 404, message: `trial with id ${trialid} not found` };
+function changeTrial(endpoint: Doc<Endpoint>, trialId: any): void {
+  if (!doesDocumentWithIdExist(trialId, 'Trial'))
+    throw new ClientError(404, `trial with id "${trialId}" not found`);
 
-  endpoint.trial = trialid;
+  endpoint.trial = trialId;
 }
 
-function changeGroup(endpoint: IEndpoint, groupid: any): void {
-  if (!doesDocumentWithIdExist(groupid, 'Group'))
-    throw { status: 404, message: `group with id ${groupid} not found` };
+function changeGroup(endpoint: Doc<Endpoint>, groupId: any): void {
+  if (!doesDocumentWithIdExist(groupId, 'Group'))
+    throw new ClientError(404, `group with id "${groupId}" not found`);
 
-  endpoint.group = groupid;
+  endpoint.group = groupId;
 }
 
-function changePatient(endpoint: IEndpoint, patientid: any): void {
-  if (!doesDocumentWithIdExist(patientid, 'Patient'))
-    throw { status: 404, message: `patient with id ${patientid} not found` };
+function changePatient(endpoint: Doc<Endpoint>, patientId: any): void {
+  if (!doesDocumentWithIdExist(patientId, 'Patient'))
+    throw new ClientError(404, `patient with id "${patientId}" not found`);
 
-  endpoint.patient = patientid;
+  endpoint.patient = patientId;
 }

@@ -1,8 +1,11 @@
-import { NativeError, ObjectId } from 'mongoose';
-import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
-import { TeamMember, ITeamMember } from './teamMembers.model';
+import { getName, DocumentType as Doc } from '@typegoose/typegoose';
 
-const updateFunctions = new Map([
+import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+
+import { TeamMember } from './teamMembers.model';
+import { TeamMemberModel } from '../models';
+
+export const updateFunctions = new Map([
   ['rename', rename],
   ['update address', updateAddress],
   ['update email', updateEmail],
@@ -17,218 +20,120 @@ const updateFunctions = new Map([
   ['remove sites', removeSites],
   ['remove trials', removeTrials],
 ]);
-const updateOptions = [...updateFunctions.keys()];
 
-export async function getTeamMemberById(id: string): Promise<ITeamMember> {
-  return new Promise((resolve, reject) => {
-    TeamMember.findById(id, (err: NativeError, teamMember: ITeamMember) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else if (!teamMember)
-        return reject({
-          status: 404,
-          message: `Team Member with id: ${id} not found`,
-        });
-      else resolve(teamMember);
-    });
-  });
+export async function getTeamMemberByEmail(email: string): Promise<Doc<TeamMember>> {
+  let doc = await TeamMemberModel.findOne({ email: email }).exec();
+  if (!doc) throw new ClientError(404, 
+    `document of type "${getName(TeamMemberModel)}" with email "${email}" not found`);
+  return doc;
 }
 
-export async function getTeamMemberByEmail(
-  email: string
-): Promise<ITeamMember> {
-  return new Promise((resolve, reject) => {
-    TeamMember.findOne(
-      { email: email },
-      (err: NativeError, teamMember: ITeamMember) => {
-        if (!email.includes('@'))
-          return reject({ status: 400, message: 'invalid email' });
-        else if (!teamMember)
-          return reject({
-            status: 404,
-            message: `Team Member with email: ${email} not found`,
-          });
-        else resolve(teamMember);
-      }
-    );
-  });
-}
-
-export async function createTeamMember(
-  newTeamMember: ITeamMember
-): Promise<ITeamMember> {
-  return new Promise((resolve, reject) => {
-    const teamMember = TeamMember.build(newTeamMember);
-
-    teamMember.save((err: NativeError, newTeamMember: ITeamMember) => {
-      if (err) return reject(err);
-      else resolve(newTeamMember);
-    });
-  });
-}
-
-export async function updateTeamMember(
-  id: string,
-  operation: string,
-  payload: any
-): Promise<ITeamMember> {
-  return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation))
-      return reject({
-        status: 400,
-        message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
-      });
-
-    let teamMember: ITeamMember = await TeamMember.findById(id);
-
-    if (teamMember == null)
-      return reject({
-        status: 404,
-        message: `teamMember with id: ${id} not found`,
-      });
-
-    try {
-      updateFunctions.get(operation)(teamMember, payload);
-    } catch (err) {
-      return reject({
-        status: 400,
-        message: err.message,
-      });
-    }
-
-    teamMember.save((err: NativeError, updatedTeamMember: ITeamMember) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedTeamMember);
-    });
-  });
-}
-
-function rename(teamMember: ITeamMember, name: any): void {
+function rename(teamMember: Doc<TeamMember>, name: any): void {
   if (typeof name != 'string' || name == '')
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   teamMember.name = name;
 }
 
-function updateAddress(teamMember: ITeamMember, address: any): void {
+function updateAddress(teamMember: Doc<TeamMember>, address: any): void {
   if (typeof address != 'string' || address == '')
-    throw { status: 400, message: 'Invalid address' };
+    throw new ClientError(400, 'invalid address');
   teamMember.address = address;
 }
 
-function updateEmail(teamMember: ITeamMember, email: any): void {
+function updateEmail(teamMember: Doc<TeamMember>, email: any): void {
   if (typeof email != 'string' || email == '')
-    throw { status: 400, message: 'Invalid email' };
+    throw new ClientError(400, 'invalid email');
   teamMember.email = email;
 }
 
-function updatePhoneNumber(teamMember: ITeamMember, phoneNumber: any): void {
+function updatePhoneNumber(teamMember: Doc<TeamMember>, phoneNumber: any): void {
   if (typeof phoneNumber != 'number' || phoneNumber < 1000000000)
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   teamMember.phoneNumber = phoneNumber;
 }
 
-function addPermissions(teamMember: ITeamMember, permissions: any): void {
+function addPermissions(teamMember: Doc<TeamMember>, permissions: any): void {
   if (!isArrayOfStrings(permissions))
-    throw { status: 400, message: 'permissions must be passed in as [string]' };
+    throw new ClientError(400, 'permissions must be passed in as [string]');
 
   teamMember.permissions.push(...permissions);
 }
 
-function removePermissions(teamMember: ITeamMember, permissions: any): void {
+function removePermissions(teamMember: Doc<TeamMember>, permissions: any): void {
   if (!isArrayOfStrings(permissions))
-    throw { status: 400, message: 'permissions must be passed in as [string]' };
+    throw new ClientError(400, 'permissions must be passed in as [string]');
 
-  permissions.forEach((permission: string) => {
+  for (let permission of permissions) {
     teamMember.permissions.splice(teamMember.permissions.indexOf(permission));
-  });
+  }
 }
 
-function setPermissions(teamMember: ITeamMember, permissions: any): void {
+function setPermissions(teamMember: Doc<TeamMember>, permissions: any): void {
   if (!isArrayOfStrings(permissions))
-    throw { status: 400, message: 'permissions must be passed in as [string]' };
+    throw new ClientError(400, 'permissions must be passed in as [string]');
 
   teamMember.permissions = permissions;
 }
 
-function addCccs(teamMember: ITeamMember, cccs: any): void {
+function addCccs(teamMember: Doc<TeamMember>, cccs: any): void {
   if (!isArrayOfStrings(cccs))
-    throw {
-      status: 400,
-      message: 'cccs must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
-  cccs.forEach((cccid: ObjectId) => {
-    if (!doesDocumentWithIdExist(cccid, 'Ccc'))
-      throw {
-        status: 404,
-        message: `ccc with id: ${cccid} does not exist`,
-      };
-  });
+  for (let cccId of cccs) {
+    if (!doesDocumentWithIdExist(cccId, 'Ccc'))
+      throw new ClientError(404, `ccc with id: ${cccId} does not exist`);
+  }
 
-  teamMember.cccs.push(...cccs);
+  teamMember.cccs.push(...cccs.map(ObjectId));
 }
 
-function removeCccs(teamMember: ITeamMember, cccs: any): void {
+function removeCccs(teamMember: Doc<TeamMember>, cccs: any): void {
   if (!isArrayOfStrings(cccs))
-    throw {
-      status: 400,
-      message: 'cccs must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
-  cccs.forEach((cccid: ObjectId) => {
-    teamMember.cccs.splice(teamMember.cccs.indexOf(cccid));
-  });
+  for (let cccId of cccs) {
+    teamMember.cccs.splice(teamMember.cccs.indexOf(ObjectId(cccId)));
+  }
 }
 
-function addSites(teamMember: ITeamMember, sites: any): void {
+function addSites(teamMember: Doc<TeamMember>, sites: any): void {
   if (!isArrayOfStrings(sites))
-    throw {
-      status: 400,
-      message: 'sites must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'sites must be passed in as [ObjectId]');
 
-  sites.forEach((siteid: ObjectId) => {
-    if (!doesDocumentWithIdExist(siteid, 'Site'))
-      throw { status: 404, message: `site with id: ${siteid} not found` };
-  });
+  for (let siteId of sites) {
+    if (!doesDocumentWithIdExist(siteId, 'Site'))
+      throw new ClientError(404, `site with id: ${siteId} not found`);
+  }
 
-  teamMember.sites.push(...sites);
+  teamMember.sites.push(...sites.map(ObjectId));
 }
 
-function removeSites(teamMember: ITeamMember, sites: any): void {
+function removeSites(teamMember: Doc<TeamMember>, sites: any): void {
   if (!isArrayOfStrings(sites))
-    throw {
-      status: 400,
-      message: 'sites must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'sites must be passed in as [ObjectId]');
 
-  sites.forEach((siteid: ObjectId) => {
-    teamMember.sites.splice(teamMember.sites.indexOf(siteid));
-  });
+  for (let siteId of sites) {
+    teamMember.sites.splice(teamMember.sites.indexOf(ObjectId(siteId)));
+  }
 }
 
-function addTrials(teamMember: ITeamMember, trials: any): void {
+function addTrials(teamMember: Doc<TeamMember>, trials: any): void {
   if (!isArrayOfStrings(trials))
-    throw {
-      status: 400,
-      message: 'trials must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'trials must be passed in as [ObjectId]');
 
-  trials.forEach((trialid: ObjectId) => {
-    if (!doesDocumentWithIdExist(trials, 'Trial'))
-      throw { status: 404, message: `trial with id: ${trialid} not found` };
-  });
+  for (let trialId of trials) {
+    if (!doesDocumentWithIdExist(ObjectId(trialId), 'Trial'))
+      throw new ClientError(404, `trial with id: ${trialId} not found`);
+  }
 
-  teamMember.trials.push(...trials);
+  teamMember.trials.push(...trials.map(ObjectId));
 }
 
-function removeTrials(teamMember: ITeamMember, trials: any): void {
+function removeTrials(teamMember: Doc<TeamMember>, trials: any): void {
   if (!isArrayOfStrings(trials))
-    throw {
-      status: 400,
-      message: 'trials must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'trials must be passed Modelin as [ObjectId]');
 
-  trials.forEach((trialid: ObjectId) => {
-    teamMember.trials.splice(teamMember.trials.indexOf(trialid));
-  });
+  for (let trialId of trials) {
+    teamMember.trials.splice(teamMember.trials.indexOf(ObjectId(trialId)));
+  }
 }

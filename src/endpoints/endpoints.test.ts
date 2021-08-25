@@ -1,40 +1,36 @@
-import mongoose, { ObjectId } from 'mongoose';
 import faker from 'faker';
 
 import server from '../config/server';
 import { connectToDB, dropDB } from '../config/db';
+import { ObjectId } from '../utils/utils';
 
 import request from 'supertest';
 const req = request(server);
 
-import { Endpoint } from './endpoints.model';
-import { Trial } from '../trials/trials.model';
-import { Site } from '../sites/sites.model';
-import { Group } from '../trials/groups/groups.model';
-import { Patient } from '../patients/patients.model';
+import { EndpointModel, TrialModel, SiteModel, GroupModel, PatientModel } from '../models';
 
 let siteid: ObjectId, trialid: ObjectId, groupid: ObjectId, patientid: ObjectId;
 
 beforeAll(async () => {
   await connectToDB('endpointtestdb');
 
-  const trial = await Trial.create({
+  const trial = await TrialModel.create({
     name: 'Test Trial',
   });
   trialid = trial._id.toString();
 
-  const site = await Site.create({
+  const site = await SiteModel.create({
     name: 'Test Site',
     address: faker.address.streetAddress(),
   });
   siteid = site._id.toString();
 
-  const group = await Group.create({
+  const group = await GroupModel.create({
     name: 'Test Group',
   });
   groupid = group._id.toString();
 
-  const patient = await Patient.create({
+  const patient = await PatientModel.create({
     dccid: 'fakedccid',
     name: faker.name.firstName(),
     address: faker.address.streetAddress(),
@@ -48,7 +44,7 @@ beforeAll(async () => {
 
 describe('GET /api/endpoints/:endpointid', () => {
   it('should get an Endpoint by id', async () => {
-    const endpoint = await Endpoint.create({
+    const endpoint = await EndpointModel.create({
       name: 'Test Endpoint',
       date: Date.now(),
       description: 'This is a test endpoint',
@@ -70,7 +66,7 @@ describe('GET /api/endpoints/:endpointid', () => {
   });
 
   it('should return a 404 when ObjectId not found', async () => {
-    await req.get(`/api/endpoints/${mongoose.Types.ObjectId()}`).expect(404);
+    await req.get(`/api/endpoints/${ObjectId()}`).expect(404);
   });
 });
 
@@ -114,7 +110,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   let endpointid: ObjectId;
 
   beforeAll(async () => {
-    const endpoint = await Endpoint.create({
+    const endpoint = await EndpointModel.create({
       name: 'Test Endpoint',
       date: Date.now(),
       description: 'This is a test endpoint',
@@ -144,7 +140,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     };
 
     await req
-      .put(`/api/endpoints/${mongoose.Types.ObjectId()}`)
+      .put(`/api/endpoints/${ObjectId()}`)
       .send(reqBody)
       .expect(404);
   });
@@ -156,7 +152,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
     };
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.name).toBe(reqBody.payload);
   });
 
@@ -176,7 +172,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.date).toStrictEqual(reqBody.payload);
   });
 
@@ -188,7 +184,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.description).toBe(reqBody.payload);
   });
 
@@ -200,7 +196,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.score).toBe(reqBody.payload);
   });
 
@@ -212,7 +208,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.documents).toContain(reqBody.payload[0]);
   });
 
@@ -224,12 +220,12 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.documents).not.toContain(reqBody.payload[0]);
   });
 
   it('should change site', async () => {
-    const site = await Site.create({
+    const site = await SiteModel.create({
       name: 'New Test Site',
       address: faker.address.streetAddress(),
     });
@@ -242,12 +238,12 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.site.toString()).toBe(reqBody.payload);
   });
 
   it('should change group', async () => {
-    const group = await Group.create({
+    const group = await GroupModel.create({
       name: 'New Test Group',
     });
     let newgroupid = group._id.toString();
@@ -259,12 +255,12 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.group.toString()).toBe(newgroupid);
   });
 
   it('should change trial', async () => {
-    const trial = await Trial.create({
+    const trial = await TrialModel.create({
       name: 'Test Trial',
     });
     let newtrialid = trial._id.toString();
@@ -276,12 +272,12 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.trial.toString()).toBe(newtrialid);
   });
 
   it('should change patient', async () => {
-    const patient = await Patient.create({
+    const patient = await PatientModel.create({
       dccid: 'difffakedccid',
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -299,7 +295,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
 
     await req.put(`/api/endpoints/${endpointid}`).send(reqBody).expect(204);
 
-    const updatedEndpoint = await Endpoint.findById(endpointid).lean();
+    const updatedEndpoint = await EndpointModel.findById(endpointid).lean();
     expect(updatedEndpoint.patient.toString()).toBe(newpatientid);
   });
 });

@@ -1,72 +1,44 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import {
-  ITrialProtocol,
-  TrialProtocolSchema,
-} from './trialProtocols/trialProtocols.model';
+import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import { TrialModel } from '../models';
+import { TrialProtocol } from './trialProtocols/trialProtocols.model';
+import { Site } from '../sites/sites.model';
+import { TeamMember } from '../teamMembers/teamMembers.model';
+import { Group } from './groups/groups.model';
+import { Patient } from '../patients/patients.model';
 
-interface ITrial extends Document {
+class Trial {
+  @prop({ required: true })
   name: string;
+  
+  @prop()
   endpointResults?: string;
-  protocols?: [ITrialProtocol];
-  permissions?: [string];
+
+  @prop({ required: true, type: () => [TrialProtocol] })
+  protocols: TrialProtocol[];
+
+  @prop({ required: true, type: () => [String] })
+  permissions: string[];
+
+  @prop()
   blinded?: boolean;
-  sites?: [Schema.Types.ObjectId];
-  teamMembers?: [Schema.Types.ObjectId];
-  groups?: [Schema.Types.ObjectId];
-  patients?: [Schema.Types.ObjectId];
+
+
+  @prop({ required: true, ref: () => Site })
+  sites: Ref<Site>[];
+
+  @prop({ required: true, ref: () => TeamMember })
+  teamMembers: Ref<TeamMember>[];
+
+  @prop({ required: true, ref: () => Group })
+  groups: Ref<Group>[];
+  
+  @prop({ required: true, ref: () => Patient })
+  patients: Ref<Patient>[];
+
+  
+  public static build(this: Model<typeof Trial>, obj: Trial): Doc<Trial> {
+    return new TrialModel(obj);
+  }
 }
 
-interface TrialModel extends mongoose.Model<ITrial> {
-  build(attr: ITrial): any;
-}
-
-const trialSchema = new Schema<ITrial, TrialModel>({
-  name: {
-    type: String,
-    required: true,
-  },
-  endpointResults: {
-    type: String,
-  },
-  protocols: {
-    type: [TrialProtocolSchema],
-  },
-  permissions: {
-    type: [String],
-  },
-  blinded: {
-    type: Boolean,
-  },
-  sites: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Site',
-    },
-  ],
-  teamMembers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'TeamMember',
-    },
-  ],
-  groups: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Group',
-    },
-  ],
-  patients: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Patient',
-    },
-  ],
-});
-
-trialSchema.statics.build = (attr: ITrial) => {
-  return new Trial(attr);
-};
-
-const Trial = mongoose.model<ITrial, TrialModel>('Trial', trialSchema);
-
-export { Trial, ITrial };
+export { Trial };

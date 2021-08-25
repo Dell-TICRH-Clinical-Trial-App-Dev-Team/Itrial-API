@@ -1,46 +1,26 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import { CccModel } from '../models';
+import { Site } from '../sites/sites.model';
+import { Trial } from '../trials/trials.model';
+import { TeamMember } from '../teamMembers/teamMembers.model';
 
-interface ICcc extends Document {
+class Ccc {
+  @prop({ required: true })
   name: string;
-  sites?: [Schema.Types.ObjectId];
-  trials?: [Schema.Types.ObjectId];
-  teamMembers?: [Schema.Types.ObjectId];
+
+  @prop({ required: true, ref: () => Site })
+  sites: Ref<Site>[];
+
+  @prop({ required: true, ref: () => Trial })
+  trials: Ref<Trial>[];
+
+  @prop({ required: true, ref: () => TeamMember })
+  teamMembers: Ref<TeamMember>[];
+  
+  
+  public static build(this: Model<typeof Ccc>, obj: Ccc): Doc<Ccc> {
+    return new CccModel(obj);
+  }
 }
 
-interface CccModel
-  extends mongoose.Model<ICcc> {
-  build(ccc: ICcc): any;
-}
-
-const cccSchema = new Schema<ICcc, CccModel>({
-  name: {
-    type: String,
-    required: true,
-  },
-  sites: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Site',
-    },
-  ],
-  trials: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Trial',
-    },
-  ],
-  teamMembers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'TeamMember',
-    },
-  ],
-});
-
-cccSchema.statics.build = (ccc: ICcc) => {
-  return new Ccc(ccc);
-};
-
-const Ccc = mongoose.model<ICcc, CccModel>('Ccc', cccSchema);
-
-export { Ccc, ICcc };
+export { Ccc };

@@ -1,83 +1,52 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import { PatientModel } from '../models';
+import { Endpoint } from '../endpoints/endpoints.model';
+import { Group } from '../trials/groups/groups.model';
+import { Site } from '../sites/sites.model';
+import { Trial } from '../trials/trials.model';
 
-interface IPatient extends Document {
+class Patient {
+  @prop({ required: true })
   dccid: string;
+
+  @prop({ required: true })
   name: string;
+
+  @prop({ required: true })
   address: string;
+
+  @prop({ required: true })
   email: string;
+
+  @prop({ required: true })
   phoneNumber: number;
+
+  @prop({ required: true })
   consentForm: string; // will eventually be a file
+
+  @prop({ required: true })
   screenFail: boolean;
-  documents?: [String]; // will eventually be an array of files
-  endpoints?: [Schema.Types.ObjectId];
-  group?: Schema.Types.ObjectId;
-  site?: Schema.Types.ObjectId;
-  trial?: Schema.Types.ObjectId;
+  
+  @prop({ required: true, type: () => [String] })
+  documents: string[]; // will eventually be an array of files
+
+
+  @prop({ required: true, ref: () => Endpoint })
+  endpoints: Ref<Endpoint>[];
+
+  @prop({ ref: () => Group })
+  group?: Ref<Group>;
+
+  @prop({ ref: () => Site })
+  site?: Ref<Site>;
+
+  @prop({ ref: () => Trial })
+  trial?: Ref<Trial>;
+
+
+  public static build(this: Model<typeof Patient>, obj: Patient): Doc<Patient> {
+    return new PatientModel(obj);
+  }
 }
 
-interface PatientModel extends mongoose.Model<IPatient> {
-  build(patient: IPatient): any;
-}
-
-const patientSchema = new Schema<IPatient, PatientModel>({
-  dccid: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
-    type: Number,
-    required: true,
-  },
-  consentForm: {
-    type: String,
-    required: true,
-  },
-  screenFail: {
-    type: Boolean,
-    required: true,
-  },
-  documents: {
-    type: [String],
-  },
-  endpoints: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Endpoint',
-    },
-  ],
-  site: {
-    type: Schema.Types.ObjectId,
-    ref: 'Site',
-  },
-  group: {
-    type: Schema.Types.ObjectId,
-    ref: 'Group',
-  },
-  trial: {
-    type: Schema.Types.ObjectId,
-    ref: 'Trial',
-  },
-});
-
-patientSchema.statics.build = (patient: IPatient) => {
-  return new Patient(patient);
-};
-
-const Patient = mongoose.model<IPatient, PatientModel>(
-  'Patient',
-  patientSchema
-);
-
-export { Patient, IPatient };
+export { Patient };

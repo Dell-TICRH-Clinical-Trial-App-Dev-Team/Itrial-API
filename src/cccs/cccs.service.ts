@@ -1,9 +1,10 @@
-import { NativeError, ObjectId } from 'mongoose';
-import {Ccc, ICcc} from './cccs.model';
+import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
+import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
 
-const updateFunctions = new Map([
+import { Ccc } from './cccs.model';
+
+export const updateFunctions = new Map([
   ['rename', rename],
   ['add trials', addTrials],
   ['add sites', addSites],
@@ -12,160 +13,72 @@ const updateFunctions = new Map([
   ['remove sites', removeSites],
   ['remove teamMembers', removeTeamMembers],
 ]);
-const updateOptions = [...updateFunctions.keys()];
 
-export async function getCccById(
-  id: string
-): Promise<ICcc> {
-  return new Promise((resolve, reject) => {
-    Ccc.findById(
-      id,
-      (err: NativeError, ccc: ICcc) => {
-        if (err) return reject({ status: 400, message: err.message });
-        else if (!ccc)
-          return reject({
-            status: 404,
-            message: `Central Coordinating Center with id: ${id} not found`,
-          });
-        else resolve(ccc);
-      }
-    );
-  });
-}
-
-export async function createCcc(
-  newCcc: ICcc
-): Promise<ICcc> {
-  return new Promise((resolve, reject) => {
-    const ccc = Ccc.build(newCcc);
-
-    ccc.save((err: NativeError, ccc: ICcc) => {
-      if (err) return reject(err);
-      else resolve(ccc);
-    });
-  });
-}
-
-export async function updateCcc(
-  id: string,
-  operation: string,
-  payload: string | [ObjectId]
-): Promise<ICcc> {
-  return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation))
-      return reject({
-        status: 400,
-        message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
-      });
-
-    let ccc: ICcc =
-      await Ccc.findById(id);
-
-    if (ccc == null)
-      return reject({ status: 404, message: `ccc with id: ${id} not found` });
-
-    try {
-      updateFunctions.get(operation)(ccc, payload);
-    } catch (err) {
-      return reject(err);
-    }
-
-    ccc.save((err: NativeError, updatedCcc: ICcc) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedCcc);
-    });
-  });
-}
-
-function rename(ccc: ICcc, name: any): void {
+function rename(ccc: Doc<Ccc>, name: any): void {
   if (typeof name != 'string' || name == '')
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   ccc.name = name;
 }
 
-function addTrials(ccc: ICcc, trialsids: any): void {
-  if (!isArrayOfStrings(trialsids))
-    throw {
-      status: 400,
-      message: 'trial id(s) must be passed in as [ObjectId]',
-    };
+function addTrials(ccc: Doc<Ccc>, trialIds: any): void {
+  if (!isArrayOfStrings(trialIds))
+    throw new ClientError(400, 'trial ids must be passed in as ObjectId[]');
 
-  trialsids.forEach((trialid: string) => {
-    if (!doesDocumentWithIdExist(trialid, 'Trial'))
-      throw { status: 404, message: `trial with id ${trialid} not found` };
-  });
+  for (let trialId of trialIds) {
+    if (!doesDocumentWithIdExist(trialId, 'Trial'))
+      throw new ClientError(404, `trial with id "${trialId}" not found`);
+  }
 
-  ccc.trials.push(...trialsids);
+  ccc.trials.push(...trialIds.map(ObjectId));
 }
 
-function addSites(ccc: ICcc, sitesids: any): void {
-  if (!isArrayOfStrings(sitesids))
-    throw {
-      status: 400,
-      message: 'site id(s) must be passed in as [ObjectId]',
-    };
+function addSites(ccc: Doc<Ccc>, siteIds: any): void {
+  if (!isArrayOfStrings(siteIds))
+    throw new ClientError(400, 'site ids must be passed in as ObjectId[]');
 
-  sitesids.forEach((siteid: string) => {
-    if (!doesDocumentWithIdExist(siteid, 'Site'))
-      throw { status: 404, message: `site with id ${siteid} not found` };
-  });
+  for (let siteId of siteIds) {
+    if (!doesDocumentWithIdExist(siteId, 'Site'))
+      throw new ClientError(404, `site with id ${siteId} not found`);
+  }
 
-  ccc.sites.push(...sitesids);
+  ccc.sites.push(...siteIds.map(ObjectId));
 }
 
-function addTeamMembers(
-  ccc: ICcc,
-  teammembersids: any
-): void {
-  if (!isArrayOfStrings(teammembersids))
-    throw {
-      status: 400,
-      message: 'team member id(s) must be passed in as [ObjectId]',
-    };
+function addTeamMembers(ccc: Doc<Ccc>, teamMemberIds: any): void {
+  if (!isArrayOfStrings(teamMemberIds))
+    throw new ClientError(400, 'team member ids must be passed in as ObjectId[]');
+  
+  for (let teamMemberId of teamMemberIds) {
+    if (!doesDocumentWithIdExist(teamMemberId, 'TeamMember'))
+      throw new ClientError(404, `teamMember with id ${teamMemberId} not found`);
+  }
 
-  teammembersids.forEach((teammemberid: string) => {
-    if (!doesDocumentWithIdExist(teammemberid, 'TeamMember'))
-      throw {
-        status: 404,
-        message: `teamMember with id ${teammemberid} not found`,
-      };
-  });
-
-  ccc.teamMembers.push(...teammembersids);
+  ccc.teamMembers.push(...teamMemberIds.map(ObjectId));
 }
 
-function removeTrials(ccc: ICcc, trialsids: any): void {
-  if (!isArrayOfStrings(trialsids))
-    throw {
-      status: 400,
-      message: 'trial id(s) must be passed in as [ObjectId]',
-    };
-  trialsids.forEach((trialId: ObjectId) => {
-    ccc.trials.splice(ccc.trials.indexOf(trialId));
-  });
+function removeTrials(ccc: Doc<Ccc>, trialIds: any): void {
+  if (!isArrayOfStrings(trialIds))
+    throw new ClientError(400, 'trial ids must be passed in as ObjectId[]');
+  
+  for (let trialId of trialIds) {
+    ccc.trials.splice(ccc.trials.indexOf(ObjectId(trialId)));
+  }
 }
 
-function removeSites(ccc: ICcc, sitesids: any): void {
-  if (!isArrayOfStrings(sitesids))
-    throw {
-      status: 400,
-      message: 'site id(s) must be passed in as [ObjectId]',
-    };
-  sitesids.forEach((siteId: ObjectId) => {
-    ccc.sites.splice(ccc.sites.indexOf(siteId));
-  });
+function removeSites(ccc: Doc<Ccc>, siteIds: any): void {
+  if (!isArrayOfStrings(siteIds))
+    throw new ClientError(400, 'site ids must be passed in as ObjectId[]');
+  
+  for (let siteId of siteIds) {
+    ccc.sites.splice(ccc.sites.indexOf(ObjectId(siteId)));
+  }
 }
 
-function removeTeamMembers(
-  ccc: ICcc,
-  teammembersids: any
-): void {
-  if (!isArrayOfStrings(teammembersids))
-    throw {
-      status: 400,
-      message: 'team member id(s) must be passed in as [ObjectId]',
-    };
-  teammembersids.forEach((teammemberid: ObjectId) => {
-    ccc.teamMembers.splice(ccc.teamMembers.indexOf(teammemberid));
-  });
+function removeTeamMembers(ccc: Doc<Ccc>, teamMemberIds: any): void {
+  if (!isArrayOfStrings(teamMemberIds))
+    throw new ClientError(400, 'team member ids must be passed in as ObjectId[]');
+  
+  for (let teamMemberId of teamMemberIds) {
+    ccc.teamMembers.splice(ccc.teamMembers.indexOf(ObjectId(teamMemberId)));
+  }
 }

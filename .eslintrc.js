@@ -1,23 +1,31 @@
 module.exports = {
-  "env": {
-    "es2021": true,
-    "node": true
+  'env': {
+    'es2021': true,
+    'node': true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
+  'extends': [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended'
   ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module"
+  'parser': '@typescript-eslint/parser',
+  'parserOptions': {
+    'ecmaVersion': 12,
+    'sourceType': 'module'
   },
-  "plugins": [
-    "@typescript-eslint"
+  'plugins': [
+    '@typescript-eslint'
   ],
-  "rules": {
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "prefer-const": "off"
+  'rules': {
+    'prefer-const': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'quotes': [
+      'error',
+      'single'
+    ],
+    'semi': [
+      'error',
+      'always'
+    ]
   }
 };

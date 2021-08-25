@@ -1,9 +1,11 @@
-import { NativeError, ObjectId } from 'mongoose';
-import { Trial, ITrial } from './trials.model';
-import { ITrialProtocol } from './trialProtocols/trialProtocols.model';
-import { doesDocumentWithIdExist, isArrayOfStrings } from '../utils/utils';
+import { DocumentType as Doc } from '@typegoose/typegoose';
 
-const updateFunctions = new Map([
+import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+
+import { Trial } from './trials.model';
+import { TrialProtocol } from './trialProtocols/trialProtocols.model';
+
+export const updateFunctions = new Map([
   ['rename', rename],
   ['update endpointResults', updateEndpointResults],
   ['add protocols', addProtocols],
@@ -22,270 +24,158 @@ const updateFunctions = new Map([
   ['remove groups', removeGroups],
   ['remove patients', removePatients],
 ]);
-const updateOptions = [...updateFunctions.keys()];
 
-export async function getTrialById(id: string): Promise<ITrial> {
-  return new Promise((resolve, reject) => {
-    Trial.findById(id, (err: NativeError, trial: ITrial) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else if (!trial)
-        return reject({
-          status: 404,
-          message: `Trial with id: ${id} not found`,
-        });
-      else resolve(trial);
-    });
-  });
-}
 
-export async function createTrial(newTrial: ITrial): Promise<ITrial> {
-  return new Promise((resolve, reject) => {
-    const trial = Trial.build(newTrial);
-
-    trial.save((err: NativeError, newTrial: ITrial) => {
-      if (err) return reject(err);
-      else resolve(newTrial);
-    });
-  });
-}
-
-export async function updateTrial(
-  id: string,
-  operation: string,
-  payload: any
-): Promise<ITrial> {
-  return new Promise(async (resolve, reject) => {
-    if (!updateOptions.includes(operation))
-      return reject({
-        status: 400,
-        message: `Invalid operation: ${operation}. List of valid operations ${updateOptions}`,
-      });
-
-    let trial: ITrial = await Trial.findById(id);
-
-    if (trial == null)
-      return reject({
-        status: 404,
-        message: `trial with id: ${id} not found`,
-      });
-
-    try {
-      updateFunctions.get(operation)(trial, payload);
-    } catch (err) {
-      return reject(err);
-    }
-
-    trial.save((err: NativeError, updatedTrial: ITrial) => {
-      if (err) return reject({ status: 400, message: err.message });
-      else resolve(updatedTrial);
-    });
-  });
-}
-
-function rename(trial: ITrial, name: any): void {
+function rename(trial: Doc<Trial>, name: any): void {
   if (typeof name != 'string' || name == '')
-    throw { status: 400, message: 'Invalid name' };
+    throw new ClientError(400, 'invalid name');
   trial.name = name;
 }
 
-function updateBlinded(trial: ITrial, blinded: any): void {
+function updateBlinded(trial: Doc<Trial>, blinded: any): void {
   if (typeof blinded != 'boolean')
-    throw { status: 400, message: 'Blinded must be a boolean' };
+    throw new ClientError(400, 'blinded must be a boolean');
   trial.blinded = blinded;
 }
 
-function updateEndpointResults(trial: ITrial, endpointResults: any): void {
+function updateEndpointResults(trial: Doc<Trial>, endpointResults: any): void {
   if (typeof endpointResults != 'string')
-    throw { status: 400, message: 'endpointResults must be a string' };
+    throw new ClientError(400, 'endpointResults must be a string');
   trial.endpointResults = endpointResults;
 }
 
-function addTeamMembers(trial: ITrial, teamMembers: any): void {
+function addTeamMembers(trial: Doc<Trial>, teamMembers: any): void {
   if (!isArrayOfStrings(teamMembers))
-    throw {
-      status: 400,
-      message: 'teamMembers must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'teamMembers must be passed in as [ObjectId]');
 
-  teamMembers.forEach((teamMemberid: string) => {
-    if (!doesDocumentWithIdExist(teamMemberid, 'TeamMember'))
-      throw {
-        status: 404,
-        message: `teamMember with id ${teamMemberid} not found`,
-      };
-  });
+  for (let teamMemberId of teamMembers) {
+    if (!doesDocumentWithIdExist(teamMemberId, 'TeamMember'))
+      throw new ClientError(404, `teamMember with id ${teamMemberId} not found`);
+  }
 
-  trial.teamMembers.push(...teamMembers);
+  trial.teamMembers.push(...teamMembers.map(ObjectId));
 }
 
-function removeTeamMembers(trial: ITrial, teamMembers: any): void {
+function removeTeamMembers(trial: Doc<Trial>, teamMembers: any): void {
   if (!isArrayOfStrings(teamMembers))
-    throw {
-      status: 400,
-      message: 'teamMembers must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'teamMembers must be passed in as [ObjectId]');
 
-  teamMembers.forEach((teamMemberid: ObjectId) => {
-    trial.teamMembers.splice(trial.teamMembers.indexOf(teamMemberid));
-  });
+  for (let teamMemberId of teamMembers) {
+    trial.teamMembers.splice(trial.teamMembers.indexOf(ObjectId(teamMemberId)));
+  }
 }
 
-function addPermissions(trial: ITrial, permissions: any): void {
+function addPermissions(trial: Doc<Trial>, permissions: any): void {
   if (!isArrayOfStrings(permissions))
-    throw {
-      status: 400,
-      message: 'permissions must be passed in as [string]',
-    };
+    throw new ClientError(400, 'permissions must be passed in as [string]');
 
   trial.permissions.push(...permissions);
 }
 
-function removePermissions(trial: ITrial, permissions: any): void {
+function removePermissions(trial: Doc<Trial>, permissions: any): void {
   if (!isArrayOfStrings(permissions))
-    throw {
-      status: 400,
-      message: 'permissions must be passed in as [string]',
-    };
+    throw new ClientError(400, 'permissions must be passed in as [string]');
 
-  permissions.forEach((permission: string) => {
+  for (let permission of permissions) {
     trial.permissions.splice(trial.permissions.indexOf(permission));
-  });
+  }
 }
 
-function setPermissions(trial: ITrial, permissions: any): void {
+function setPermissions(trial: Doc<Trial>, permissions: any): void {
   if (!isArrayOfStrings(permissions))
-    throw {
-      status: 400,
-      message: 'permissions must be passed in as [string]',
-    };
+    throw new ClientError(400, 'permissions must be passed in as [string]');
 
   trial.permissions = permissions;
 }
 
-function addProtocols(trial: ITrial, protocols: any): void {
+function addProtocols(trial: Doc<Trial>, protocols: any): void {
   if (!protocols[0]?.name)
-    throw {
-      status: 400,
-      message: 'protocols must be passed in as [ITrialProtcol]',
-    };
+    throw new ClientError(400, 'protocols must be passed in as [ITrialProtcol]');
 
   trial.protocols.push(...protocols);
 }
 
-function removeProtocols(trial: ITrial, protocols: any): void {
+function removeProtocols(trial: Doc<Trial>, protocols: any): void {
   if (!protocols[0]?.name)
-    throw {
-      status: 400,
-      message: 'protocols must be passed in as [ITrialProtcol]',
-    };
+    throw new ClientError(400, 'protocols must be passed in as [ITrialProtcol]');
 
   const filteredProtocols = trial.protocols.filter((protocol1) => {
-    let shouldKeep: boolean = true;
-    protocols.forEach((protocol2: ITrialProtocol) => {
+    let shouldKeep = true;
+    for (let protocol2 of protocols) {
       if (protocol1.name == protocol2.name) shouldKeep = false;
-    });
+    }
     return shouldKeep;
-  }) as [ITrialProtocol];
+  }) as [TrialProtocol];
 
   trial.protocols = filteredProtocols;
 }
 
-function setProtocols(trial: ITrial, protocols: any): void {
+function setProtocols(trial: Doc<Trial>, protocols: any): void {
   if (!protocols[0]?.name)
-    throw {
-      status: 400,
-      message: 'protocols must be passed in as [ITrialProtcol]',
-    };
+    throw new ClientError(400, 'protocols must be passed in as [ITrialProtcol]');
 
   trial.protocols = protocols;
 }
 
-function addGroups(trial: ITrial, groups: any): void {
+function addGroups(trial: Doc<Trial>, groups: any): void {
   if (!isArrayOfStrings(groups))
-    throw {
-      status: 400,
-      message: 'groups must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'groups must be passed in as [ObjectId]');
 
-  groups.forEach((groupid: string) => {
-    if (!doesDocumentWithIdExist(groupid, 'Group'))
-      throw {
-        status: 404,
-        message: `group with id ${groupid} not found`,
-      };
-  });
+  for (let groupId of groups) {
+    if (!doesDocumentWithIdExist(groupId, 'Group'))
+      throw new ClientError(404, `group with id ${groupId} not found`);
+  }
 
-  trial.groups.push(...groups);
+  trial.groups.push(...groups.map(ObjectId));
 }
 
-function removeGroups(trial: ITrial, groups: any): void {
+function removeGroups(trial: Doc<Trial>, groups: any): void {
   if (!isArrayOfStrings(groups))
-    throw {
-      status: 400,
-      message: 'groups must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'groups must be passed in as [ObjectId]');
 
-  groups.forEach((groupid: ObjectId) => {
-    trial.groups.splice(trial.groups.indexOf(groupid));
-  });
+  for (let groupId of groups) {
+    trial.groups.splice(trial.groups.indexOf(ObjectId(groupId)));
+  }
 }
 
-function addPatients(trial: ITrial, patients: any): void {
+function addPatients(trial: Doc<Trial>, patients: any): void {
   if (!isArrayOfStrings(patients))
-    throw {
-      status: 400,
-      message: 'patients must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'patients must be passed in as [ObjectId]');
 
-  patients.forEach((patientid: string) => {
-    if (!doesDocumentWithIdExist(patientid, 'TeamMember'))
-      throw {
-        status: 404,
-        message: `patient with id ${patientid} not found`,
-      };
-  });
+  for (let patientId of patients) {
+    if (!doesDocumentWithIdExist(patientId, 'TeamMember'))
+      throw new ClientError(404, `patient with id ${patientId} not found`);
+  }
 
-  trial.patients.push(...patients);
+  trial.patients.push(...patients.map(ObjectId));
 }
 
-function removePatients(trial: ITrial, patients: any): void {
+function removePatients(trial: Doc<Trial>, patients: any): void {
   if (!isArrayOfStrings(patients))
-    throw {
-      status: 400,
-      message: 'patients must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'patients must be passed in as [ObjectId]');
 
-  patients.forEach((patientid: ObjectId) => {
-    trial.patients.splice(trial.patients.indexOf(patientid));
-  });
+  for (let patientId of patients) {
+    trial.patients.splice(trial.patients.indexOf(ObjectId(patientId)));
+  }
 }
 
-function addSites(trial: ITrial, sites: any): void {
+function addSites(trial: Doc<Trial>, sites: any): void {
   if (!isArrayOfStrings(sites))
-    throw {
-      status: 400,
-      message: 'sites must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'sites must be passed in as [ObjectId]');
 
-  sites.forEach((siteid: string) => {
-    if (!doesDocumentWithIdExist(siteid, 'Site'))
-      throw {
-        status: 404,
-        message: `sites with id ${siteid} not found`,
-      };
-  });
+  for (let siteId of sites) {
+    if (!doesDocumentWithIdExist(siteId, 'Site'))
+      throw new ClientError(404, `sites with id ${siteId} not found`);
+  }
 
-  trial.sites.push(...sites);
+  trial.sites.push(...sites.map(ObjectId));
 }
 
-function removeSites(trial: ITrial, sites: any): void {
+function removeSites(trial: Doc<Trial>, sites: any): void {
   if (!isArrayOfStrings(sites))
-    throw {
-      status: 400,
-      message: 'sites must be passed in as [ObjectId]',
-    };
+    throw new ClientError(400, 'sites must be passed in as [ObjectId]');
 
-  sites.forEach((siteid: ObjectId) => {
-    trial.sites.splice(trial.sites.indexOf(siteid));
-  });
+  for (let siteId of sites) {
+    trial.sites.splice(trial.sites.indexOf(ObjectId(siteId)));
+  }
 }

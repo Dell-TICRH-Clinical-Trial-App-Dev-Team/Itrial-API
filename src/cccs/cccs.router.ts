@@ -1,10 +1,8 @@
-import express from 'express';
-const router = express.Router();
+import { router } from '../crud/router';
 
-import { get, create, update } from './cccs.controller';
+import { CccModel } from '../models';
+import { updateFunctions } from './cccs.service';
 
-router.get('/:cccid', get);
-router.put('/:cccid', update);
-router.post('/', create);
+const cccRouter = router(CccModel, updateFunctions);
 
-export { router as cccRouter };
+export { cccRouter };
