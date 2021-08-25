@@ -1,9 +1,13 @@
 import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+import {
+  doesDocumentWithIdExist,
+  isArrayOfStrings,
+  ClientError,
+  ObjectId,
+} from '../utils/utils';
 
 import { Site } from './sites.model';
-
 
 export const updateFunctions = new Map([
   ['rename', rename],
@@ -34,7 +38,10 @@ function addTeamMembers(site: Doc<Site>, teamMembers: any): void {
 
   for (let teamMemberId of teamMembers) {
     if (!doesDocumentWithIdExist(teamMemberId, 'TeamMember'))
-      throw new ClientError(404, `teamMember with id ${teamMemberId} not found`);
+      throw new ClientError(
+        404,
+        `teamMember with id ${teamMemberId} not found`
+      );
   }
 
   site.teamMembers.push(...teamMembers.map(ObjectId));

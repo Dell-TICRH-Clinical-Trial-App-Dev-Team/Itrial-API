@@ -14,9 +14,8 @@ class Intervention {
   @prop({ required: true, type: () => [String] })
   timing: string[];
 
-  
   @prop({ required: true, ref: () => Group })
   groups: Ref<Group>[];
 }
 
-export { Intervention }
+export { Intervention };

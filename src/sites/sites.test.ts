@@ -113,10 +113,7 @@ describe('PUT /api/sites/:siteid', () => {
       payload: 'Test Site',
     };
 
-    await req
-      .put(`/api/sites/${ObjectId()}`)
-      .send(reqBody)
-      .expect(404);
+    await req.put(`/api/sites/${ObjectId()}`).send(reqBody).expect(404);
   });
 
   it('should reject an invalid payload', async () => {

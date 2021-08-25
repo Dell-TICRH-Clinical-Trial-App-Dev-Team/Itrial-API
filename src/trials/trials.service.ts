@@ -1,6 +1,11 @@
 import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+import {
+  doesDocumentWithIdExist,
+  isArrayOfStrings,
+  ClientError,
+  ObjectId,
+} from '../utils/utils';
 
 import { Trial } from './trials.model';
 import { TrialProtocol } from './trialProtocols/trialProtocols.model';
@@ -24,7 +29,6 @@ export const updateFunctions = new Map([
   ['remove groups', removeGroups],
   ['remove patients', removePatients],
 ]);
-
 
 function rename(trial: Doc<Trial>, name: any): void {
   if (typeof name != 'string' || name == '')
@@ -50,7 +54,10 @@ function addTeamMembers(trial: Doc<Trial>, teamMembers: any): void {
 
   for (let teamMemberId of teamMembers) {
     if (!doesDocumentWithIdExist(teamMemberId, 'TeamMember'))
-      throw new ClientError(404, `teamMember with id ${teamMemberId} not found`);
+      throw new ClientError(
+        404,
+        `teamMember with id ${teamMemberId} not found`
+      );
   }
 
   trial.teamMembers.push(...teamMembers.map(ObjectId));
@@ -90,14 +97,20 @@ function setPermissions(trial: Doc<Trial>, permissions: any): void {
 
 function addProtocols(trial: Doc<Trial>, protocols: any): void {
   if (!protocols[0]?.name)
-    throw new ClientError(400, 'protocols must be passed in as [ITrialProtcol]');
+    throw new ClientError(
+      400,
+      'protocols must be passed in as [ITrialProtcol]'
+    );
 
   trial.protocols.push(...protocols);
 }
 
 function removeProtocols(trial: Doc<Trial>, protocols: any): void {
   if (!protocols[0]?.name)
-    throw new ClientError(400, 'protocols must be passed in as [ITrialProtcol]');
+    throw new ClientError(
+      400,
+      'protocols must be passed in as [ITrialProtcol]'
+    );
 
   const filteredProtocols = trial.protocols.filter((protocol1) => {
     let shouldKeep = true;
@@ -112,7 +125,10 @@ function removeProtocols(trial: Doc<Trial>, protocols: any): void {
 
 function setProtocols(trial: Doc<Trial>, protocols: any): void {
   if (!protocols[0]?.name)
-    throw new ClientError(400, 'protocols must be passed in as [ITrialProtcol]');
+    throw new ClientError(
+      400,
+      'protocols must be passed in as [ITrialProtcol]'
+    );
 
   trial.protocols = protocols;
 }

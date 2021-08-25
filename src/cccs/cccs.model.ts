@@ -1,4 +1,9 @@
-import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import {
+  prop,
+  Ref,
+  ReturnModelType as Model,
+  DocumentType as Doc,
+} from '@typegoose/typegoose';
 import { CccModel } from '../models';
 import { Site } from '../sites/sites.model';
 import { Trial } from '../trials/trials.model';
@@ -8,6 +13,9 @@ class Ccc {
   @prop({ required: true })
   name: string;
 
+  @prop({ required: true })
+  email: string;
+
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
 
@@ -16,8 +24,7 @@ class Ccc {
 
   @prop({ required: true, ref: () => TeamMember })
   teamMembers: Ref<TeamMember>[];
-  
-  
+
   public static build(this: Model<typeof Ccc>, obj: Ccc): Doc<Ccc> {
     return new CccModel(obj);
   }
