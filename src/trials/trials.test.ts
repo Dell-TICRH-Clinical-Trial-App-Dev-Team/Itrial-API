@@ -150,6 +150,28 @@ describe('PUT /api/trials/:trialid', () => {
     expect(updatedTrial.name).toBe(reqBody.payload);
   });
 
+  it('should set startDate', async () => {
+    let reqBody = {
+      operation: 'set startDate',
+      payload: new Date(),
+    };
+    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
+
+    const updatedTrial = await TrialModel.findById(trialid).lean();
+    expect(new Date(updatedTrial.startDate)).toStrictEqual(reqBody.payload);
+  });
+
+  it('should set endDate', async () => {
+    let reqBody = {
+      operation: 'set endDate',
+      payload: new Date(),
+    };
+    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
+
+    const updatedTrial = await TrialModel.findById(trialid).lean();
+    expect(new Date(updatedTrial.endDate)).toStrictEqual(reqBody.payload);
+  });
+
   it('should update endpointResults', async () => {
     let reqBody = {
       operation: 'update endpointResults',
