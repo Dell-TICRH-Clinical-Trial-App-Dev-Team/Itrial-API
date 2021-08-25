@@ -4,11 +4,16 @@ import server from '../config/server';
 import { connectToDB, dropDB } from '../config/db';
 import { ObjectId } from '../utils/utils';
 
-
 import request from 'supertest';
 const req = request(server);
 
-import { TrialModel, SiteModel, GroupModel, TeamMemberModel, PatientModel } from '../models';
+import {
+  TrialModel,
+  SiteModel,
+  GroupModel,
+  TeamMemberModel,
+  PatientModel,
+} from '../models';
 
 beforeAll(async () => {
   await connectToDB('trialstestdb');
@@ -123,10 +128,7 @@ describe('PUT /api/trials/:trialid', () => {
       payload: 'Test Trial',
     };
 
-    await req
-      .put(`/api/trials/${ObjectId()}`)
-      .send(reqBody)
-      .expect(404);
+    await req.put(`/api/trials/${ObjectId()}`).send(reqBody).expect(404);
   });
 
   it('should reject an invalid payload', async () => {

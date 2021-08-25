@@ -1,6 +1,11 @@
 import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+import {
+  doesDocumentWithIdExist,
+  isArrayOfStrings,
+  ClientError,
+  ObjectId,
+} from '../utils/utils';
 
 import { Ccc } from './cccs.model';
 
@@ -46,11 +51,17 @@ function addSites(ccc: Doc<Ccc>, siteIds: any): void {
 
 function addTeamMembers(ccc: Doc<Ccc>, teamMemberIds: any): void {
   if (!isArrayOfStrings(teamMemberIds))
-    throw new ClientError(400, 'team member ids must be passed in as ObjectId[]');
-  
+    throw new ClientError(
+      400,
+      'team member ids must be passed in as ObjectId[]'
+    );
+
   for (let teamMemberId of teamMemberIds) {
     if (!doesDocumentWithIdExist(teamMemberId, 'TeamMember'))
-      throw new ClientError(404, `teamMember with id ${teamMemberId} not found`);
+      throw new ClientError(
+        404,
+        `teamMember with id ${teamMemberId} not found`
+      );
   }
 
   ccc.teamMembers.push(...teamMemberIds.map(ObjectId));
@@ -59,7 +70,7 @@ function addTeamMembers(ccc: Doc<Ccc>, teamMemberIds: any): void {
 function removeTrials(ccc: Doc<Ccc>, trialIds: any): void {
   if (!isArrayOfStrings(trialIds))
     throw new ClientError(400, 'trial ids must be passed in as ObjectId[]');
-  
+
   for (let trialId of trialIds) {
     ccc.trials.splice(ccc.trials.indexOf(ObjectId(trialId)));
   }
@@ -68,7 +79,7 @@ function removeTrials(ccc: Doc<Ccc>, trialIds: any): void {
 function removeSites(ccc: Doc<Ccc>, siteIds: any): void {
   if (!isArrayOfStrings(siteIds))
     throw new ClientError(400, 'site ids must be passed in as ObjectId[]');
-  
+
   for (let siteId of siteIds) {
     ccc.sites.splice(ccc.sites.indexOf(ObjectId(siteId)));
   }
@@ -76,8 +87,11 @@ function removeSites(ccc: Doc<Ccc>, siteIds: any): void {
 
 function removeTeamMembers(ccc: Doc<Ccc>, teamMemberIds: any): void {
   if (!isArrayOfStrings(teamMemberIds))
-    throw new ClientError(400, 'team member ids must be passed in as ObjectId[]');
-  
+    throw new ClientError(
+      400,
+      'team member ids must be passed in as ObjectId[]'
+    );
+
   for (let teamMemberId of teamMemberIds) {
     ccc.teamMembers.splice(ccc.teamMembers.indexOf(ObjectId(teamMemberId)));
   }

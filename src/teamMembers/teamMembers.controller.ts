@@ -9,8 +9,7 @@ export const readByEmail = [
   param('email').isEmail(),
   asyncHandler(async (req: Request, res: Response) => {
     throwValidation(validationResult(req));
-    
-    return res.status(200).json(await 
-      getTeamMemberByEmail(req.params.email));
-  })
+
+    return res.status(200).json(await getTeamMemberByEmail(req.params.email));
+  }),
 ];

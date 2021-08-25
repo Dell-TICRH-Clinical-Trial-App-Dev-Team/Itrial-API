@@ -1,6 +1,11 @@
 import { getName, DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+import {
+  doesDocumentWithIdExist,
+  isArrayOfStrings,
+  ClientError,
+  ObjectId,
+} from '../utils/utils';
 
 import { TeamMember } from './teamMembers.model';
 import { TeamMemberModel } from '../models';
@@ -21,10 +26,17 @@ export const updateFunctions = new Map([
   ['remove trials', removeTrials],
 ]);
 
-export async function getTeamMemberByEmail(email: string): Promise<Doc<TeamMember>> {
+export async function getTeamMemberByEmail(
+  email: string
+): Promise<Doc<TeamMember>> {
   let doc = await TeamMemberModel.findOne({ email: email }).exec();
-  if (!doc) throw new ClientError(404, 
-    `document of type "${getName(TeamMemberModel)}" with email "${email}" not found`);
+  if (!doc)
+    throw new ClientError(
+      404,
+      `document of type "${getName(
+        TeamMemberModel
+      )}" with email "${email}" not found`
+    );
   return doc;
 }
 
@@ -46,7 +58,10 @@ function updateEmail(teamMember: Doc<TeamMember>, email: any): void {
   teamMember.email = email;
 }
 
-function updatePhoneNumber(teamMember: Doc<TeamMember>, phoneNumber: any): void {
+function updatePhoneNumber(
+  teamMember: Doc<TeamMember>,
+  phoneNumber: any
+): void {
   if (typeof phoneNumber != 'number' || phoneNumber < 1000000000)
     throw new ClientError(400, 'invalid name');
   teamMember.phoneNumber = phoneNumber;
@@ -59,7 +74,10 @@ function addPermissions(teamMember: Doc<TeamMember>, permissions: any): void {
   teamMember.permissions.push(...permissions);
 }
 
-function removePermissions(teamMember: Doc<TeamMember>, permissions: any): void {
+function removePermissions(
+  teamMember: Doc<TeamMember>,
+  permissions: any
+): void {
   if (!isArrayOfStrings(permissions))
     throw new ClientError(400, 'permissions must be passed in as [string]');
 

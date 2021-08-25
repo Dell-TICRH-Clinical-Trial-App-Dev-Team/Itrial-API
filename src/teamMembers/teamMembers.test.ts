@@ -4,7 +4,6 @@ import server from '../config/server';
 import { connectToDB, dropDB } from '../config/db';
 import { ObjectId } from '../utils/utils';
 
-
 import request from 'supertest';
 const req = request(server);
 
@@ -51,9 +50,7 @@ describe('GET /api/team-members/', () => {
   });
 
   it('should return a 404 when ObjectId or email not found', async () => {
-    await req
-      .get(`/api/team-members/id/${ObjectId()}`)
-      .expect(404);
+    await req.get(`/api/team-members/id/${ObjectId()}`).expect(404);
     await req
       .get(`/api/team-members/email/${faker.internet.email()}`)
       .expect(404);
@@ -174,7 +171,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.name).toBe(reqBody.payload);
   });
 
@@ -189,7 +188,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.address).toStrictEqual(reqBody.payload);
   });
 
@@ -204,7 +205,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.email).toBe(reqBody.payload);
   });
 
@@ -219,7 +222,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.phoneNumber).toBe(reqBody.payload);
   });
 
@@ -234,7 +239,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.permissions).toContain(reqBody.payload[0]);
   });
 
@@ -249,7 +256,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.permissions).not.toContain(reqBody.payload[0]);
   });
 
@@ -269,7 +278,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.cccs).toContainEqual(reqBody.payload[0]);
   });
 
@@ -290,7 +301,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.sites).toContainEqual(reqBody.payload[0]);
   });
 
@@ -310,7 +323,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.trials).toContainEqual(reqBody.payload[0]);
   });
 
@@ -325,7 +340,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.cccs).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -340,7 +357,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.sites).not.toContainEqual(reqBody.payload[0]);
   });
 
@@ -355,7 +374,9 @@ describe('PUT /api/team-members/:teamMemberid', () => {
       .send(reqBody)
       .expect(204);
 
-    const updatedTeamMember = await TeamMemberModel.findById(teamMemberid).lean();
+    const updatedTeamMember = await TeamMemberModel.findById(
+      teamMemberid
+    ).lean();
     expect(updatedTeamMember.trials).not.toContainEqual(reqBody.payload[0]);
   });
 });

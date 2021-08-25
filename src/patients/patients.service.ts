@@ -1,6 +1,11 @@
 import { getName, DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings, ClientError, ObjectId } from '../utils/utils';
+import {
+  doesDocumentWithIdExist,
+  isArrayOfStrings,
+  ClientError,
+  ObjectId,
+} from '../utils/utils';
 
 import { Patient } from './patients.model';
 import { PatientModel } from '../models';
@@ -21,8 +26,13 @@ export const updateFunctions = new Map([
 
 export async function getPatientByEmail(email: string): Promise<Doc<Patient>> {
   let doc = await PatientModel.findOne({ email: email }).exec();
-  if (!doc) throw new ClientError(404, 
-    `document of type "${getName(PatientModel)}" with email "${email}" not found`);
+  if (!doc)
+    throw new ClientError(
+      404,
+      `document of type "${getName(
+        PatientModel
+      )}" with email "${email}" not found`
+    );
   return doc;
 }
 
@@ -63,7 +73,7 @@ function removeEndpoints(patient: Doc<Patient>, endpoints: any): void {
 
   for (let endpointId of endpoints) {
     patient.endpoints.splice(patient.endpoints.indexOf(ObjectId(endpointId)));
-  }    
+  }
 }
 
 function addDocuments(patient: Doc<Patient>, documents: any): void {

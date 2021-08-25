@@ -107,10 +107,7 @@ describe('PUT /api/cccs/:cccId', () => {
       payload: 'Test Ccc',
     };
 
-    await req
-      .put(`/api/cccs/${ObjectId()}`)
-      .send(reqBody)
-      .expect(404);
+    await req.put(`/api/cccs/${ObjectId()}`).send(reqBody).expect(404);
   });
 
   it('should reject an invalid update payload', async () => {

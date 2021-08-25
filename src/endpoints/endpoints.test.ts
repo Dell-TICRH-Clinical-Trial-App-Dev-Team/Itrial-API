@@ -7,7 +7,13 @@ import { ObjectId } from '../utils/utils';
 import request from 'supertest';
 const req = request(server);
 
-import { EndpointModel, TrialModel, SiteModel, GroupModel, PatientModel } from '../models';
+import {
+  EndpointModel,
+  TrialModel,
+  SiteModel,
+  GroupModel,
+  PatientModel,
+} from '../models';
 
 let siteid: ObjectId, trialid: ObjectId, groupid: ObjectId, patientid: ObjectId;
 
@@ -139,10 +145,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
       payload: 'Test Endpoint',
     };
 
-    await req
-      .put(`/api/endpoints/${ObjectId()}`)
-      .send(reqBody)
-      .expect(404);
+    await req.put(`/api/endpoints/${ObjectId()}`).send(reqBody).expect(404);
   });
 
   it('should rename', async () => {

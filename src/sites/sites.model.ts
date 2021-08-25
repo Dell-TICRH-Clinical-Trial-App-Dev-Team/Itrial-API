@@ -1,4 +1,9 @@
-import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import {
+  prop,
+  Ref,
+  ReturnModelType as Model,
+  DocumentType as Doc,
+} from '@typegoose/typegoose';
 import { SiteModel } from '../models';
 import { Trial } from '../trials/trials.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
@@ -10,7 +15,6 @@ class Site {
 
   @prop({ required: true })
   address: string;
-
 
   @prop({ required: true, ref: () => Trial })
   trials: Ref<Trial>[];

@@ -1,9 +1,19 @@
 import mongoose from 'mongoose';
 import { Result } from 'express-validator';
-import { ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import {
+  ReturnModelType as Model,
+  DocumentType as Doc,
+} from '@typegoose/typegoose';
 
-import { EndpointModel, CccModel, SiteModel, PatientModel, TeamMemberModel, GroupModel, TrialModel } from '../models';
-
+import {
+  EndpointModel,
+  CccModel,
+  SiteModel,
+  PatientModel,
+  TeamMemberModel,
+  GroupModel,
+  TrialModel,
+} from '../models';
 
 export import ObjectId = mongoose.Types.ObjectId;
 
@@ -12,12 +22,12 @@ interface Buildable<T> {
 }
 
 export type CrudModel<T> = Model<new (...args: any) => T> & Buildable<T>;
-export type UpdateFunctions<T> = Map<string, ((doc: Doc<T>, param: any) => void)>;
+export type UpdateFunctions<T> = Map<string, (doc: Doc<T>, param: any) => void>;
 
 export class ClientError {
   status: number;
-  errors: string[]
-  
+  errors: string[];
+
   constructor(status: number, message?: string) {
     this.status = status;
     this.errors = message ? [message] : [];
@@ -28,17 +38,17 @@ export class ClientError {
   }
 }
 
-
 export function throwValidation(result: Result) {
   if (!result.isEmpty()) {
     let errors = new ClientError(400);
     for (let error of result.array()) {
-      errors.push(`invalid value for parameter "${error.param}": "${error.msg}"`);
+      errors.push(
+        `invalid value for parameter "${error.param}": "${error.msg}"`
+      );
     }
     throw errors;
   }
 }
-
 
 export function isArrayOfStrings(arr: any): arr is string[] {
   if (Array.isArray(arr))
@@ -50,7 +60,6 @@ export function isArrayOfStrings(arr: any): arr is string[] {
 
   return false;
 }
-
 
 let modelMap: Map<string, any> = new Map();
 modelMap.set('Ccc', CccModel);
@@ -65,7 +74,6 @@ export async function doesDocumentWithIdExist(
   id: ObjectId | string,
   modelName: string
 ): Promise<boolean> {
-  
   const count = await modelMap.get(modelName).countDocuments({ _id: id });
   return count != 0;
 }

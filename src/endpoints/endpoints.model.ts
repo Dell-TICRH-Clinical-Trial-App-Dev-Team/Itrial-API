@@ -1,4 +1,9 @@
-import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import {
+  prop,
+  Ref,
+  ReturnModelType as Model,
+  DocumentType as Doc,
+} from '@typegoose/typegoose';
 import { EndpointModel } from '../models';
 import { Site } from '../sites/sites.model';
 import { Trial } from '../trials/trials.model';
@@ -20,7 +25,6 @@ class Endpoint {
 
   @prop({ required: true, type: () => [String] })
   documents: string[]; // will eventually store files
-  
 
   @prop({ required: true, ref: () => Site })
   site: Ref<Site>;
@@ -33,7 +37,6 @@ class Endpoint {
 
   @prop({ required: true, ref: () => Patient })
   patient: Ref<Patient>;
-  
 
   public static build(this: Model<typeof Endpoint>, obj: any): Doc<Endpoint> {
     return new EndpointModel(obj);

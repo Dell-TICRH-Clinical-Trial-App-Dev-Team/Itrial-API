@@ -1,4 +1,9 @@
-import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import {
+  prop,
+  Ref,
+  ReturnModelType as Model,
+  DocumentType as Doc,
+} from '@typegoose/typegoose';
 import { TrialModel } from '../models';
 import { TrialProtocol } from './trialProtocols/trialProtocols.model';
 import { Site } from '../sites/sites.model';
@@ -9,7 +14,7 @@ import { Patient } from '../patients/patients.model';
 class Trial {
   @prop({ required: true })
   name: string;
-  
+
   @prop()
   endpointResults?: string;
 
@@ -22,7 +27,6 @@ class Trial {
   @prop()
   blinded?: boolean;
 
-
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
 
@@ -31,11 +35,10 @@ class Trial {
 
   @prop({ required: true, ref: () => Group })
   groups: Ref<Group>[];
-  
+
   @prop({ required: true, ref: () => Patient })
   patients: Ref<Patient>[];
 
-  
   public static build(this: Model<typeof Trial>, obj: Trial): Doc<Trial> {
     return new TrialModel(obj);
   }

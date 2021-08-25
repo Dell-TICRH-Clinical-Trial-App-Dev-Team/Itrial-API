@@ -1,4 +1,4 @@
-import { getModelForClass }  from '@typegoose/typegoose';
+import { getModelForClass } from '@typegoose/typegoose';
 
 import { Ccc } from './cccs/cccs.model';
 import { Endpoint } from './endpoints/endpoints.model';
@@ -16,4 +16,12 @@ const TeamMemberModel = getModelForClass(TeamMember);
 const TrialModel = getModelForClass(Trial);
 const GroupModel = getModelForClass(Group);
 
-export { CccModel, EndpointModel, PatientModel, SiteModel, TeamMemberModel, TrialModel, GroupModel };
+export {
+  CccModel,
+  EndpointModel,
+  PatientModel,
+  SiteModel,
+  TeamMemberModel,
+  TrialModel,
+  GroupModel,
+};

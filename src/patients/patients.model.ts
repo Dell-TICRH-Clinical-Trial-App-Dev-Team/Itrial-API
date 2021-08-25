@@ -1,4 +1,9 @@
-import { prop, Ref, ReturnModelType as Model, DocumentType as Doc } from '@typegoose/typegoose';
+import {
+  prop,
+  Ref,
+  ReturnModelType as Model,
+  DocumentType as Doc,
+} from '@typegoose/typegoose';
 import { PatientModel } from '../models';
 import { Endpoint } from '../endpoints/endpoints.model';
 import { Group } from '../trials/groups/groups.model';
@@ -26,10 +31,9 @@ class Patient {
 
   @prop({ required: true })
   screenFail: boolean;
-  
+
   @prop({ required: true, type: () => [String] })
   documents: string[]; // will eventually be an array of files
-
 
   @prop({ required: true, ref: () => Endpoint })
   endpoints: Ref<Endpoint>[];
@@ -42,7 +46,6 @@ class Patient {
 
   @prop({ ref: () => Trial })
   trial?: Ref<Trial>;
-
 
   public static build(this: Model<typeof Patient>, obj: Patient): Doc<Patient> {
     return new PatientModel(obj);

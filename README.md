@@ -1,11 +1,11 @@
 # Itrial-API
-Monolith backend api for web client and mobile app.
 
+Monolith backend api for web client and mobile app.
 
 1. Install and setup MongoDB: https://docs.mongodb.com/manual/installation/
 2. Create a folder in the root directory (if not already present) called "config", and in it, create these files: .env.defaults .env.prod .env.test .env.dev and .env.schema
 
-3. The contents of these files are: 
+3. The contents of these files are:
 
 ```bash
 # .env.defaults

@@ -1,6 +1,10 @@
 import { DocumentType as Doc } from '@typegoose/typegoose';
 
-import { doesDocumentWithIdExist, isArrayOfStrings, ClientError } from '../utils/utils';
+import {
+  doesDocumentWithIdExist,
+  isArrayOfStrings,
+  ClientError,
+} from '../utils/utils';
 
 import { Endpoint } from './endpoints.model';
 

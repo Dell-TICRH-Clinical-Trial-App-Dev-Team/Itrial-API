@@ -10,7 +10,13 @@ import request from 'supertest';
 const req = request(server);
 
 import { Patient } from './patients.model';
-import { PatientModel, TrialModel, SiteModel, GroupModel, EndpointModel } from '../models';
+import {
+  PatientModel,
+  TrialModel,
+  SiteModel,
+  GroupModel,
+  EndpointModel,
+} from '../models';
 
 beforeAll(async () => {
   await connectToDB('patienttestdb');
@@ -150,10 +156,13 @@ describe('PUT /api/patients/:patientid', () => {
     });
     endpointid = endpoint._id.toString();
 
-    await PatientModel.findById(patientid, (err: NativeError, patient: Doc<Patient>) => {
-      patient.endpoints.push(endpoint._id);
-      patient.save();
-    });
+    await PatientModel.findById(
+      patientid,
+      (err: NativeError, patient: Doc<Patient>) => {
+        patient.endpoints.push(endpoint._id);
+        patient.save();
+      }
+    );
   });
 
   it('should reject an invalid update operation', async () => {
@@ -171,10 +180,7 @@ describe('PUT /api/patients/:patientid', () => {
       payload: 'Test Patient',
     };
 
-    await req
-      .put(`/api/patients/id/${ObjectId()}`)
-      .send(reqBody)
-      .expect(404);
+    await req.put(`/api/patients/id/${ObjectId()}`).send(reqBody).expect(404);
   });
 
   it('should reject an invalid payload', async () => {
