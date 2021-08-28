@@ -82,8 +82,8 @@ function addCccs(site: Doc<Site>, cccs: any): void {
     throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
   for (let cccId of cccs) {
-    if (!doesDocumentWithIdExist(cccId, 'Ccc'))
-      throw new ClientError(404, `ccc with id ${cccId} not found`);
+    if (!doesDocumentWithIdExist(cccId, 'TeamMember'))
+      throw new ClientError(404, `team member with id ${cccId} not found`);
   }
 
   site.cccs.push(...cccs.map(ObjectId));

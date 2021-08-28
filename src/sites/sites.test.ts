@@ -7,7 +7,7 @@ import { ObjectId } from '../utils/utils';
 import request from 'supertest';
 const req = request(server);
 
-import { SiteModel, TrialModel, TeamMemberModel, CccModel } from '../models';
+import { SiteModel, TrialModel, TeamMemberModel } from '../models';
 
 beforeAll(async () => {
   await connectToDB('sitetestdb');
@@ -74,8 +74,11 @@ describe('PUT /api/sites/:siteid', () => {
     });
     trialid = trial._id;
 
-    const ccc = await CccModel.create({
-      name: 'Test Ccc',
+    const ccc = await TeamMemberModel.create({
+      name: faker.name.firstName() + ' (CCC)',
+      address: faker.address.streetAddress(),
+      email: faker.internet.email(),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
     });
     cccid = ccc._id;
 
@@ -84,7 +87,6 @@ describe('PUT /api/sites/:siteid', () => {
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
       phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
-      permissions: ['test'],
     });
     teamMemberid = teamMember._id;
 
@@ -200,8 +202,11 @@ describe('PUT /api/sites/:siteid', () => {
   });
 
   it('should add cccs', async () => {
-    const ccc = await CccModel.create({
-      name: 'Test Ccc',
+    const ccc = await TeamMemberModel.create({
+      name: faker.name.firstName() + ' (CCC 2)',
+      address: faker.address.streetAddress(),
+      email: faker.internet.email(),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
     });
     const newcccid = ccc._id;
 
@@ -222,7 +227,6 @@ describe('PUT /api/sites/:siteid', () => {
       address: faker.address.streetAddress(),
       email: faker.internet.email(),
       phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
-      permissions: ['test'],
     });
     const newteammemberid = teamMember._id;
 

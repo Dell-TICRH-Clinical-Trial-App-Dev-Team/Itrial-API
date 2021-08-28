@@ -7,7 +7,6 @@ import {
 import { TeamMemberModel } from '../models';
 import { Trial } from '../trials/trials.model';
 import { Site } from '../sites/sites.model';
-import { Ccc } from '../cccs/cccs.model';
 
 class TeamMember {
   @prop({ required: true })
@@ -22,17 +21,14 @@ class TeamMember {
   @prop()
   phoneNumber?: number;
 
-  @prop({ required: true, type: () => [String] })
-  permissions: string[];
-
   @prop({ required: true, ref: () => Trial })
   trials: Ref<Trial>[];
 
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
 
-  @prop({ required: true, ref: () => Ccc })
-  cccs: Ref<Ccc>[];
+  @prop({ ref: () => TeamMember })
+  ccc: Ref<TeamMember>;
 
   public static build(
     this: Model<typeof TeamMember>,

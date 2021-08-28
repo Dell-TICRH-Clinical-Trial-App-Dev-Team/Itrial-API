@@ -7,7 +7,6 @@ import {
 import { SiteModel } from '../models';
 import { Trial } from '../trials/trials.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
-import { Ccc } from '../cccs/cccs.model';
 
 class Site {
   @prop({ required: true })
@@ -22,8 +21,8 @@ class Site {
   @prop({ required: true, ref: () => TeamMember })
   teamMembers: Ref<TeamMember>[];
 
-  @prop({ required: true, ref: () => Ccc })
-  cccs: Ref<Ccc>[];
+  @prop({ required: true, ref: () => TeamMember })
+  cccs: Ref<TeamMember>[];
 
   public static build(this: Model<typeof Site>, obj: Site): Doc<Site> {
     return new SiteModel(obj);

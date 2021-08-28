@@ -16,14 +16,13 @@ export const updateFunctions = new Map([
   ['add protocols', addProtocols],
   ['remove protocols', removeProtocols],
   ['set protocols', setProtocols],
-  ['add permissions', addPermissions],
-  ['remove permissions', removePermissions],
-  ['set permissions', setPermissions],
   ['update blinded', updateBlinded],
+  ['add cccs', addCccs],
   ['add sites', addSites],
   ['add teamMembers', addTeamMembers],
   ['add groups', addGroups],
   ['add patients', addPatients],
+  ['remove cccs', removeCccs],
   ['remove sites', removeSites],
   ['remove teamMembers', removeTeamMembers],
   ['remove groups', removeGroups],
@@ -72,27 +71,25 @@ function removeTeamMembers(trial: Doc<Trial>, teamMembers: any): void {
   }
 }
 
-function addPermissions(trial: Doc<Trial>, permissions: any): void {
-  if (!isArrayOfStrings(permissions))
-    throw new ClientError(400, 'permissions must be passed in as [string]');
+function addCccs(trial: Doc<Trial>, cccs: any): void {
+  if (!isArrayOfStrings(cccs))
+    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
-  trial.permissions.push(...permissions);
-}
-
-function removePermissions(trial: Doc<Trial>, permissions: any): void {
-  if (!isArrayOfStrings(permissions))
-    throw new ClientError(400, 'permissions must be passed in as [string]');
-
-  for (let permission of permissions) {
-    trial.permissions.splice(trial.permissions.indexOf(permission));
+  for (let cccid of cccs) {
+    if (!doesDocumentWithIdExist(cccid, 'TeamMember'))
+      throw new ClientError(404, `teamMember with id ${cccid} not found`);
   }
+
+  trial.cccs.push(...cccs.map(ObjectId));
 }
 
-function setPermissions(trial: Doc<Trial>, permissions: any): void {
-  if (!isArrayOfStrings(permissions))
-    throw new ClientError(400, 'permissions must be passed in as [string]');
+function removeCccs(trial: Doc<Trial>, cccs: any): void {
+  if (!isArrayOfStrings(cccs))
+    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
 
-  trial.permissions = permissions;
+  for (let cccid of cccs) {
+    trial.cccs.splice(trial.cccs.indexOf(ObjectId(cccid)));
+  }
 }
 
 function addProtocols(trial: Doc<Trial>, protocols: any): void {
