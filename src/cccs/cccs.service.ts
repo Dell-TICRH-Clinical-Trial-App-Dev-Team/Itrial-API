@@ -1,4 +1,5 @@
-import { DocumentType as Doc } from '@typegoose/typegoose';
+import { getName, DocumentType as Doc } from '@typegoose/typegoose';
+import { CccModel } from '../models';
 
 import {
   doesDocumentWithIdExist,
@@ -18,6 +19,16 @@ export const updateFunctions = new Map([
   ['remove sites', removeSites],
   ['remove teamMembers', removeTeamMembers],
 ]);
+
+export async function getCccByEmail(email: string): Promise<Doc<Ccc>> {
+  let doc = await CccModel.findOne({ email: email }).exec();
+  if (!doc)
+    throw new ClientError(
+      404,
+      `document of type "${getName(CccModel)}" with email "${email}" not found`
+    );
+  return doc;
+}
 
 function rename(ccc: Doc<Ccc>, name: any): void {
   if (typeof name != 'string' || name == '')
