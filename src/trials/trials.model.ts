@@ -16,6 +16,12 @@ class Trial {
   name: string;
 
   @prop()
+  startDate?: Date;
+
+  @prop()
+  endDate?: string;
+
+  @prop()
   endpointResults?: string;
 
   @prop({ required: true, type: () => [TrialProtocol] })

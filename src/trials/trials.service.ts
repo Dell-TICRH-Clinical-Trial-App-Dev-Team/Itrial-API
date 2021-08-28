@@ -12,6 +12,8 @@ import { TrialProtocol } from './trialProtocols/trialProtocols.model';
 
 export const updateFunctions = new Map([
   ['rename', rename],
+  ['set startDate', setStartDate],
+  ['set endDate', setEndDate],
   ['update endpointResults', updateEndpointResults],
   ['add protocols', addProtocols],
   ['remove protocols', removeProtocols],
@@ -33,6 +35,14 @@ function rename(trial: Doc<Trial>, name: any): void {
   if (typeof name != 'string' || name == '')
     throw new ClientError(400, 'invalid name');
   trial.name = name;
+}
+
+function setStartDate(trial: Doc<Trial>, startDate: any): void {
+  trial.startDate = startDate;
+}
+
+function setEndDate(trial: Doc<Trial>, endDate: any): void {
+  trial.endDate = endDate;
 }
 
 function updateBlinded(trial: Doc<Trial>, blinded: any): void {
