@@ -7,7 +7,6 @@ import {
 
 import {
   EndpointModel,
-  CccModel,
   SiteModel,
   PatientModel,
   TeamMemberModel,
@@ -62,7 +61,6 @@ export function isArrayOfStrings(arr: any): arr is string[] {
 }
 
 let modelMap: Map<string, any> = new Map();
-modelMap.set('Ccc', CccModel);
 modelMap.set('Endpoint', EndpointModel);
 modelMap.set('Patient', PatientModel);
 modelMap.set('Site', SiteModel);

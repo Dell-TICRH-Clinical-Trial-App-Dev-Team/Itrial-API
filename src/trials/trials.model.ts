@@ -27,14 +27,14 @@ class Trial {
   @prop({ required: true, type: () => [TrialProtocol] })
   protocols: TrialProtocol[];
 
-  @prop({ required: true, type: () => [String] })
-  permissions: string[];
-
   @prop()
   blinded?: boolean;
 
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
+
+  @prop({ required: true, ref: () => TeamMember })
+  cccs: Ref<TeamMember>[];
 
   @prop({ required: true, ref: () => TeamMember })
   teamMembers: Ref<TeamMember>[];

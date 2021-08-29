@@ -13,13 +13,13 @@ async function connectToDB(testUri?: string) {
   });
 
   mongoose.connection.on('connected', () => {
-    console.log(`Mongoose connected to ${dbURI}`);
+    if (!config.isTesting) console.log(`Mongoose connected to ${dbURI}`);
   });
   mongoose.connection.on('error', (err) => {
     console.log(`Mongoose connection error: ${err}`);
   });
   mongoose.connection.on('disconnected', () => {
-    // console.log("Mongoose disconnected");
+    if (!config.isTesting) console.log(`Mongoose disconnected from ${dbURI}`);
   });
 }
 

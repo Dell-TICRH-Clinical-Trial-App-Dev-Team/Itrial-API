@@ -15,13 +15,9 @@ export const updateFunctions = new Map([
   ['update address', updateAddress],
   ['update email', updateEmail],
   ['update phoneNumber', updatePhoneNumber],
-  ['add permissions', addPermissions],
-  ['remove permissions', removePermissions],
-  ['set permissions', setPermissions],
-  ['add cccs', addCccs],
+  ['set ccc', setCcc],
   ['add sites', addSites],
   ['add trials', addTrials],
-  ['remove cccs', removeCccs],
   ['remove sites', removeSites],
   ['remove trials', removeTrials],
 ]);
@@ -67,51 +63,11 @@ function updatePhoneNumber(
   teamMember.phoneNumber = phoneNumber;
 }
 
-function addPermissions(teamMember: Doc<TeamMember>, permissions: any): void {
-  if (!isArrayOfStrings(permissions))
-    throw new ClientError(400, 'permissions must be passed in as [string]');
+function setCcc(teamMember: Doc<TeamMember>, cccId: any): void {
+  if (!doesDocumentWithIdExist(cccId, 'TeamMember'))
+    throw new ClientError(404, `ccc with id: ${cccId} does not exist`);
 
-  teamMember.permissions.push(...permissions);
-}
-
-function removePermissions(
-  teamMember: Doc<TeamMember>,
-  permissions: any
-): void {
-  if (!isArrayOfStrings(permissions))
-    throw new ClientError(400, 'permissions must be passed in as [string]');
-
-  for (let permission of permissions) {
-    teamMember.permissions.splice(teamMember.permissions.indexOf(permission));
-  }
-}
-
-function setPermissions(teamMember: Doc<TeamMember>, permissions: any): void {
-  if (!isArrayOfStrings(permissions))
-    throw new ClientError(400, 'permissions must be passed in as [string]');
-
-  teamMember.permissions = permissions;
-}
-
-function addCccs(teamMember: Doc<TeamMember>, cccs: any): void {
-  if (!isArrayOfStrings(cccs))
-    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
-
-  for (let cccId of cccs) {
-    if (!doesDocumentWithIdExist(cccId, 'Ccc'))
-      throw new ClientError(404, `ccc with id: ${cccId} does not exist`);
-  }
-
-  teamMember.cccs.push(...cccs.map(ObjectId));
-}
-
-function removeCccs(teamMember: Doc<TeamMember>, cccs: any): void {
-  if (!isArrayOfStrings(cccs))
-    throw new ClientError(400, 'cccs must be passed in as [ObjectId]');
-
-  for (let cccId of cccs) {
-    teamMember.cccs.splice(teamMember.cccs.indexOf(ObjectId(cccId)));
-  }
+  teamMember.ccc = cccId;
 }
 
 function addSites(teamMember: Doc<TeamMember>, sites: any): void {

@@ -65,6 +65,7 @@ describe('PUT /api/trials/:trialid', () => {
 
   let siteid: ObjectId,
     groupid: ObjectId,
+    cccid: ObjectId,
     teamMemberid: ObjectId,
     patientid: ObjectId;
 
@@ -91,6 +92,14 @@ describe('PUT /api/trials/:trialid', () => {
     });
     patientid = patient._id;
 
+    const ccc = await TeamMemberModel.create({
+      name: faker.name.firstName() + ' (CCC)',
+      address: faker.address.streetAddress(),
+      email: faker.internet.email(),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+    });
+    cccid = ccc._id.toString();
+
     const teamMember = await TeamMemberModel.create({
       name: faker.name.firstName(),
       address: faker.address.streetAddress(),
@@ -103,7 +112,6 @@ describe('PUT /api/trials/:trialid', () => {
       name: faker.name.firstName(),
       endpointResults: 'test endpoint results',
       protocols: [{ name: 'test protocol' }],
-      permissions: ['test perm1'],
       blinded: true,
       sites: [siteid],
       teamMembers: [teamMemberid],
@@ -238,42 +246,6 @@ describe('PUT /api/trials/:trialid', () => {
     );
   });
 
-  it('should add permissions', async () => {
-    let reqBody = {
-      operation: 'add permissions',
-      payload: ['test perm2'],
-    };
-
-    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
-
-    const updatedTrial = await TrialModel.findById(trialid).lean();
-    expect(updatedTrial.permissions).toContain(reqBody.payload[0]);
-  });
-
-  it('should remove permissions', async () => {
-    let reqBody = {
-      operation: 'remove permissions',
-      payload: ['test perm1'],
-    };
-
-    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
-
-    const updatedTrial = await TrialModel.findById(trialid).lean();
-    expect(updatedTrial.permissions).not.toContain(reqBody.payload[0]);
-  });
-
-  it('should set permissions', async () => {
-    let reqBody = {
-      operation: 'set permissions',
-      payload: ['test perm3'],
-    };
-
-    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
-
-    const updatedTrial = await TrialModel.findById(trialid).lean();
-    expect(updatedTrial.permissions[0]).toBe(reqBody.payload[0]);
-  });
-
   it('should update blinded', async () => {
     let reqBody = {
       operation: 'update blinded',
@@ -304,6 +276,26 @@ describe('PUT /api/trials/:trialid', () => {
 
     const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.teamMembers).toContainEqual(reqBody.payload[0]);
+  });
+
+  it('should add cccs', async () => {
+    const newccc = await TeamMemberModel.create({
+      name: faker.name.firstName() + ' (CCC 2)',
+      address: faker.address.streetAddress(),
+      email: faker.internet.email(),
+      phoneNumber: faker.datatype.number({ min: 1111111111, max: 9999999999 }),
+    });
+    const newcccid = newccc._id;
+
+    let reqBody = {
+      operation: 'add cccs',
+      payload: [newcccid],
+    };
+
+    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
+
+    const updatedTrial = await TrialModel.findById(trialid).lean();
+    expect(updatedTrial.cccs).toContainEqual(reqBody.payload[0]);
   });
 
   it('should add sites', async () => {
@@ -374,6 +366,18 @@ describe('PUT /api/trials/:trialid', () => {
 
     const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.teamMembers).not.toContainEqual(reqBody.payload[0]);
+  });
+
+  it('should remove cccs', async () => {
+    let reqBody = {
+      operation: 'remove teamMembers',
+      payload: [cccid],
+    };
+
+    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
+
+    const updatedTrial = await TrialModel.findById(trialid).lean();
+    expect(updatedTrial.cccs).not.toContainEqual(reqBody.payload[0]);
   });
 
   it('should remove sites', async () => {

@@ -56,7 +56,6 @@ describe('GET /api/patients/', () => {
     const response = await req.get(`/api/patients/email/${email}`);
 
     expect(response.status).toBe(200);
-    console.log(response.body);
     expect(response.body.email).toEqual(email);
   });
 
