@@ -23,6 +23,7 @@ describe('GET /api/trials/:trialid', () => {
   it('should get a Trial by id', async () => {
     const trial = await TrialModel.create({
       name: faker.name.firstName(),
+      status: 'pending',
     });
     const id = trial._id.toString();
 
@@ -45,6 +46,7 @@ describe('POST /api/trials/', () => {
   it('should create an Trial with only required fields', async () => {
     const trial = {
       name: faker.name.firstName(),
+      status: 'pending',
     };
 
     const res = await req.post('/api/trials/').send(trial);
@@ -72,6 +74,7 @@ describe('PUT /api/trials/:trialid', () => {
   beforeAll(async () => {
     const group = await GroupModel.create({
       name: 'Test Trial',
+      status: 'pending',
     });
     groupid = group._id;
 
@@ -117,6 +120,7 @@ describe('PUT /api/trials/:trialid', () => {
       teamMembers: [teamMemberid],
       groups: [groupid],
       patients: [patientid],
+      status: 'started',
     });
     trialid = trial._id.toString();
   });
@@ -156,6 +160,17 @@ describe('PUT /api/trials/:trialid', () => {
 
     const updatedTrial = await TrialModel.findById(trialid).lean();
     expect(updatedTrial.name).toBe(reqBody.payload);
+  });
+
+  it('should update status', async () => {
+    let reqBody = {
+      operation: 'set status',
+      payload: 'ended',
+    };
+    await req.put(`/api/trials/${trialid}`).send(reqBody).expect(204);
+
+    const updatedTrial = await TrialModel.findById(trialid).lean();
+    expect(updatedTrial.status).toBe(reqBody.payload);
   });
 
   it('should set startDate', async () => {

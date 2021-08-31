@@ -71,6 +71,7 @@ describe('PUT /api/sites/:siteid', () => {
   beforeAll(async () => {
     const trial = await TrialModel.create({
       name: 'Test Trial',
+      status: 'pending',
     });
     trialid = trial._id;
 
@@ -187,6 +188,7 @@ describe('PUT /api/sites/:siteid', () => {
   it('should add trials', async () => {
     const trial = await TrialModel.create({
       name: 'Test Trial',
+      status: 'pending',
     });
     const newtrialid = trial._id;
 

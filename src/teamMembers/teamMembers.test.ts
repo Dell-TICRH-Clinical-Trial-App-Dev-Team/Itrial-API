@@ -97,6 +97,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   beforeAll(async () => {
     const trial = await TrialModel.create({
       name: 'Test Trial',
+      status: 'pending',
     });
     trialid = trial._id;
 
@@ -279,6 +280,7 @@ describe('PUT /api/team-members/:teamMemberid', () => {
   it('should add trials', async () => {
     const newtrial = await TrialModel.create({
       name: faker.name.firstName(),
+      status: 'ended',
     });
     const newtrialid = newtrial._id;
 

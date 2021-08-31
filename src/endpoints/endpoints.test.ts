@@ -22,6 +22,7 @@ beforeAll(async () => {
 
   const trial = await TrialModel.create({
     name: 'Test Trial',
+    status: 'pending',
   });
   trialid = trial._id.toString();
 
@@ -265,6 +266,7 @@ describe('PUT /api/endpoints/:endpointid', () => {
   it('should change trial', async () => {
     const trial = await TrialModel.create({
       name: 'Test Trial',
+      status: 'pending',
     });
     let newtrialid = trial._id.toString();
 

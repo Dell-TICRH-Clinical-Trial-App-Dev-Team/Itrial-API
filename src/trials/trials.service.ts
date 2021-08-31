@@ -7,7 +7,7 @@ import {
   ObjectId,
 } from '../utils/utils';
 
-import { Trial } from './trials.model';
+import { Trial, TrialStatus } from './trials.model';
 import { TrialProtocol } from './trialProtocols/trialProtocols.model';
 
 export const updateFunctions = new Map([
@@ -29,6 +29,7 @@ export const updateFunctions = new Map([
   ['remove teamMembers', removeTeamMembers],
   ['remove groups', removeGroups],
   ['remove patients', removePatients],
+  ['set status', setStatus],
 ]);
 
 function rename(trial: Doc<Trial>, name: any): void {
@@ -201,4 +202,8 @@ function removeSites(trial: Doc<Trial>, sites: any): void {
   for (let siteId of sites) {
     trial.sites.splice(trial.sites.indexOf(ObjectId(siteId)));
   }
+}
+
+function setStatus(trial: Doc<Trial>, status: TrialStatus): void {
+  trial.status = status;
 }

@@ -45,9 +45,14 @@ class Trial {
   @prop({ required: true, ref: () => Patient })
   patients: Ref<Patient>[];
 
+  @prop({ required: true })
+  status: TrialStatus;
+
   public static build(this: Model<typeof Trial>, obj: Trial): Doc<Trial> {
     return new TrialModel(obj);
   }
 }
 
-export { Trial };
+type TrialStatus = 'started' | 'pending' | 'ended';
+
+export { Trial, TrialStatus };
