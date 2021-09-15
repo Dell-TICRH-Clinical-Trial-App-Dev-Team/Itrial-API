@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
-import { Result } from 'express-validator';
-import {
-  ReturnModelType as Model,
-  DocumentType as Doc,
-} from '@typegoose/typegoose';
+import { ReturnModelType, DocumentType as Doc } from '@typegoose/typegoose';
+import express, { NextFunction, Request, Response } from 'express';
+import expressAsyncHandler from 'express-async-handler';
+import { validationResult } from 'express-validator';
+
+import { throwValidation } from '../utils/err';
 
 import {
   EndpointModel,
@@ -14,51 +15,55 @@ import {
   TrialModel,
 } from '../models';
 
+// types
+
+interface IModel<T> {
+  build(obj: T): Promise<Doc<T>>;
+  getSortString(): string;
+  getSelectString(): string;
+  getSinglePopulateStrings(): Record<string, string>;
+  getMultiPopulateStrings(): Record<string, string>;
+}
+
+export type Model<T> = ReturnModelType<new (...args: any) => T> & IModel<T>;
 export import ObjectId = mongoose.Types.ObjectId;
 
-interface Buildable<T> {
-  build(obj: T): Doc<T>;
-}
+// express
 
-export type CrudModel<T> = Model<new (...args: any) => T> & Buildable<T>;
-export type UpdateFunctions<T> = Map<string, (doc: Doc<T>, param: any) => void>;
-
-export class ClientError {
-  status: number;
-  errors: string[];
-
-  constructor(status: number, message?: string) {
-    this.status = status;
-    this.errors = message ? [message] : [];
-  }
-
-  public push(message: string) {
-    this.errors.push(message);
-  }
-}
-
-export function throwValidation(result: Result) {
-  if (!result.isEmpty()) {
-    let errors = new ClientError(400);
-    for (let error of result.array()) {
-      errors.push(
-        `invalid value for parameter "${error.param}": "${error.msg}"`
-      );
+export function handler(
+  handler: express.RequestHandler
+): express.RequestHandler {
+  return expressAsyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      throwValidation(validationResult(req));
+      return await handler(req, res, next);
     }
-    throw errors;
+  );
+}
+
+// logic
+
+export function traverse(path: string, obj: any): any {
+  for (let field of path.split('.')) {
+    obj = obj[field];
   }
+  return obj;
 }
 
 export function isArrayOfStrings(arr: any): arr is string[] {
   if (Array.isArray(arr))
     return (
       arr.filter(
-        (item) => typeof item == 'string' || typeof item?.toString() == 'string'
+        (item) =>
+          typeof item == 'string' ||
+          typeof item?.toString() == 'string'
       ).length > 0
     );
 
   return false;
 }
+
+// model map
 
 let modelMap: Map<string, any> = new Map();
 modelMap.set('Endpoint', EndpointModel);

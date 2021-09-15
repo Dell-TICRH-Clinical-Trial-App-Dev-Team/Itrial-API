@@ -1,17 +1,15 @@
 import express, { Router } from 'express';
 
-import { CrudModel, UpdateFunctions } from '../utils/utils';
-import { create, read, update } from './controller';
+import { Model } from '../utils/utils';
+import { getDoc, setDoc, createDoc, removeDoc } from './controller';
 
-export function router<T>(
-  model: CrudModel<T>,
-  updateFunctions: UpdateFunctions<T>
-): Router {
+export function router(model: Model<any>): Router {
   const router = express.Router();
 
-  router.post('/', create(model));
-  router.get('/:id', read(model));
-  router.put('/:id', update(model, updateFunctions));
+  router.post('/', ...createDoc(model));
+  router.get('/id/:id', ...getDoc(model));
+  router.put('/id/:id', ...setDoc(model));
+  router.delete('/id/:id', ...removeDoc(model));
 
   return router;
 }

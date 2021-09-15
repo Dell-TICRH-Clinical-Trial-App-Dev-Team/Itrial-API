@@ -1,14 +1,10 @@
-import {
-  prop,
-  Ref,
-  ReturnModelType as Model,
-  DocumentType as Doc,
-} from '@typegoose/typegoose';
-import { EndpointModel } from '../models';
+import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
+import { Model } from '../utils/utils';
+import { Group } from '../groups/groups.model';
+import { Patient } from '../patients/patients.model';
 import { Site } from '../sites/sites.model';
 import { Trial } from '../trials/trials.model';
-import { Group } from '../trials/groups/groups.model';
-import { Patient } from '../patients/patients.model';
+import { DocumentFile } from '../utils/model';
 
 class Endpoint {
   @prop({ required: true })
@@ -23,8 +19,8 @@ class Endpoint {
   @prop()
   score?: string;
 
-  @prop({ required: true, type: () => [String] })
-  documents: string[]; // will eventually store files
+  @prop({ required: true, type: () => [DocumentFile] })
+  documents: DocumentFile[]; // will eventually store files
 
   @prop({ required: true, ref: () => Site })
   site: Ref<Site>;
@@ -38,8 +34,36 @@ class Endpoint {
   @prop({ required: true, ref: () => Patient })
   patient: Ref<Patient>;
 
-  public static build(this: Model<typeof Endpoint>, obj: any): Doc<Endpoint> {
-    return new EndpointModel(obj);
+  public static async build(
+    this: Model<Endpoint>,
+    obj: any
+  ): Promise<Doc<Endpoint>> {
+    return await new this(obj).save();
+  }
+
+  public static getSortString(this: unknown): string {
+    return 'ObjectId';
+  }
+
+  public static getSelectString(this: unknown): string {
+    return 'name date description score';
+  }
+
+  public static getSinglePopulateStrings(
+    this: unknown
+  ): Record<string, string> {
+    return {
+      site: Site.getSelectString(),
+      trial: Trial.getSelectString(),
+      group: Group.getSelectString(),
+      patient: Patient.getSelectString(),
+    };
+  }
+
+  public static getMultiPopulateStrings(
+    this: unknown
+  ): Record<string, string> {
+    return {};
   }
 }
 

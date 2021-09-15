@@ -1,14 +1,10 @@
-import {
-  prop,
-  Ref,
-  ReturnModelType as Model,
-  DocumentType as Doc,
-} from '@typegoose/typegoose';
-import { PatientModel } from '../models';
+import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
+import { Model } from '../utils/utils';
 import { Endpoint } from '../endpoints/endpoints.model';
-import { Group } from '../trials/groups/groups.model';
+import { Group } from '../groups/groups.model';
 import { Site } from '../sites/sites.model';
 import { Trial } from '../trials/trials.model';
+import { DocumentFile } from '../utils/model';
 
 class Patient {
   @prop({ required: true })
@@ -27,16 +23,14 @@ class Patient {
   phoneNumber: number;
 
   @prop({ required: true })
-  consentForm: string; // will eventually be a file
-
+  consentForm: DocumentFile;
+  
   @prop({ required: true })
   screenFail: boolean;
 
-  @prop({ required: true, type: () => [String] })
-  documents: string[]; // will eventually be an array of files
+  @prop({ required: true, type: () => [DocumentFile] })
+  documents: DocumentFile[]; // will eventually be an array of files
 
-  @prop({ required: true, ref: () => Endpoint })
-  endpoints: Ref<Endpoint>[];
 
   @prop({ ref: () => Group })
   group?: Ref<Group>;
@@ -47,8 +41,40 @@ class Patient {
   @prop({ ref: () => Trial })
   trial?: Ref<Trial>;
 
-  public static build(this: Model<typeof Patient>, obj: Patient): Doc<Patient> {
-    return new PatientModel(obj);
+  @prop({ required: true, ref: () => Endpoint })
+  endpoints: Ref<Endpoint>[];
+  
+  public static async build(
+    this: Model<Patient>,
+    obj: Patient
+  ): Promise<Doc<Patient>> {
+    return await new this(obj).save();
+  }
+
+  public static getSortString(this: unknown): string {
+    return 'ObjectId';
+  }
+
+  public static getSelectString(this: unknown): string {
+    return 'dccid name address email phoneNumber consentForm screenFail';
+  }
+
+  public static getSinglePopulateStrings(
+    this: unknown
+  ): Record<string, string> {
+    return {
+      group: Group.getSelectString(),
+      site: Site.getSelectString(),
+      trial: Trial.getSelectString(),
+    };
+  }
+
+  public static getMultiPopulateStrings(
+    this: unknown
+  ): Record<string, string> {
+    return {
+      endpoints: Endpoint.getSelectString(),
+    };
   }
 }
 

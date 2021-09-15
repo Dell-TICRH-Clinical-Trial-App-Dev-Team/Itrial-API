@@ -1,34 +1,29 @@
 import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
 import { Model } from '../utils/utils';
-import { Trial } from '../trials/trials.model';
 import { Site } from '../sites/sites.model';
+import { Patient } from '../patients/patients.model';
+import { Trial } from '../trials/trials.model';
 
-class TeamMember {
+class Group {
   @prop({ required: true })
   name: string;
 
   @prop()
-  address?: string;
+  endpointResults?: string;
 
-  @prop({ required: true })
-  email: string;
+  @prop({ ref: () => Trial })
+  trial?: Ref<Trial>;
 
-  @prop()
-  phoneNumber?: number;
-
-  @prop({ required: true, ref: () => Trial })
-  trials: Ref<Trial>[];
+  @prop({ required: true, ref: () => Patient })
+  patients: Ref<Patient>[];
 
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
 
-  @prop({ ref: () => TeamMember })
-  ccc: Ref<TeamMember>;
-
   public static async build(
-    this: Model<TeamMember>,
-    obj: TeamMember
-  ): Promise<Doc<TeamMember>> {
+    this: Model<Group>,
+    obj: Trial
+  ): Promise<Doc<Group>> {
     return await new this(obj).save();
   }
 
@@ -37,14 +32,14 @@ class TeamMember {
   }
 
   public static getSelectString(this: unknown): string {
-    return 'name address email phoneNumber';
+    return 'name endpointResults';
   }
 
   public static getSinglePopulateStrings(
     this: unknown
   ): Record<string, string> {
     return {
-      ccc: Trial.getSelectString(),
+      trial: Trial.getSelectString(),
     };
   }
 
@@ -52,10 +47,10 @@ class TeamMember {
     this: unknown
   ): Record<string, string> {
     return {
-      trials: Trial.getSelectString(),
       sites: Site.getSelectString(),
+      patients: Patient.getSelectString(),
     };
   }
 }
 
-export { TeamMember };
+export { Group };

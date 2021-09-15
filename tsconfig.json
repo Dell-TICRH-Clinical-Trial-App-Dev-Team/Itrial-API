@@ -12,7 +12,8 @@
       "*": ["node_modules/*"]
     },
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true
   },
   "exclude": ["node_modules"]
 }
