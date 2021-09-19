@@ -1,14 +1,18 @@
 import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
-import { Model } from '../utils/utils';
+import { Model, ModelClass, CorrespondingEdge } from '../utils/utils';
 import { Trial } from '../trials/trials.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
 
 class Site {
+  // simple fields
+
   @prop({ required: true })
   name: string;
 
   @prop({ required: true })
   address: string;
+
+  // multi edge fields
 
   @prop({ required: true, ref: () => Trial })
   trials: Ref<Trial>[];
@@ -26,27 +30,39 @@ class Site {
     return await new this(obj).save();
   }
 
-  public static getSortString(this: unknown): string {
-    return 'ObjectId';
+  public static getSortPriorities(this: unknown): string[] {
+    return 'ObjectId'.split(' ');
   }
 
-  public static getSelectString(this: unknown): string {
-    return 'name address';
+  public static getSimpleFields(this: unknown): string[] {
+    return 'name address'.split(' ');
   }
 
-  public static getSinglePopulateStrings(
+  public static getSubdocumentFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
     return {};
   }
 
-  public static getMultiPopulateStrings(
+  public static getSingleEdgeFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, CorrespondingEdge> {
+    return {};
+  }
+
+  public static getSubcollectionFieldMap(
+    this: unknown
+  ): Record<string, ModelClass> {
+    return {};
+  }
+
+  public static getMultiEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {
-      trials: Trial.getSelectString(),
-      teamMembers: TeamMember.getSelectString(),
-      cccs: TeamMember.getSelectString(),
+      trials: { model: Trial, target: 'sites', targetMulti: true },
+      teamMembers: { model: TeamMember, target: 'sites', targetMulti: true },
+      cccs: { model: TeamMember },
     };
   }
 }

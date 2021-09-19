@@ -1,5 +1,5 @@
 import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
-import { Model } from '../utils/utils';
+import { ModelClass, Model, CorrespondingEdge } from '../utils/utils';
 import { Group } from '../groups/groups.model';
 import { Patient } from '../patients/patients.model';
 import { Site } from '../sites/sites.model';
@@ -7,6 +7,8 @@ import { Trial } from '../trials/trials.model';
 import { DocumentFile } from '../utils/model';
 
 class Endpoint {
+  // simple fields
+
   @prop({ required: true })
   name: string;
 
@@ -19,20 +21,24 @@ class Endpoint {
   @prop()
   score?: string;
 
+  // single edge fields
+
+  @prop({ ref: () => Site })
+  site?: Ref<Site>;
+
+  @prop({ ref: () => Trial })
+  trial?: Ref<Trial>;
+
+  @prop({ ref: () => Group })
+  group?: Ref<Group>;
+
+  @prop({ ref: () => Patient })
+  patient?: Ref<Patient>;
+
+  // subcollection fields
+
   @prop({ required: true, type: () => [DocumentFile] })
   documents: DocumentFile[]; // will eventually store files
-
-  @prop({ required: true, ref: () => Site })
-  site: Ref<Site>;
-
-  @prop({ required: true, ref: () => Trial })
-  trial: Ref<Trial>;
-
-  @prop({ required: true, ref: () => Group })
-  group: Ref<Group>;
-
-  @prop({ required: true, ref: () => Patient })
-  patient: Ref<Patient>;
 
   public static async build(
     this: Model<Endpoint>,
@@ -41,28 +47,42 @@ class Endpoint {
     return await new this(obj).save();
   }
 
-  public static getSortString(this: unknown): string {
-    return 'ObjectId';
+  public static getSortPriorities(this: unknown): string[] {
+    return 'ObjectId'.split(' ');
   }
 
-  public static getSelectString(this: unknown): string {
-    return 'name date description score';
+  public static getSimpleFields(this: unknown): string[] {
+    return 'name date description score'.split(' ');
   }
 
-  public static getSinglePopulateStrings(
+  public static getSubdocumentFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
+    return {};
+  }
+
+  public static getSingleEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {
-      site: Site.getSelectString(),
-      trial: Trial.getSelectString(),
-      group: Group.getSelectString(),
-      patient: Patient.getSelectString(),
+      site: { model: Site },
+      trial: { model: Trial },
+      group: { model: Group },
+      patient: { model: Patient, target: 'endpoints', targetMulti: true },
     };
   }
 
-  public static getMultiPopulateStrings(
+  public static getSubcollectionFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
+    return {
+      documents: DocumentFile,
+    };
+  }
+
+  public static getMultiEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {};
   }
 }

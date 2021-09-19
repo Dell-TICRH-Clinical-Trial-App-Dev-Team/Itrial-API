@@ -1,9 +1,11 @@
 import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
-import { Model } from '../utils/utils';
+import { Model, ModelClass, CorrespondingEdge} from '../utils/utils';
 import { Trial } from '../trials/trials.model';
 import { Site } from '../sites/sites.model';
 
 class TeamMember {
+  // simple fields
+
   @prop({ required: true })
   name: string;
 
@@ -16,14 +18,18 @@ class TeamMember {
   @prop()
   phoneNumber?: number;
 
+  // single edge fields
+
+  @prop({ ref: () => TeamMember })
+  ccc?: Ref<TeamMember>;
+
+  // multi edge fields
+
   @prop({ required: true, ref: () => Trial })
   trials: Ref<Trial>[];
 
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
-
-  @prop({ ref: () => TeamMember })
-  ccc: Ref<TeamMember>;
 
   public static async build(
     this: Model<TeamMember>,
@@ -32,28 +38,40 @@ class TeamMember {
     return await new this(obj).save();
   }
 
-  public static getSortString(this: unknown): string {
-    return 'ObjectId';
+  public static getSortPriorities(this: unknown): string[] {
+    return 'ObjectId'.split(' ');
   }
 
-  public static getSelectString(this: unknown): string {
-    return 'name address email phoneNumber';
+  public static getSimpleFields(this: unknown): string[] {
+    return 'name address email phoneNumber'.split(' ');
   }
 
-  public static getSinglePopulateStrings(
+  public static getSubdocumentFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
+    return {};
+  }
+
+  public static getSingleEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {
-      ccc: Trial.getSelectString(),
+      ccc: { model: TeamMember },
     };
   }
 
-  public static getMultiPopulateStrings(
+  public static getSubcollectionFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
+    return {};
+  }
+
+  public static getMultiEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {
-      trials: Trial.getSelectString(),
-      sites: Site.getSelectString(),
+      trials: { model: Trial, target: 'teamMembers', targetMulti: true },
+      sites: { model: Site, target: 'teamMembers', targetMulti: true },
     };
   }
 }

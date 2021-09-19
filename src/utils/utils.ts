@@ -17,15 +17,26 @@ import {
 
 // types
 
-interface IModel<T> {
-  build(obj: T): Promise<Doc<T>>;
-  getSortString(): string;
-  getSelectString(): string;
-  getSinglePopulateStrings(): Record<string, string>;
-  getMultiPopulateStrings(): Record<string, string>;
+export interface CorrespondingEdge {
+  model: ModelClass;
+  target?: string;
+  targetMulti?: boolean;
 }
 
-export type Model<T> = ReturnModelType<new (...args: any) => T> & IModel<T>;
+export interface ModelClass {
+  getSortPriorities(): string[];
+  getSimpleFields(): string[];
+  getSubdocumentFieldMap(): Record<string, ModelClass>;
+  getSingleEdgeFieldMap(): Record<string, CorrespondingEdge>;
+  getSubcollectionFieldMap(): Record<string, ModelClass>;
+  getMultiEdgeFieldMap(): Record<string, CorrespondingEdge>;
+}
+
+interface Buildable<T> {
+  build(obj: T): Promise<Doc<T>>;
+}
+
+export type Model<T> = ReturnModelType<new (...args: any) => T> & ModelClass & Buildable<T>;
 export import ObjectId = mongoose.Types.ObjectId;
 
 // express
@@ -42,13 +53,6 @@ export function handler(
 }
 
 // logic
-
-export function traverse(path: string, obj: any): any {
-  for (let field of path.split('.')) {
-    obj = obj[field];
-  }
-  return obj;
-}
 
 export function isArrayOfStrings(arr: any): arr is string[] {
   if (Array.isArray(arr))

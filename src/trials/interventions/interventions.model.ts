@@ -1,21 +1,33 @@
-import { prop } from '@typegoose/typegoose';
-import { CorrespondingEdge, ModelClass } from '../utils/utils';
+import { prop, Ref } from '@typegoose/typegoose';
+import { ModelClass, CorrespondingEdge } from '../../utils/utils';
+import { Group } from '../../groups/groups.model';
 
-class DocumentFile {
+class Intervention {
   // simple fields
 
   @prop({ required: true })
   name: string;
 
   @prop({ required: true })
-  link: string;
+  description: string;
+
+  @prop()
+  amount?: string;
+
+  @prop({ required: true, type: () => [String] })
+  timing: string[];
+
+  // multi edge fields
+
+  @prop({ required: true, ref: () => Group })
+  groups: Ref<Group>[];
 
   public static getSortPriorities(this: unknown): string[] {
     return 'ObjectId'.split(' ');
   }
 
   public static getSimpleFields(this: unknown): string[] {
-    return 'name link'.split(' ');
+    return 'name description amount timing'.split(' ');
   }
 
   public static getSubdocumentFieldMap(
@@ -39,8 +51,10 @@ class DocumentFile {
   public static getMultiEdgeFieldMap(
     this: unknown
   ): Record<string, CorrespondingEdge> {
-    return {};
+    return {
+      groups: { model: Group },
+    };
   }
 }
 
-export { DocumentFile };
+export { Intervention };

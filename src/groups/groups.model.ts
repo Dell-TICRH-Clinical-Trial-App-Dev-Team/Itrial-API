@@ -1,18 +1,24 @@
 import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
-import { Model } from '../utils/utils';
+import { Model, ModelClass, CorrespondingEdge } from '../utils/utils';
 import { Site } from '../sites/sites.model';
 import { Patient } from '../patients/patients.model';
 import { Trial } from '../trials/trials.model';
 
 class Group {
+  // simple fields
+
   @prop({ required: true })
   name: string;
 
   @prop()
   endpointResults?: string;
 
+  // single edge fields
+
   @prop({ ref: () => Trial })
   trial?: Ref<Trial>;
+
+  // multi edge fields
 
   @prop({ required: true, ref: () => Patient })
   patients: Ref<Patient>[];
@@ -27,28 +33,40 @@ class Group {
     return await new this(obj).save();
   }
 
-  public static getSortString(this: unknown): string {
-    return 'ObjectId';
+  public static getSortPriorities(this: unknown): string[] {
+    return 'ObjectId'.split(' ');
   }
 
-  public static getSelectString(this: unknown): string {
-    return 'name endpointResults';
+  public static getSimpleFields(this: unknown): string[] {
+    return 'name endpointResults'.split(' ');
   }
 
-  public static getSinglePopulateStrings(
+  public static getSubdocumentFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
+    return {};
+  }
+
+  public static getSingleEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {
-      trial: Trial.getSelectString(),
+      trial: { model: Trial, target: 'groups', targetMulti: true },
     };
   }
 
-  public static getMultiPopulateStrings(
+  public static getSubcollectionFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
+    return {};
+  }
+
+  public static getMultiEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
     return {
-      sites: Site.getSelectString(),
-      patients: Patient.getSelectString(),
+      sites: { model: Site },
+      patients: { model: Patient, target: 'group' },
     };
   }
 }

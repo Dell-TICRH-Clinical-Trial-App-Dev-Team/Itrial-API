@@ -1,59 +1,20 @@
-import {
-  prop,
-  Ref,
-  DocumentType as Doc,
-  Severity,
-  modelOptions,
-} from '@typegoose/typegoose';
-import { Model } from '../utils/utils';
+import { prop, Ref, DocumentType as Doc } from '@typegoose/typegoose';
+import { Model, ModelClass, CorrespondingEdge } from '../utils/utils';
 import { Site } from '../sites/sites.model';
 import { TeamMember } from '../teamMembers/teamMembers.model';
 import { Group } from '../groups/groups.model';
 import { Patient } from '../patients/patients.model';
+import { Intervention } from './interventions/interventions.model';
+import {
+  TrialProtocol,
+  EndpointInfo,
+} from './trialProtocols/trialProtocols.model';
 
 type TrialStatus = 'started' | 'pending' | 'ended';
 
-@modelOptions({ options: { allowMixed: Severity.ALLOW } })
-class EndpointInfo {
-  @prop({ required: true })
-  type: 'quantitative' | 'qualitative' | 'file';
-
-  @prop()
-  range?: [string | number, string | number];
-
-  @prop()
-  url?: string;
-}
-
-class Intervention {
-  @prop({ required: true })
-  name: string;
-
-  @prop({ required: true })
-  description: string;
-
-  @prop({ required: false })
-  amount?: string;
-
-  @prop({ required: true, type: () => [String] })
-  timing: string[];
-
-  @prop({ required: true, ref: () => Group })
-  groups: Ref<Group>[];
-}
-
-class TrialProtocol {
-  @prop({ required: true })
-  name: string;
-
-  @prop({ required: true, type: () => [Intervention] })
-  interventions: Intervention[];
-
-  @prop()
-  endpointInfo?: EndpointInfo;
-}
-
 class Trial {
+  // simple fields
+
   @prop({ required: true })
   name: string;
 
@@ -72,8 +33,12 @@ class Trial {
   @prop({ required: true })
   status: TrialStatus;
 
+  // subcollection fields
+
   @prop({ required: true, type: () => [TrialProtocol] })
   protocols: TrialProtocol[];
+
+  // multi edge fields
 
   @prop({ required: true, ref: () => Site })
   sites: Ref<Site>[];
@@ -97,29 +62,43 @@ class Trial {
     return await new this(obj).save();
   }
 
-  public static getSortString(this: unknown): string {
-    return 'ObjectId';
+  public static getSortPriorities(this: unknown): string[] {
+    return 'ObjectId'.split(' ');
   }
 
-  public static getSelectString(this: unknown): string {
-    return 'name startDate endDate endpointResults blinded status';
+  public static getSimpleFields(this: unknown): string[] {
+    return 'name startDate endDate endpointResults blinded status'.split(' ');
   }
 
-  public static getSinglePopulateStrings(
+  public static getSubdocumentFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, ModelClass> {
     return {};
   }
 
-  public static getMultiPopulateStrings(
+  public static getSingleEdgeFieldMap(
     this: unknown
-  ): Record<string, string> {
+  ): Record<string, CorrespondingEdge> {
+    return {};
+  }
+
+  public static getSubcollectionFieldMap(
+    this: unknown
+  ): Record<string, ModelClass> {
     return {
-      sites: Site.getSelectString(),
-      cccs: TeamMember.getSelectString(),
-      teamMembers: TeamMember.getSelectString(),
-      groups: Group.getSelectString(),
-      patients: Patient.getSelectString(),
+      protocols: TrialProtocol,
+    };
+  }
+
+  public static getMultiEdgeFieldMap(
+    this: unknown
+  ): Record<string, CorrespondingEdge> {
+    return {
+      sites: { model: Site, target: 'trials', targetMulti: true },
+      cccs: { model: TeamMember },
+      teamMembers: { model: TeamMember, target: 'trials', targetMulti: true },
+      groups: { model: Group, target: 'trial' },
+      patients: { model: Patient, target: 'trial' },
     };
   }
 }
